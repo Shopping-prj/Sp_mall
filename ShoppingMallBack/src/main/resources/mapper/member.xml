@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.dao.MemberMapper">
+
+    <!-- resultMap 아이디를 'MemberMap'으로 변경하여 쿼리 참조와 일치 -->
+    <resultMap id="MemberMap" type="com.example.demo.model.Member">
+        <id     property="m_id"       column="m_id"/>
+        <result property="m_email"    column="m_email"/>
+        <result property="m_password" column="m_password"/>
+        <result property="m_name"     column="m_name"/>
+        <result property="m_social"   column="m_social"/>
+        <result property="m_class"    column="m_class"/>
+        <result property="m_created"  column="m_created"/>
+        <result property="m_address"  column="m_address"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.example.demo.model.Member"
+            useGeneratedKeys="true" keyProperty="m_id">
+        INSERT INTO member
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="m_email != null">m_email,</if>
+            <if test="m_password != null">m_password,</if>
+            <if test="m_name != null">m_name,</if>
+            <if test="m_class != null">m_class,</if>
+            <if test="m_social != null">m_social,</if>
+            <if test="m_address != null">m_address,</if>
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="m_email != null">#{m_email},</if>
+            <if test="m_password != null">#{m_password},</if>
+            <if test="m_name != null">#{m_name},</if>
+            <if test="m_class != null">#{m_class},</if>
+            <if test="m_social != null">#{m_social},</if>
+            <if test="m_address != null">#{m_address},</if>
+        </trim>
+    </insert>
+
+    <!-- 단일 파라미터 바인딩은 #{value}로 수정 -->
+    <select id="getByEmail" resultMap="MemberMap">
+        SELECT * FROM member WHERE m_email = #{value}
+    </select>
+
+    <select id="getById" resultMap="MemberMap">
+        SELECT * FROM member WHERE m_id = #{value}
+    </select>
+
+    <!-- DAO에서 호출하는 findAll 추가 -->
+    <select id="getAll" resultMap="MemberMap">
+        SELECT * FROM member
+        ORDER BY m_id DESC
+    </select>
+
+    <update id="updateAddress">
+        UPDATE member SET m_address = #{address} WHERE m_id = #{id}
+    </update>
+
+    <update id="updatePassword">
+        UPDATE member SET m_password = #{password} WHERE m_id = #{id}
+    </update>
+
+    <!-- 단일 파라미터 바인딩은 #{value}로 수정 -->
+    <delete id="deleteById">
+        DELETE FROM member WHERE m_id = #{value}
+    </delete>
+</mapper>
