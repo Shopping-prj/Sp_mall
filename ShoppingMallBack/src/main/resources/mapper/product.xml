@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.dao.ProductMapper">
+
+    <resultMap id="ProductMap" type="com.example.demo.model.Product">
+        <id property="p_productId" column="p_productId"/>
+        <result property="p_title" column="p_title"/>
+        <result property="p_link" column="p_link"/>
+        <result property="p_image" column="p_image"/>
+        <result property="p_lprice" column="p_lprice"/>
+        <result property="p_hprice" column="p_hprice"/>
+        <result property="p_productType" column="p_productType"/>
+        <result property="p_brand" column="p_brand"/>
+        <result property="p_maker" column="p_maker"/>
+        <result property="p_category1" column="p_category1"/>
+        <result property="p_category2" column="p_category2"/>
+        <result property="p_category3" column="p_category3"/>
+        <result property="p_category4" column="p_category4"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.example.demo.model.Product">
+        INSERT INTO product (
+        p_productId, p_title, p_link, p_image,
+        p_lprice, p_hprice, p_productType,
+        p_brand, p_maker,
+        p_category1, p_category2, p_category3, p_category4
+        ) VALUES (
+        #{p_productId}, #{p_title}, #{p_link}, #{p_image},
+        #{p_lprice}, #{p_hprice}, #{p_productType},
+        #{p_brand}, #{p_maker},
+        #{p_category1}, #{p_category2}, #{p_category3}, #{p_category4}
+        )
+    </insert>
+
+    <select id="getById" parameterType="string" resultMap="ProductMap">
+        SELECT * FROM product WHERE p_productId = #{value}
+    </select>
+
+    <select id="getAll" resultMap="ProductMap">
+        SELECT * FROM product ORDER BY p_productId DESC
+    </select>
+
+    <update id="update">
+        UPDATE product
+        SET p_title = #{p_title},
+        p_link = #{p_link},
+        p_image = #{p_image},
+        p_lprice = #{p_lprice},
+        p_hprice = #{p_hprice},
+        p_productType = #{p_productType},
+        p_brand = #{p_brand},
+        p_maker = #{p_maker},
+        p_category1 = #{p_category1},
+        p_category2 = #{p_category2},
+        p_category3 = #{p_category3},
+        p_category4 = #{p_category4}
+        WHERE p_productId = #{p_productId}
+    </update>
+
+    <delete id="deleteById" parameterType="string">
+        DELETE FROM product WHERE p_productId = #{value}
+    </delete>
+
+</mapper>
