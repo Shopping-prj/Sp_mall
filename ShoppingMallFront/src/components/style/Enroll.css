@@ -1,0 +1,55 @@
+#myinfo {
+  width: 400px;
+  margin: 40px auto;
+  padding: 30px;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  background-color: #fafafa;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 16px;
+}
+
+#myinfo table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+#myinfo td {
+  padding: 10px 5px;
+}
+
+#myinfo input[type="text"],
+#myinfo input[type="password"],
+#myinfo input[type="email"] {
+  width: 100%;
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+#myinfo button {
+  padding: 10px 20px;
+  font-size: 15px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin: 5px;
+}
+
+#myinfo button:hover {
+  background-color: #0056b3;
+}
+
+p[align="center"] button {
+  background-color: #6c757d;
+}
+
+p[align="center"] button:hover {
+  background-color: #5a6268;
+}

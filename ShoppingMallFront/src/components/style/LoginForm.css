@@ -1,0 +1,162 @@
+.box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  margin: 100px auto;
+  padding: 40px;
+  width: 100%;
+  max-width: 650px;
+  background-color: #fefefe;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  font-size: 16px;
+}
+
+.form-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 50%;
+  margin-bottom: 20px;
+}
+
+.form-row label {
+  width: 80px;
+  text-align: right;
+  margin-right: 10px;
+}
+
+.btn-default {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40%;
+  height: 2.5em;
+  font-size: 1.2rem;
+  border-radius: 6px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+  margin: 5px;
+}
+
+.btn-default:hover {
+  background-color: #0056b3;
+}
+
+.btn-join {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none; /* <Link>가 a 태그라면 밑줄 제거 */
+  background-color: #6c757d;
+  border-radius: 12px;
+  width: 40%;
+  height: 2.5em;
+  font-size: 1.2rem;
+  color: white;
+  border: none;
+  cursor: pointer;
+  margin: 5px;
+}
+
+.btn-join:hover {
+  background-color: #5a6268;
+}
+
+.btn-db-join {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  justify-content: center;
+  background-color: #6c757d;
+  border-radius: 12px;
+  width: 90%;
+  height: 2.5em;
+  font-size: 1.2rem;
+  color: white;
+  border: none;
+  cursor: pointer;
+  margin: 5px;
+}
+
+.btn-db-join:hover {
+  background-color: #5a6268;
+}
+
+.btn-google {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 90%;
+  height: 2.5em;
+  font-size: 1.2rem;
+  border-radius: 12px;
+  background-color: white;
+  color: #555;
+  border: 1px solid #ddd;
+  cursor: pointer;
+  margin: 0.5em 0;
+  box-shadow: 0 2px 4px rgb(0 0 0 / 0.1);
+  transition: background-color 0.3s ease;
+}
+
+.btn-google:hover {
+  background-color: #f7f7f7;
+}
+
+.btn-google svg {
+  margin-right: 0.6em;
+  font-size: 1.4rem;
+}
+
+.btn-kakao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 90%;
+  height: 2.5em;
+  font-size: 1.2rem;
+  border-radius: 12px;
+  background-color: #fee500;
+  color: #3c1e1e;
+  border: none;
+  cursor: pointer;
+  margin: 0.5em 0;
+  box-shadow: 0 2px 4px rgb(0 0 0 / 0.15);
+  transition: background-color 0.3s ease;
+}
+
+.btn-kakao:hover {
+  background-color: #f7e600;
+}
+
+.btn-kakao svg {
+  margin-right: 0.6em;
+  width: 1.4rem;
+  height: 1.4rem;
+}
+
+.login-methods-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 2rem;
+  flex-wrap: wrap; /* 모바일에서도 줄바꿈되게 */
+}
+
+.login-method-box {
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+  padding: 1.2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  width: 240px;
+  align-items: center;
+}

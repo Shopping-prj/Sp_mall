@@ -1,0 +1,26 @@
+server:
+  port: 8001
+  servlet:
+    context-path: /
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://project-mall-db.cpocwiywq77l.ap-southeast-2.rds.amazonaws.com:3306/test_mall?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: admin
+    password: abcd1234
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 30000
+      connection-timeout: 30000
+      max-lifetime: 1800000
+
+mybatis:
+  mapper-locations: classpath*:mapper/**/*.xml
+  type-aliases-package: com.example.demo.model
+  configuration:
+    map-underscore-to-camel-case: true

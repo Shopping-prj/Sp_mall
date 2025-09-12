@@ -1,0 +1,113 @@
+/* 전체 레이아웃 */
+.board-container {
+  width: 90%;
+  max-width: 1000px;
+  margin: 2rem auto;
+  font-family: 'Noto Sans KR', sans-serif;
+  color: #333;
+}
+
+/* 상단 검색 필터 박스 */
+.search-box {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.search-box input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 150px;
+}
+
+.search-box input:first-child {
+  border: 2px solid #848CB5; /* 핑크 테두리 */
+}
+
+/* 버튼 스타일 */
+.board-buttons {
+  display: flex;
+  justify-content: flex-end; /* 👉 오른쪽 정렬 */
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.board-buttons button {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 4px;
+  background-color: #848CB5;
+  color: white;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.board-buttons button:hover {
+  background-color: #848CB5;
+}
+
+/* 테이블 */
+.board-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+}
+
+.board-table th,
+.board-table td {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  text-align: center;
+}
+
+.board-table th {
+  background-color: #f9f9f9;
+}
+
+/* 푸터 버튼 영역 */
+.footer-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.footer-buttons > div {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.footer-buttons button {
+  background-color: #848CB5;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* 페이징 */
+.pagination {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.pagination span,
+.pagination a {
+  margin: 0 5px;
+  padding: 6px 10px;
+  border: 1px solid #ddd;
+  color: #333;
+  text-decoration: none;
+  border-radius: 4px;
+}
+
+.pagination .current {
+  background-color: #848CB5;
+  color: white;
+  border-color: #848CB5;
+}
