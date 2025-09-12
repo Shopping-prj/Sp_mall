@@ -31,9 +31,9 @@ public class MemberService {
     public Long register(Member m) {
 
         if (m.getM_email() == null || m.getM_email().isBlank())
-            throw new IllegalArgumentException("email은 필수입니다.");
+            throw new IllegalArgumentException("email을 입력하세요");
         if (m.getM_address() == null || m.getM_address().isBlank())
-            throw new IllegalArgumentException("address는 필수입니다.");
+            throw new IllegalArgumentException("주소를 입력하세요");
 
         if (memberDao.getByEmail(m.getM_email()) != null)
             throw new DuplicateKeyException("이미 가입된 이메일입니다.");
@@ -65,7 +65,7 @@ public class MemberService {
         }
 
         memberDao.insert(m);
-        return m.getM_id();
+        return m.getM_no();
     }
 
     @Transactional(readOnly = true)

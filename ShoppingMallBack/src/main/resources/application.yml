@@ -23,3 +23,9 @@ server:
 logging:
   level:
     org.springframework.http.converter.json: DEBUG
+naver:
+  api:
+    client-id: YzotomfXq0ji6AFhSloY
+    client-secret: qteSvrfjSh
+    url: https://openapi.naver.com/v1/search/shop.json
+

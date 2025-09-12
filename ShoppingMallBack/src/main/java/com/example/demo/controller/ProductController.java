@@ -15,6 +15,10 @@ public class ProductController {
 
     private final ProductService service;
 
+    @GetMapping
+    public ResponseEntity<List<Product>> getAll() {
+        return ResponseEntity.ok(service.getAll());
+    }
     @PostMapping
     public ResponseEntity<String> register(@RequestBody Product req) {
         return ResponseEntity.ok(service.register(req));
@@ -25,10 +29,6 @@ public class ProductController {
         return ResponseEntity.ok(service.getById(id));
     }
 
-    @GetMapping
-    public ResponseEntity<List<Product>> getAll() {
-        return ResponseEntity.ok(service.getAll());
-    }
 
     @PutMapping("/{id}")
     public ResponseEntity<Void> update(@PathVariable String id, @RequestBody Product req) {

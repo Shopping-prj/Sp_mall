@@ -19,6 +19,8 @@ public class MemberDao {
         return sqlSession.insert(NS + "insert", member);
     }
 
+
+
     public Member getById(Long id) {
         return sqlSession.selectOne(NS + "getById", id);
     }

@@ -5,7 +5,7 @@
 
     <!-- resultMap 아이디를 'MemberMap'으로 변경하여 쿼리 참조와 일치 -->
     <resultMap id="MemberMap" type="com.example.demo.model.Member">
-        <id     property="m_id"       column="m_no"/>
+        <id     property="m_no"       column="m_no"/>
         <result property="m_email"    column="m_email"/>
         <result property="m_password" column="m_password"/>
         <result property="m_name"     column="m_name"/>
@@ -16,7 +16,7 @@
     </resultMap>
 
     <insert id="insert" parameterType="com.example.demo.model.Member"
-            useGeneratedKeys="true" keyProperty="m_id" keyColumn="m_no">
+            useGeneratedKeys="true" keyProperty="m_no" keyColumn="m_no">
         INSERT INTO member
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="m_email != null">m_email,</if>
@@ -42,25 +42,25 @@
     </select>
 
     <select id="getById" resultMap="MemberMap">
-        SELECT * FROM member WHERE m_id = #{value}
+        SELECT * FROM member WHERE m_no = #{value}
     </select>
 
     <!-- DAO에서 호출하는 findAll 추가 -->
     <select id="getAll" resultMap="MemberMap">
         SELECT * FROM member
-        ORDER BY m_id DESC
+        ORDER BY m_no ASC
     </select>
 
     <update id="updateAddress">
-        UPDATE member SET m_address = #{address} WHERE m_id = #{id}
+        UPDATE member SET m_address = #{address} WHERE m_no = #{id}
     </update>
 
     <update id="updatePassword">
-        UPDATE member SET m_password = #{password} WHERE m_id = #{id}
+        UPDATE member SET m_password = #{password} WHERE m_no = #{id}
     </update>
 
     <!-- 단일 파라미터 바인딩은 #{value}로 수정 -->
     <delete id="deleteById">
-        DELETE FROM member WHERE m_id = #{value}
+        DELETE FROM member WHERE m_no = #{value}
     </delete>
 </mapper>

@@ -1,0 +1,50 @@
+a {
+    text-decoration: none;
+  }
+  .breadcrumb {
+    padding: 8px 15px;
+    margin-top: 8px;
+    margin-bottom: 20px;
+    list-style: none;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+  }
+  
+  .page-header {
+    padding: 20px 0px;
+  }
+  
+  .book-detail {
+    display: flex;
+  }
+  .book-header {
+    display: flex;
+    flex-direction: column;
+    margin: 0px 20px;
+  }
+  .book-list {
+    margin: 20px 0px;
+  }
+  
+  .thumbNail {
+    display: inline-block;
+    width: 150px;
+    height: 200px;
+    border: 1px solid black;
+    object-fit: contain;
+    background-size: cover;
+  }
+  
+  .booklist-footer {
+    display: flex;
+    flex-direction: row-reverse;
+  }
+  
+  .detail-link {
+    display: flex;
+    margin: 6px;
+  }
+  
+  .book-footer {
+    margin-top: 30px;
+  }

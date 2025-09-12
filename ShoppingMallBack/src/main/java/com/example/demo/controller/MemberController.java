@@ -20,30 +20,29 @@ public class MemberController {
         return ResponseEntity.ok(service.register(req));
     }
 
+
+
     @GetMapping("/{id}")
     public ResponseEntity<Member> getById(@PathVariable Long id) {
         return ResponseEntity.ok(service.getById(id));
     }
 
-    @GetMapping("/email/{email:.+}")
-    public ResponseEntity<Member> getByEmail(@PathVariable String email) {
-        return ResponseEntity.ok(service.getByEmail(email));
+    @GetMapping
+    public ResponseEntity<Member> getByEmail(@RequestParam(required = false) String email) {
+        if (email != null) {
+            return ResponseEntity.ok(service.getByEmail(email));
+        }
+        return ResponseEntity.badRequest().build();
     }
 
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<List<Member>> getAllMember() {
         return ResponseEntity.ok(service.getAll());
     }
 
     @PatchMapping("/{id}/address")
-    public ResponseEntity<Void> updateAddress(@PathVariable Long id, @RequestBody String address) {
+    public ResponseEntity<Void> updateAddress(@PathVariable Long id, @RequestBody String address)    {
         service.updateAddress(id, address);
-        return ResponseEntity.noContent().build();
-    }
-
-    @PatchMapping("/{id}/password")
-    public ResponseEntity<Void> updatePassword(@PathVariable Long id, @RequestBody String rawPw) {
-        service.updatePassword(id, rawPw);
         return ResponseEntity.noContent().build();
     }
 
