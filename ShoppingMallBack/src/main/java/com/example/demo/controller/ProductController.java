@@ -19,16 +19,28 @@ public class ProductController {
     public ResponseEntity<List<Product>> getAll() {
         return ResponseEntity.ok(service.getAll());
     }
-    @PostMapping
-    public ResponseEntity<String> register(@RequestBody Product req) {
-        return ResponseEntity.ok(service.register(req));
-    }
 
     @GetMapping("/{id}")
     public ResponseEntity<Product> getById(@PathVariable String id) {
         return ResponseEntity.ok(service.getById(id));
     }
 
+    @GetMapping("/categories/{categories}")
+    public ResponseEntity<List<Product>> getByCategories(@PathVariable String category){
+        return ResponseEntity.ok(service.getByCategories(category));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<Product>> search(@RequestParam String keyword){
+        return ResponseEntity.ok(service.search(keyword));
+    }
+
+
+    ////////////////////////////////////////////////// 관리자 관련 코드 //////////////////////////////////////////////////
+    @PostMapping
+    public ResponseEntity<String> register(@RequestBody Product req) {
+        return ResponseEntity.ok(service.register(req));
+    }
 
     @PutMapping("/{id}")
     public ResponseEntity<Void> update(@PathVariable String id, @RequestBody Product req) {

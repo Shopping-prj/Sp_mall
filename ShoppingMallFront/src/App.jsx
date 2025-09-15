@@ -1,20 +1,27 @@
-import { Route, Routes } from "react-router-dom";
-import HomePage from "./components/pages/HomePage";
-import MemoPage from "./components/pages/MemoPage";
-import MemoDetail from "./components/memo/MemoDetail";
-import CalendarMain from "./components/pages/CalendarMain";
-import NaverSearchPage from "./components/pages/NaverSearchPage";
+// src/App.jsx
+import { Routes, Route, Navigate } from "react-router-dom";
+import ShopLayout from "./layouts/ShopLayout";
+
+// 페이지들
+import HomePage from "./pages/HomePage";
+import Categories from "pages/Categories";
+import SearchPage from "pages/Searchpage";
+
+
 const App = () => {
   return (
-    <>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/cal" element={<CalendarMain />} />
-        <Route path="/naverSearch" element={<NaverSearchPage />} />
-        <Route path="/memo" element={<MemoPage />} />
-        <Route path="/memo/detail/:m_no" element={<MemoDetail />} />
-      </Routes>
-    </>
+    <Routes>
+      {/* 공통 레이아웃 */}
+      <Route path="/shop" element={<ShopLayout />}>
+          <Route index element={<HomePage />} /> 
+          <Route path="category/:categoryName" element={<Categories />} />
+          <Route path="shop/search" element={<SearchPage />} />
+      </Route>
+
+      {/* 루트 접근 시 /shop으로 이동 */}
+      <Route path="/" element={<Navigate to="/shop" replace />} />
+    </Routes>
   );
 }
+
 export default App
