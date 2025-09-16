@@ -38,6 +38,6 @@ public class ProductDao {
     }
 
     public List<Product> search(String keyword) {
-        return sqlSession.selectList(NS + "ProductMapper.search", keyword);
+        return sqlSession.selectList(NS + "search", keyword);
     }
 }

@@ -33,7 +33,7 @@ const Sidebar = ({ color, image, routes }) => {
             return (
               <li className={liClass} key={key}>
                 <NavLink
-                  to={`/shop/${prop.path}`}
+                  to={`/shop/category?name=${encodeURIComponent(prop.path)}`}
                   end
                   className={({ isActive }) =>
                     "nav-link" + (isActive ? " active" : "")

@@ -33,12 +33,13 @@
         )
     </insert>
 
-    <select id="getByCategory" parameterType="string" resultType="com.example.demo.model.Product">
+
+    <select id="getByCategory" parameterType="java.lang.String" resultMap="ProductMap">
         SELECT * FROM product WHERE p_category1 = #{category}
     </select>
 
-    <select id="search" parameterType="string" resultType="com.example.demo.model.Product">
-        SELECT * FROM product WHERE p_name LIKE CONCAT('%', #{keyword}, '%')
+    <select id="search" parameterType="string" resultMap="ProductMap">
+        SELECT * FROM product WHERE p_title LIKE CONCAT('%', #{value}, '%')
     </select>
 
     <select id="getById" parameterType="string" resultMap="ProductMap">

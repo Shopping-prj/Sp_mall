@@ -2,7 +2,7 @@
 import { Navbar, Container, Nav, Dropdown, Button } from "react-bootstrap";
 import { Link, useLocation } from "react-router-dom";
 
-const Header = ({ title = "CosmoShop" }) => {
+const Header = ({ title = "CosmoShop", cartCount = 0, onCartClick }) => {
   const location = useLocation();
 
   const mobileSidebarToggle = (e) => {
@@ -46,37 +46,35 @@ const Header = ({ title = "CosmoShop" }) => {
                 <span className="d-lg-none ml-1">Dashboard</span>
               </Nav.Link>
             </Nav.Item>
-
-            <Dropdown as={Nav.Item}>
-              <Dropdown.Toggle as={Nav.Link} variant="default">
-                <i className="nc-icon nc-planet"></i>
-                <span className="notification">5</span>
-                <span className="d-lg-none ml-1">Notification</span>
-              </Dropdown.Toggle>
-              <Dropdown.Menu>
-                <Dropdown.Item>Notification 1</Dropdown.Item>
-                <Dropdown.Item>Notification 2</Dropdown.Item>
-                <Dropdown.Item>Notification 3</Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
           </Nav>
 
           <Nav className="ml-auto" navbar>
+            {/* 장바구니 버튼 */}
             <Nav.Item>
-              <Nav.Link as={Link} to="/account">Account</Nav.Link>
-            </Nav.Item>
-            <Dropdown as={Nav.Item}>
-              <Dropdown.Toggle as={Nav.Link}>Dropdown</Dropdown.Toggle>
-              <Dropdown.Menu>
-                <Dropdown.Item>Action</Dropdown.Item>
-                <Dropdown.Item>Another action</Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
-            <Nav.Item>
-              <Nav.Link onClick={() => console.log("Log out clicked")}>
-                Log out
+              <Nav.Link onClick={onCartClick}>
+                <i className="nc-icon nc-cart-simple"></i>
+                <span className="notification">{cartCount}</span>
+                <span className="d-lg-none ml-1">Cart</span>
               </Nav.Link>
             </Nav.Item>
+            <Nav.Item>
+              <Nav.Link as={Link} to="/shop/login">
+                Login
+              </Nav.Link>
+            </Nav.Item>
+            {/* 로그인시 보여져야할 버튼 */}
+              <Dropdown as={Nav.Item} >
+                <Dropdown.Toggle as={Nav.Link}>Account</Dropdown.Toggle>
+                <Dropdown.Menu className="account-menu">
+                  <Dropdown.Item as={Link} to="mypage">마이 페이지</Dropdown.Item>
+                  <Dropdown.Item as={Link} to="mypage/member">회원정보수정</Dropdown.Item>
+                  <Dropdown.Item as={Link} to="mypage/orders">주문 내역</Dropdown.Item>
+                  <Dropdown.Divider />
+                  <Dropdown.Item onClick={() => console.log("로그아웃 실행")}>
+                    로그아웃
+                  </Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
           </Nav>
         </Navbar.Collapse>
       </Container>

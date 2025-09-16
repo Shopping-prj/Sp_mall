@@ -804,22 +804,9 @@
   margin-top: -7px;
   border-width: 7px 7px 7px 0;
 }
-.typography-line span {
-  bottom: 10px;
-  color: #9a9a9a;
-  display: block;
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 13px;
-  left: 5px;
-  position: absolute;
-  width: 260px;
-  text-transform: none;
-}
-.typography-line {
-  padding-left: 15%;
-  margin-bottom: 35px;
-  position: relative;
-  display: block;
-  width: 100%;
+
+.account-menu {
+  right: 0 !important;     /* 오른쪽 정렬 */
+  left: auto !important;   /* 왼쪽 자동 해제 */
+  transform: none !important; /* Popper 기본 transform 제거 */
 }

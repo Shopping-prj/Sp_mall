@@ -25,8 +25,8 @@ public class ProductController {
         return ResponseEntity.ok(service.getById(id));
     }
 
-    @GetMapping("/categories/{categories}")
-    public ResponseEntity<List<Product>> getByCategories(@PathVariable String category){
+    @GetMapping("/categories")
+    public ResponseEntity<List<Product>> getByCategories(@RequestParam String category){
         return ResponseEntity.ok(service.getByCategories(category));
     }
 

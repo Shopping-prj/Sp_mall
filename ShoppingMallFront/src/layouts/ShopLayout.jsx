@@ -8,7 +8,7 @@ import sidebarImage from "assets/img/sidebar-3.jpg";
 import { categories } from "contants/categories";
 
 const sidebarNav = categories.map((c) =>({
-  path: `category/${c.key}`,
+  path: c.key,
   name: c.name
 }))
 
