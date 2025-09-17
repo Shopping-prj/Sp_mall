@@ -1,10 +1,14 @@
 // src/components/Sidebar/Sidebar.jsx
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { Nav } from "react-bootstrap";
 import logo from "assets/img/reactlogo.png";
+import { categories } from "common/categoriesData";
 
 const Sidebar = ({ color, image, routes }) => {
+  const location = useLocation();
+  const query = new URLSearchParams(location.search);
+  const currentCategory = query.get("name");
   return (
     <div className="sidebar" data-image={image} data-color={color}>
       <div
@@ -26,25 +30,25 @@ const Sidebar = ({ color, image, routes }) => {
 
         {/* 네비게이션 */}
         <Nav as="ul">
-          {routes.map((prop, key) => {
-            if (prop.redirect) return null;
-            const liClass = prop.upgrade ? "active-pro" : "";
-
-            return (
-              <li className={liClass} key={key}>
-                <NavLink
-                  to={`/shop/category?name=${encodeURIComponent(prop.path)}`}
-                  end
-                  className={({ isActive }) =>
-                    "nav-link" + (isActive ? " active" : "")
-                  }
-                >
-                  {prop.icon && <i className={prop.icon} />}
-                  <p>{prop.name}</p>
-                </NavLink>
-              </li>
-            );
-          })}
+          {categories.map((c) => (
+            <li key={c.key}>
+              <NavLink
+                to={`/shop/category?name=${encodeURIComponent(c.key)}`}
+                className="nav-link"
+                style={
+                  currentCategory === c.key
+                    ? {
+                        fontWeight: "bold",
+                        backgroundColor: "rgba(255,255,255,0.13)",
+                        borderRadius: "6px",
+                      }
+                    : {}
+                }
+              >
+                <p>{c.name}</p>
+              </NavLink>
+            </li>
+          ))}
         </Nav>
       </div>
     </div>

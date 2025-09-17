@@ -1,8 +1,10 @@
-// src/pages/HomePage.jsx
 import React, { useEffect, useState } from "react";
-import { Row, Col, Card, Button, Form } from "react-bootstrap";
+import { Row, Col, Card, Button, Form, InputGroup } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import {categories} from "contants/categories"
+import { categories } from "common/categoriesData";
+import { getProductsByCategory } from "service/productsDB";
+import ProductCard from "common/ProductCard";
+import SearchBar from "common/SearchBar";
 
 const HomePage = () => {
   const [productsByCategory, setProductsByCategory] = useState({});
@@ -10,23 +12,26 @@ const HomePage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // 더미 데이터 생성 → DB 연결 시 API로 교체
-    const mockData = {};
-    categories.forEach((c) => {
-      mockData[c.key] = Array.from({ length: 20 }, (_, i) => ({
-        id: `${c.key}-${i + 1}`,
-        name: `${c.name} 상품 ${i + 1}`,
-        price: (i + 1) * 1000,
-        img: "https://via.placeholder.com/200",
-      }));
-    });
-    setProductsByCategory(mockData);
+    const fetchData = async () => {
+      try {
+        const results = await Promise.all(
+          categories.map((c) =>
+            getProductsByCategory(c.key).then((res) => [c.key, res.slice(0, 5)])
+          )
+        );
+        const data = Object.fromEntries(results);
+        setProductsByCategory(data);
+      } catch (error) {
+        console.error("상품 불러오기 실패", error);
+      }
+    };
+    fetchData();
   }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (searchTerm.trim() !== "") {
-      navigate(`/search?keyword=${encodeURIComponent(searchTerm)}`);
+      navigate(`search?keyword=${encodeURIComponent(searchTerm)}`);
     }
   };
 
@@ -35,14 +40,14 @@ const HomePage = () => {
       {/* 배너 */}
       <div
         style={{
-          backgroundImage: "url(https://via.placeholder.com/1200x250)",
+          /* backgroundImage: "url(https://via.placeholder.com/1200x250)", */
           backgroundSize: "cover",
           borderRadius: "10px",
           height: "250px",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          color: "black",
+          color: "#979eaaff ",
           fontSize: "2rem",
           fontWeight: "bold",
           marginBottom: "20px",
@@ -52,36 +57,36 @@ const HomePage = () => {
       </div>
 
       {/* 검색창 */}
-      <Form className="mb-4" onSubmit={handleSubmit}>
-        <Form.Control
-          type="text"
-          placeholder="상품명을 입력하세요"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </Form>
+      <SearchBar/>
 
-      {/* 카테고리별 최신 5개 상품 */}
+      {/* 카테고리별 최신 4개 상품 */}
       {categories.map((c) => {
         const items = productsByCategory[c.key] || [];
-        const visibleItems = items.slice(0, 5); // 최신 5개만
-
+        const visibleItems = items.slice(0, 4); // 항상 4개만
         if (visibleItems.length === 0) return null;
-
         return (
-          <div key={c.key} style={{ marginBottom: "40px" }}>
-            <h3 style={{ marginBottom: "20px" }}>{c.name}</h3>
-            <Row>
+          <div key={c.key} style={{
+            marginBottom: "40px",
+            paddingTop: "20px",
+            borderBottom: "1px solid #90acc7ff",
+            }}
+            >
+            <h3 
+            style={{ 
+              fontSize: "1.4rem",
+              fontWeight: "600",
+              borderLeft: "4px solid #0d6dfdad",
+              paddingLeft: "10px",
+              marginBottom: "20px",
+              color: "rgba(20, 37, 87, 0.58)"
+            }}
+            >
+              {c.name}
+            </h3>
+            <Row className="justify-content-center">
               {visibleItems.map((p) => (
-                <Col key={p.id} md={2} className="mb-4">
-                  <Card>
-                    <Card.Img variant="top" src={p.img} />
-                    <Card.Body>
-                      <Card.Title>{p.name}</Card.Title>
-                      <Card.Text>{p.price.toLocaleString()}원</Card.Text>
-                      <Button variant="primary">장바구니 담기</Button>
-                    </Card.Body>
-                  </Card>
+                <Col key={p.p_productId} md={3} className="mb-4 d-flex justify-content-center">
+                  <ProductCard product={p} />
                 </Col>
               ))}
             </Row>

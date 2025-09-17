@@ -5,7 +5,7 @@ import ShopNavbar from "components/include/ShopNavbar";
 import Footer from "components/include/Footer";
 import Sidebar from "components/Sidebar/Sidebar";
 import sidebarImage from "assets/img/sidebar-3.jpg";
-import { categories } from "contants/categories";
+import { categories } from "common/categoriesData";
 
 const sidebarNav = categories.map((c) =>({
   path: c.key,
