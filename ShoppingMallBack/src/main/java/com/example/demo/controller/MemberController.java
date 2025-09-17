@@ -15,7 +15,7 @@ public class MemberController {
 
     private final MemberService service;
 
-    @PostMapping
+    @PostMapping("/join")
     public ResponseEntity<Long> register(@RequestBody Member req) {
         return ResponseEntity.ok(service.register(req));
     }
@@ -25,6 +25,12 @@ public class MemberController {
         return ResponseEntity.ok(service.getById(id));
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<Member> login(@RequestBody Member req) {
+        int
+        Member m = service.login(req.getM_email(), req.getM_password());
+        return ResponseEntity.ok(m);
+    }
     @GetMapping("/email/{email:.+}")
     public ResponseEntity<Member> getByEmail(@PathVariable String email) {
         return ResponseEntity.ok(service.getByEmail(email));

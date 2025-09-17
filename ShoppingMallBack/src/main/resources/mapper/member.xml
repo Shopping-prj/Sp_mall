@@ -37,16 +37,16 @@
     </insert>
 
     <!-- 단일 파라미터 바인딩은 #{value}로 수정 -->
-    <select id="getByEmail" resultMap="MemberMap">
-        SELECT * FROM member WHERE m_email = #{value}
+    <select id="findByEmail" resultMap="MemberMap">
+        SELECT * FROM member WHERE m_email = #{email}
     </select>
 
-    <select id="getById" resultMap="MemberMap">
+    <select id="findById" resultMap="MemberMap">
         SELECT * FROM member WHERE m_id = #{value}
     </select>
 
     <!-- DAO에서 호출하는 findAll 추가 -->
-    <select id="getAll" resultMap="MemberMap">
+    <select id="findAll" resultMap="MemberMap">
         SELECT * FROM member
         ORDER BY m_id DESC
     </select>

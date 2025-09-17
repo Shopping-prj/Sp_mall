@@ -1,0 +1,53 @@
+
+/* 배경색관련 헤더 */
+.gradient-header {
+  background: linear-gradient(90deg, #00C73C, #20BC6C, #9491DA);
+  background-size: 100%; /* 그라디언트를 넓게 채움 */
+  color: white; /* 글자색 흰색 */
+}
+/* ---------------- */
+/* 배경색 관련 */
+body {
+  background-color: #dbd5ca; /* 밝은 오렌지 계열 */
+  min-height: 100vh;          /* 화면 전체 높이 */
+  padding: 20px;
+}
+
+/* 글자색 옵션 */
+.gradient-header .nav-link {
+  color: white; /* 메뉴 글자색 */
+}
+
+.gradient-header .nav-link.active {
+  font-weight: bold;
+}
+
+.navbar .nav-link {
+  font-weight: bold; /* 또는 700 */
+}
+/* 버튼관련 옵션 */
+.btn-gradient-green {
+  background: linear-gradient(45deg, #28a745, #20c997);
+  color: white;
+  border: none;
+  transition: 0.3s;
+}
+
+.btn-gradient-green:hover {
+  opacity: 0.9;
+}
+/* 버튼 관련 옵션 */
+/* 창테두리 관련옵션 */
+
+.form-control {
+  border: 2px solid #28a745; /* 초록색 테두리 */
+  border-radius: 5px;        /* 모서리 둥글게 */
+  box-shadow: none;           /* 기본 그림자 제거 */
+  transition: border-color 0.3s;
+}
+
+.form-control:focus {
+  border-color: #20c997;      /* 포커스 시 그라디언트 계열 초록색 */
+  box-shadow: 0 0 5px rgba(32, 201, 151, 0.5); /* 은은한 그림자 */
+  outline: none;              /* 기본 파란색 아웃라인 제거 */
+}

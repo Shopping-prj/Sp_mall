@@ -52,6 +52,9 @@ public class MemberService {
             if (!Set.of("USER","ADMIN").contains(r))
                 throw new IllegalArgumentException("허용되지 않은 role 값입니다.");
             m.setM_class(r);
+        } else {
+            // null이면 기본값 USER로 설정
+            m.setM_class("USER");
         }
 
         // 비밀번호 정책: LOCAL만 허용/필수, 소셜은 금지
@@ -93,5 +96,20 @@ public class MemberService {
 
     public void delete(Long id) {
         memberDao.deleteById(id);
+    }
+    public Member login(String email, String rawPassword) {
+        Member m = memberDao.getByEmail(email);
+        if (m == null) throw new IllegalArgumentException("가입되지 않은 이메일입니다.");
+
+        if (m.getM_password() != null) { // LOCAL 계정
+            if (!passwordEncoder.matches(rawPassword, m.getM_password())) {
+                throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+            }
+        } else {
+            // 소셜 계정 → 비밀번호 검증 스킵
+            // 필요하면 OAuth 인증 로직 추가
+        }
+
+        return m;
     }
 }
