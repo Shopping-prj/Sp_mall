@@ -1,11 +1,14 @@
 // src/components/Header.jsx
+import { useCart } from "context/CartContext";
 import { useState } from "react";
 import { Navbar, Container, Nav, Dropdown, Button } from "react-bootstrap";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const Header = ({ title = "CosmoShop", cartCount = 0, onCartClick }) => {
+  const { cartItems } = useCart();
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const location = useLocation();
+  const navigate = useNavigate();
 
   const mobileSidebarToggle = (e) => {
     e.preventDefault();
@@ -53,9 +56,9 @@ const Header = ({ title = "CosmoShop", cartCount = 0, onCartClick }) => {
           <Nav className="ml-auto" navbar>
             {/* 장바구니 버튼 */}
             <Nav.Item>
-              <Nav.Link onClick={onCartClick}>
+              <Nav.Link onClick={() => navigate("/cart")}>
                 <i className="nc-icon nc-cart-simple"></i>
-                <span className="notification">{cartCount}</span>
+                <span className="notification">{cartItems.length}</span>
                 <span className="d-lg-none ml-1">Cart</span>
               </Nav.Link>
             </Nav.Item>

@@ -1,6 +1,8 @@
+import { useCart } from "context/CartContext";
 import { Card, Button } from "react-bootstrap";
 
 const ProductCard = ({ product, onBuy, onAddToCart }) => {
+  const { addItem } = useCart();
   return (
     <Card
       style={{
@@ -91,7 +93,7 @@ const ProductCard = ({ product, onBuy, onAddToCart }) => {
               color: "skyblue",
               borderColor: "skyblue"
             }}
-            onClick={() => onAddToCart(product)} // 부모에서 받은 함수 호출
+            onClick={() => addItem(product)} // 부모에서 받은 함수 호출
             >
               <i className="fas fa-shopping-cart" style={{ fontSize: "18px" }} />
           </Button>

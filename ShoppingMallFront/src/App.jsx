@@ -12,7 +12,7 @@ import LoginPage from "auth/LoginPage";
 import JoinPage from "auth/JoinPage";
 import Member from "auth/account/Member";
 import { useState } from "react";
-
+import CartPage from "pages/CartPage";
 
 const App = () => {
   return (
@@ -27,6 +27,8 @@ const App = () => {
           <Route path="mypage/member" element={<Member />} />
           <Route path="mypage/orders" element={<OrderList />} />
       </Route>
+          <Route path="cart" element={<CartPage />} />
+      
           <Route path="login" element={<LoginPage />} />
           <Route path="join" element={<JoinPage />} />
 
