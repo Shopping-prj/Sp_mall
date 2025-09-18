@@ -19,7 +19,6 @@
         <result property="pay_buyer_tel"      column="pay_buyer_tel"/>
         <result property="pay_buyer_postcode" column="pay_buyer_postcode"/>
         <result property="pay_receipt_url"    column="pay_receipt_url"/>
-        <result property="pay_address"        column="pay_address"/>
     </resultMap>
 
     <!-- INSERT: DATETIME에 jdbcType 표기 (nullable 대비) -->
@@ -36,7 +35,7 @@
         #{pay_status}, #{pay_currency}, #{pay_amount}, #{pay_paid_amount},
         #{pay_paid_at, jdbcType=TIMESTAMP},
         #{pay_buyer_email}, #{pay_buyer_name}, #{pay_buyer_tel},
-        #{pay_buyer_postcode}, #{pay_receipt_url}, #{pay_address}
+        #{pay_buyer_postcode}, #{pay_receipt_url}
         )
     </insert>
 

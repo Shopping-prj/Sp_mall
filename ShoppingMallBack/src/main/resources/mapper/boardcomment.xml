@@ -3,7 +3,8 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.demo.dao.BoardCommentMapper">
 
-    <resultMap id="BoardCommentMap" type="com.example.demo.model.BoardComment">
+    <resultMap id="BoardCommentMap" type="com.example.demo.model.BoardComment"
+    >
         <id     property="bc_no"      column="bc_no"/>
         <result property="b_no"       column="b_no"/>
         <result property="bc_email"   column="bc_email"/>
@@ -11,9 +12,10 @@
         <result property="bc_date"    column="bc_date"/>
     </resultMap>
 
-    <insert id="insert" parameterType="com.example.demo.model.BoardComment">
-        INSERT INTO boardComment (bc_no, b_no, bc_email, bc_comment, bc_date)
-        VALUES (#{bc_no}, #{b_no}, #{bc_email}, #{bc_comment}, #{bc_date})
+    <insert id="insert" parameterType="com.example.demo.model.BoardComment"
+            useGeneratedKeys="true" keyProperty="bc_no" keyColumn="bc_no">
+        INSERT INTO boardComment (b_no, bc_email, bc_comment, bc_date)
+        VALUES (#{b_no}, #{bc_email}, #{bc_comment}, #{bc_date})
     </insert>
 
     <select id="getByNo" parameterType="string" resultMap="BoardCommentMap">
@@ -21,8 +23,27 @@
     </select>
 
     <select id="getByBoardNo" parameterType="string" resultMap="BoardCommentMap">
-        SELECT * FROM boardComment WHERE b_no = #{value} ORDER BY bc_date ASC
+        SELECT * FROM boardComment WHERE b_no = #{value} ORDER BY bc_date DESC
     </select>
+
+    <update id="update">
+        UPDATE board
+        <set>
+            <if test="bc_email != null">
+                bc_email = #{bc_email},
+            </if>
+            <if test="b_no != null">
+                b_no = #{b_no},
+            </if>
+            <if test="bc_comment != null">
+                bc_comment = #{bc_comment},
+            </if>
+            <if test="bc_date != null">
+                bc_date = #{bc_date},
+            </if>
+        </set>
+        WHERE bc_no = #{b_no}
+    </update>
 
     <delete id="deleteByNo" parameterType="string">
         DELETE FROM boardComment WHERE bc_no = #{value}

@@ -10,43 +10,66 @@
         <result property="ph_count"    column="ph_count"/>
         <result property="ph_date"     column="ph_date"/>
         <result property="ph_delivery" column="ph_delivery"/>
-        <result property="ph_payment"  column="ph_payment"/>
+        <result property="ph_Refund_or_exchange"  column="ph_Refund_or_exchange"/>
+        <result property="ph_address"  column="ph_address"/>
     </resultMap>
 
     <insert id="insert" parameterType="com.example.demo.model.PurchaseHistory" useGeneratedKeys="true" keyProperty="ph_no">
-        INSERT INTO purchaseHistory (
-        ph_imp_uid, ph_email, ph_count, ph_date, ph_delivery, ph_payment
-        ) VALUES (
-        #{ph_imp_uid}, #{ph_email}, #{ph_count}, #{ph_date}, #{ph_delivery}, #{ph_payment}
-        )
+        INSERT INTO purchaseHistory (ph_imp_uid, ph_email, ph_count, ph_date, ph_delivery, ph_payment)
+        VALUES (#{ph_imp_uid}, #{ph_email}, #{ph_count}, #{ph_date}, #{ph_delivery}, #{ph_payment})
     </insert>
 
     <select id="getByNo" parameterType="long" resultMap="PurchaseHistoryMap">
-        SELECT * FROM purchaseHistory WHERE ph_no = #{value}
+        SELECT * FROM purchaseHistory
+        WHERE ph_no = #{value}
+        ORDER BY ph_date DESC
     </select>
 
     <select id="getAllPurchaseHistory" resultMap="PurchaseHistoryMap">
-        SELECT * FROM purchaseHistory ORDER BY ph_date DESC
+        SELECT * FROM purchaseHistory
+        ORDER BY ph_date DESC
     </select>
 
     <select id="getByEmail" parameterType="string" resultMap="PurchaseHistoryMap">
-        SELECT * FROM purchaseHistory WHERE ph_email = #{value} ORDER BY ph_date DESC
+        SELECT * FROM purchaseHistory
+        WHERE ph_email = #{value}
+        ORDER BY ph_date DESC
     </select>
 
-    <update id="updateDelivery">
+    <update id="update">
         UPDATE purchaseHistory
-        SET ph_delivery = #{ph_delivery}
-        WHERE ph_no = #{ph_no}
-    </update>
-
-    <update id="updatePayment">
-        UPDATE purchaseHistory
-        SET ph_payment = #{ph_payment}
+        <set>
+            <if test="ph_imp_uid != null">
+                ph_imp_uid = #{ph_imp_uid},
+            </if>
+            <if test="ph_email != null">
+                ph_email = #{ph_email},
+            </if>
+            <if test="ph_productId != null">
+                ph_productId = #{ph_productId},
+            </if>
+            <if test="ph_count != null">
+                ph_count = #{ph_count},
+            </if>
+            <if test="ph_date != null">
+                ph_date = #{ph_date},
+            </if>
+            <if test="ph_delivery != null">
+                ph_delivery = #{ph_delivery},
+            </if>
+            <if test="ph_payment != null">
+                ph_Refund_or_exchange = #{ph_Refund_or_exchange},
+            </if>
+            <if test="ph_address != null">
+                ph_address = #{ph_address},
+            </if>
+        </set>
         WHERE ph_no = #{ph_no}
     </update>
 
     <delete id="deleteByNo" parameterType="long">
-        DELETE FROM purchaseHistory WHERE ph_no = #{value}
+        DELETE FROM purchaseHistory
+        WHERE ph_no = #{value}
     </delete>
 
 </mapper>

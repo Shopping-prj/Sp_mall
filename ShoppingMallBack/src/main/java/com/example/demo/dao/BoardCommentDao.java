@@ -11,6 +11,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BoardCommentDao {
     private final SqlSessionTemplate sqlSession;
+
     private static final String NS = "com.example.demo.dao.BoardCommentMapper.";
 
     public int insert(BoardComment bc) {

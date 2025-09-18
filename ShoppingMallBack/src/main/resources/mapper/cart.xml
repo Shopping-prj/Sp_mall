@@ -11,30 +11,62 @@
         <result property="c_payment"   column="c_payment"/>
     </resultMap>
 
-    <insert id="insert" parameterType="com.example.demo.model.Cart" useGeneratedKeys="true" keyProperty="c_no">
-        INSERT INTO cart (
-        c_email, c_productId, c_count, c_payment
-        ) VALUES (
-        #{c_email}, #{c_productId}, #{c_count}, #{c_payment}
-        )
+    <insert id="insert" parameterType="com.example.demo.model.Cart"
+            useGeneratedKeys="true" keyProperty="c_no" keyColumn="c_no">
+        INSERT INTO cart (c_email, c_productId, c_count, c_payment)
+        VALUES (#{c_email}, #{c_productId}, #{c_count}, #{c_payment})
     </insert>
 
+    <!--  join X  -->
     <select id="getByNo" parameterType="long" resultMap="CartMap">
-        SELECT * FROM cart WHERE c_no = #{value}
+        SELECT * FROM cart
+        WHERE c_no = #{value}
+        ORDER BY c_no DESC
     </select>
 
+    <select id="getAllByNo" parameterType="long" resultType="map">
+        SELECT * FROM cart c
+        LEFT JOIN product p ON c.c_productId = p.p_productId
+        WHERE c_no = #{value}
+        ORDER BY c_no DESC
+    </select>
+
+    <!--  join X  -->
     <select id="getByEmail" parameterType="string" resultMap="CartMap">
-        SELECT * FROM cart WHERE c_email = #{value}
+        SELECT * FROM cart
+        WHERE c_email = #{value}
+        ORDER BY c_no DESC
+    </select>
+
+    <select id="getAllByEmail" parameterType="string" resultType="map">
+        SELECT * FROM cart c
+        LEFT JOIN product p ON c.c_productId = p.p_productId
+        WHERE c_email = #{value}
         ORDER BY c_no DESC
     </select>
 
     <select id="getAllCart" resultMap="CartMap">
-        SELECT * FROM cart ORDER BY c_no DESC
+        SELECT * FROM cart c
+        LEFT JOIN product p ON c.c_productId = p.p_productId
+        ORDER BY c_no DESC
     </select>
 
-    <update id="updateCount">
+    <update id="update">
         UPDATE cart
-        SET c_count = #{c_count}
+        <set>
+            <if test="c_email != null">
+                c_email = #{c_email},
+            </if>
+            <if test="c_productId != null">
+                c_productId = #{c_productId},
+            </if>
+            <if test="c_count != null">
+                c_count = #{c_count},
+            </if>
+            <if test="c_payment != null">
+                c_payment = #{c_payment},
+            </if>
+        </set>
         WHERE c_no = #{c_no}
     </update>
 
@@ -45,4 +77,5 @@
     <delete id="deleteByEmail" parameterType="string">
         DELETE FROM cart WHERE c_email = #{value}
     </delete>
+
 </mapper>

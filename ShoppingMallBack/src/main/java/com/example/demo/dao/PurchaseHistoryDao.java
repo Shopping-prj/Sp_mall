@@ -39,7 +39,7 @@ public class PurchaseHistoryDao {
     public int updatePayment(Long no, String payment) {
         PurchaseHistory ph = new PurchaseHistory();
         ph.setPh_no(no);
-        ph.setPh_payment(payment);
+        ph.setPh_Refund_or_exchange(payment);
         return sqlSession.update(NS + "updatePayment", ph);
     }
 

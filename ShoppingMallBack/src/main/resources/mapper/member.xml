@@ -52,11 +52,11 @@
     </select>
 
     <update id="updateAddress">
-        UPDATE member SET m_address = #{address} WHERE m_no = #{value}
+        UPDATE member SET m_address = #{address} WHERE m_no = #{m_no}
     </update>
 
     <update id="updatePassword">
-        UPDATE member SET m_password = #{password} WHERE m_no = #{value}
+        UPDATE member SET m_password = #{password} WHERE m_no = #{m_no}
     </update>
 
     <!-- 단일 파라미터 바인딩은 #{value}로 수정 -->

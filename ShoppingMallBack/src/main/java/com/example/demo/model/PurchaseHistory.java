@@ -14,5 +14,6 @@ public class PurchaseHistory {
     private int    ph_count;     // 상품수량
     private LocalDateTime ph_date; // 구매날짜
     private String ph_delivery;  // 배송여부 (예: "배송전", "배송중", "배송완료")
-    private String ph_payment;   // 환불/교환 여부
+    private String ph_Refund_or_exchange;   // 환불/교환 여부
+    private String ph_address;   // 배송지
 }

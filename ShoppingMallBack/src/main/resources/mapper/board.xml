@@ -12,21 +12,51 @@
     </resultMap>
 
     <insert id="insert" parameterType="com.example.demo.model.Board">
-        INSERT INTO board (b_no, b_email, b_title, b_content, b_date)
-        VALUES (#{b_no}, #{b_email}, #{b_title}, #{b_content}, #{b_date})
+        INSERT INTO board (b_email, b_title, b_content, b_date)
+        VALUES (#{b_email}, #{b_title}, #{b_content}, #{b_date})
     </insert>
 
+    <select id="getAllByNo" parameterType="string" resultType="map">
+        SELECT * FROM board b
+        LEFT JOIN boardComment bc m ON b.b_no = bc.b_no
+        WHERE b_no = #{value}
+        ORDER BY b_date DESC
+    </select>
+    <!-- join X -->
     <select id="getByNo" parameterType="string" resultMap="BoardMap">
-        SELECT * FROM board WHERE b_no = #{value}
+        SELECT * FROM board
+        WHERE b_no = #{value}
+        ORDER BY b_date DESC
     </select>
 
-    <select id="getAllBoard" resultMap="BoardMap">
-        SELECT * FROM board ORDER BY b_date DESC
+    <select id="getAllBoard" resultType="map">
+        SELECT * FROM board b
+        LEFT JOIN boardComment bc m ON b.b_no = bc.b_no
+        ORDER BY b_date DESC
+    </select>
+
+    <!-- join X -->
+    <select id="getBoard" resultMap="BoardMap">
+        SELECT * FROM board
+        ORDER BY b_date DESC
     </select>
 
     <update id="update">
         UPDATE board
-        SET b_title = #{b_title}, b_content = #{b_content}
+        <set>
+            <if test="b_email != null">
+                b_email = #{b_email},
+            </if>
+            <if test="b_title != null">
+                b_title = #{b_title},
+            </if>
+            <if test="b_content != null">
+                b_content = #{b_content},
+            </if>
+            <if test="b_date != null">
+                b_date = #{b_date},
+            </if>
+        </set>
         WHERE b_no = #{b_no}
     </update>
 

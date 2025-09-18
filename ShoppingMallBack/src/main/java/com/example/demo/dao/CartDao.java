@@ -33,7 +33,7 @@ public class CartDao {
         Cart param = new Cart();
         param.setC_no(no);
         param.setC_count(count);
-        return sqlSession.update(NS + "updateCount", param);
+        return sqlSession.update(NS + "update", param);
     }
 
     public int deleteByNo(Long no) {

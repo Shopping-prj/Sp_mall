@@ -25,5 +25,4 @@ public class Payment {
     private String pay_buyer_tel;     // 구매자 전화번호
     private String pay_buyer_postcode;// 우편번호
     private String pay_receipt_url;   // 결제 영수증 URL
-    private String pay_address;       // 배송지
 }

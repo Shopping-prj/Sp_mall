@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.dao.MyPageMapper">
+
+    <resultMap id="MyPageMap" type="com.example.demo.model.MyPage">
+        <result property="m_email"      column="m_email"/>
+        <result property="ph_no"        column="ph_no"/>
+        <result property="p_productId"  column="p_productId"/>
+        <result property="mp_order"     column="mp_order"/>
+    </resultMap>
+
+    <!-- purchaseHistory테이블에 데이터가 들어오면 트리거로 자동입력 -->
+    <insert id="insert" parameterType="com.example.demo.model.MyPage">
+        INSERT INTO MyPage (m_email, ph_no, p_productId)
+        VALUES (#{cm_email}, #{ph_no}, #{p_productId})
+    </insert>
+
+    <select id="getAllByEmail" parameterType="string" resultType="map">
+        SELECT * FROM myPage mp
+        LEFT JOIN member_copy m ON mp.m_email = m.m_email
+        LEFT JOIN purchaseHistory_copy ph ON mp.ph_no = ph.ph_no
+        LEFT JOIN product_copy p ON mp.p_productId = p.p_productId
+        WHERE mp.m_email = #{value}
+        ORDER BY ph.ph_no DESC
+    </select>
+
+    <select id="getAllByNo" parameterType="long" resultType="map">
+        SELECT * FROM myPage mp
+        LEFT JOIN member_copy m ON mp.m_email = m.m_email
+        LEFT JOIN purchaseHistory_copy ph ON mp.ph_no = ph.ph_no
+        LEFT JOIN product_copy p ON mp.p_productId = p.p_productId
+        WHERE mp.ph_no = #{value}
+        ORDER BY ph.ph_no DESC
+    </select>
+
+    <select id="getAllByPId" parameterType="string" resultType="map">
+        SELECT * FROM myPage mp
+        LEFT JOIN member_copy m ON mp.m_email = m.m_email
+        LEFT JOIN purchaseHistory_copy ph ON mp.ph_no = ph.ph_no
+        LEFT JOIN product_copy p ON mp.p_productId = p.p_productId
+        WHERE mp.p_productId = #{value}
+        ORDER BY ph.ph_no DESC
+    </select>
+
+    <!-- join X -->
+    <select id="getByEmail" parameterType="string" resultType="com.example.demo.model.MyPage">
+        SELECT * FROM myPage 
+        WHERE m_email = #{value}
+        ORDER BY ph_no DESC
+    </select>
+
+    <!-- join X -->
+    <select id="getByNo" parameterType="long" resultType="com.example.demo.model.MyPage">
+        SELECT * FROM myPage 
+        WHERE ph_no = #{value}
+        ORDER BY ph_no DESC
+    </select>
+
+    <!-- join X -->
+    <select id="getByPID" parameterType="string" resultType="com.example.demo.model.MyPage">
+        SELECT * FROM myPage 
+        WHERE p_productId = #{value}
+        ORDER BY ph_no DESC
+    </select>
+
+    <update id="MyPageUpdate" parameterType="com.example.demo.model.MyPage">
+        UPDATE myPage
+        <set>
+            <if test="m_email != null">
+                m_email = #{m_email},
+            </if>
+            <if test="p_productId != null">
+                p_productId = #{p_productId},
+            </if>
+            <if test="mp_order != null">
+                mp_order = #{mp_order},
+            </if>
+        </set>
+        where ph_no=#{ph_no}
+    </update>
+
+    <delete id="deleteByEmail" parameterType="string">
+        DELETE FROM myPage WHERE m_email = #{value}
+    </delete>
+
+    <delete id="deleteByNo" parameterType="long">
+        DELETE FROM myPage WHERE ph_no = #{value}
+    </delete>
+
+</mapper>

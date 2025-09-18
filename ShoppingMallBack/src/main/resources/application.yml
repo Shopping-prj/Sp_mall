@@ -23,8 +23,6 @@ server:
 logging:
   level:
     org.springframework.http.converter.json: DEBUG
-    org.mybatis: debug
-    com.example.demo.dao: debug
 naver:
   api:
     client-id: YzotomfXq0ji6AFhSloY
