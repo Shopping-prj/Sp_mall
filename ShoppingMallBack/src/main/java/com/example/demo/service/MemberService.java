@@ -98,18 +98,22 @@ public class MemberService {
         memberDao.deleteById(id);
     }
     public Member login(String email, String rawPassword) {
+        // 1. 이메일로 회원 조회
         Member m = memberDao.getByEmail(email);
         if (m == null) throw new IllegalArgumentException("가입되지 않은 이메일입니다.");
 
-        if (m.getM_password() != null) { // LOCAL 계정
-            if (!passwordEncoder.matches(rawPassword, m.getM_password())) {
+        // 2. 로컬 계정이면 비밀번호 검증
+        if (m.getM_password() != null) {  // LOCAL 계정
+            if (rawPassword == null || !passwordEncoder.matches(rawPassword, m.getM_password())) {
                 throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
             }
         } else {
-            // 소셜 계정 → 비밀번호 검증 스킵
-            // 필요하면 OAuth 인증 로직 추가
+            // 3. 소셜 계정이면 비밀번호 검증 스킵
+            // 필요하면 OAuth 토큰 검증 로직 추가 가능
         }
 
         return m;
     }
 }
+
+

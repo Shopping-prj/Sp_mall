@@ -4,14 +4,14 @@ import { Link } from 'react-router-dom'
 import axios from 'axios'
 
 const LoginView = () => {
-    const [tempUser, setTempUser] = useState({
+    const [User, setUser] = useState({
         m_email: '',
         m_password:''
     })
     const changeUser = (e) => {
         const id = e.currentTarget.id 
         const value = e.target.value 
-        setTempUser({...tempUser, [id]: value})
+        setUser({...User, [id]: value})
     }
     //동일한 input type=text를 이메일인 경우에는 입력값을 노출하고 비번일 때는 히든 처리해야 함.
     const [passwordType, setPasswordType] = useState({
@@ -81,8 +81,8 @@ const loginE = async () => {
         const response = await axios.post(
             `${process.env.REACT_APP_SPRING_IP}/api/members/login`,
             {
-                email: tempUser.m_email,
-                password: tempUser.m_password
+                m_email: User.m_email,
+                m_password: User.m_password
             },
             {
                 withCredentials: true,
@@ -91,6 +91,7 @@ const loginE = async () => {
                 }
             }
         );
+
         const member = response.data;
         console.log("로그인 성공:", member);
         localStorage.setItem("loginMember", JSON.stringify(member));
@@ -105,11 +106,11 @@ const loginE = async () => {
         <LoginForm>
         <MyH1>로그인</MyH1>
         <MyLabel htmlFor="email"> 이메일     
-            <MyInput type="email" id="mem_email" name="mem_email" placeholder="이메일를 입력해주세요." 
+            <MyInput type="email" id="m_email" name="m_email" placeholder="이메일를 입력해주세요." 
             onChange={(e)=>changeUser(e)}/>   
         </MyLabel>
         <MyLabel htmlFor="password"> 비밀번호
-            <MyInput type={passwordType.type} autoComplete="off" id="mem_pw" name="mem_password" placeholder="비밀번호를 입력해주세요."
+            <MyInput type={passwordType.type} autoComplete="off" id="m_password" name="m_password" placeholder="비밀번호를 입력해주세요."
             onChange={(e)=>changeUser(e)}/>
             <div id="password" onClick={(e)=> {passwordView(e)}} style={{color: `${passwordType.visible?"gray":"lightgray"}`}}>
             <PwEye className="fa fa-eye fa-lg"></PwEye>

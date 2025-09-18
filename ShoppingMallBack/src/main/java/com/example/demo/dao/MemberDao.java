@@ -5,7 +5,9 @@ import lombok.RequiredArgsConstructor;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 @RequiredArgsConstructor
@@ -47,6 +49,19 @@ public class MemberDao {
                 }});
     }
 
+
+    public Member Login(String email, String password) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("email", email);
+        params.put("password", password);
+        return sqlSession.selectOne(NS + "login", params);
+    }
+    public Member localLogin(String email, String password) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("email", email);
+        params.put("password", password);
+        return sqlSession.selectOne(NS + "login", params);
+    }
     public int deleteById(Long id) {
         return sqlSession.delete(NS + "deleteById", id);
     }
