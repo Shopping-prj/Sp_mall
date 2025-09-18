@@ -22,12 +22,12 @@ const App = () => {
           <Route index element={<HomePage />} /> 
           <Route path="category" element={<Categories />} />
           <Route path="search" element={<SearchPage />} />
+          <Route path="cart" element={<CartPage />} />
       {/* 로그인시 진입 가능한 페이지 */}
           <Route path="mypage" element={<MyPage />} />
           <Route path="mypage/member" element={<Member />} />
           <Route path="mypage/orders" element={<OrderList />} />
       </Route>
-          <Route path="cart" element={<CartPage />} />
       
           <Route path="login" element={<LoginPage />} />
           <Route path="join" element={<JoinPage />} />

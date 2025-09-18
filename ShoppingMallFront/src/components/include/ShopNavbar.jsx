@@ -56,7 +56,7 @@ const Header = ({ title = "CosmoShop", cartCount = 0, onCartClick }) => {
           <Nav className="ml-auto" navbar>
             {/* 장바구니 버튼 */}
             <Nav.Item>
-              <Nav.Link onClick={() => navigate("/cart")}>
+              <Nav.Link onClick={() => navigate("/shop/cart")}>
                 <i className="nc-icon nc-cart-simple"></i>
                 <span className="notification">{cartItems.length}</span>
                 <span className="d-lg-none ml-1">Cart</span>

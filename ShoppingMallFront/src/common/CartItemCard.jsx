@@ -1,4 +1,7 @@
 import { Card, Button } from "react-bootstrap";
+import RemoveIcon from "@mui/icons-material/Remove";
+import AddIcon from "@mui/icons-material/Add";
+import { red } from "@mui/material/colors";
 
 const CartItemCard = ({ item, onIncrease, onDecrease, onRemove }) => {
   return (
@@ -38,7 +41,6 @@ const CartItemCard = ({ item, onIncrease, onDecrease, onRemove }) => {
 
         {/* 본문 */}
         <Card.Body className="d-flex flex-column justify-content-between">
-          {/* 상품명 + 가격 */}
           <div>
             <Card.Title
               style={{
@@ -65,24 +67,63 @@ const CartItemCard = ({ item, onIncrease, onDecrease, onRemove }) => {
 
           {/* 수량 조절 + 삭제 */}
           <div className="d-flex justify-content-between align-items-center mt-2">
-            <div className="d-flex align-items-center gap-2">
+            <div
+              className="d-flex align-items-center"
+              style={{ gap: "12px" }}
+            >
               <Button
-                variant="outline-secondary"
-                size="sm"
+                style={{
+                  border: "1px solid #ddd",
+                  backgroundColor: "#f8f9fa",
+                  width: "36px",
+                  height: "36px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderRadius: "8px",
+                }}
                 onClick={() => onDecrease(item)}
+                disabled={item.c_count <= 1}
               >
-                -
+                <RemoveIcon fontSize="small" />
               </Button>
-              <span>{item.c_count}</span>
+
+              <span
+                style={{
+                  fontSize: "1.2rem",
+                  fontWeight: "600",
+                  minWidth: "32px",
+                  textAlign: "center",
+                }}
+              >
+                {item.c_count}
+              </span>
+
               <Button
-                variant="outline-secondary"
-                size="sm"
+                style={{
+                  border: "1px solid #ddd",
+                  backgroundColor: "#f8f9fa",
+                  width: "36px",
+                  height: "36px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderRadius: "8px",
+                }}
                 onClick={() => onIncrease(item)}
               >
-                +
+                <AddIcon fontSize="small" />
               </Button>
             </div>
-            <Button
+
+            <Button 
+              style={{
+                borderRadius: "10px",
+                color: "#ec5a5aff",
+                fontSize: "1rem",
+                borderColor: "#ec5a5aff",
+                fontWeight: "bold"
+              }}
               variant="outline-danger"
               size="sm"
               onClick={() => onRemove(item)}
