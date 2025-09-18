@@ -22,7 +22,7 @@ public class PaymentDao {
         return sqlSession.selectOne(NS + "getById", payImpUid);
     }
 
-    public List<Payment> getAllPayment() {
+    public List<Payment> getAllPayments() {
         return sqlSession.selectList(NS + "getAllPayment");
     }
 

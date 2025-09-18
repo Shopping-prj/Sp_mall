@@ -33,6 +33,18 @@
         )
     </insert>
 
+
+    <select id="getByCategory" parameterType="java.lang.String" resultMap="ProductMap">
+        SELECT *
+        FROM product
+        WHERE p_category1 = #{category}
+        ORDER BY p_productId DESC
+    </select>
+
+    <select id="search" parameterType="string" resultMap="ProductMap">
+        SELECT * FROM product WHERE LOWER(p_title) LIKE CONCAT('%', LOWER(#{value}), '%')
+    </select>
+
     <select id="getById" parameterType="string" resultMap="ProductMap">
         SELECT * FROM product WHERE p_productId = #{value}
     </select>

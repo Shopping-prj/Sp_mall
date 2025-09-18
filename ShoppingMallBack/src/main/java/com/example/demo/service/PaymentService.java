@@ -15,19 +15,19 @@ public class PaymentService {
 
     private final PaymentDao paymentDao;
 
-    public String register(Payment payment) {
+    public String requestPayment(Payment payment) {
         paymentDao.insert(payment);
         return payment.getPay_imp_uid();
     }
 
     @Transactional(readOnly = true)
-    public Payment getById(String payImpUid) {
+    public Payment getPayment(String payImpUid) {
         return paymentDao.getById(payImpUid);
     }
 
     @Transactional(readOnly = true)
-    public List<Payment> getAllPayment() {
-        return paymentDao.getAllPayment();
+    public List<Payment> getAllPayments() {
+        return paymentDao.getAllPayments();
     }
 
     public void updateStatus(String payImpUid, String status) {

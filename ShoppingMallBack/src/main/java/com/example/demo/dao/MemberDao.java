@@ -19,16 +19,18 @@ public class MemberDao {
         return sqlSession.insert(NS + "insert", member);
     }
 
+
+
     public Member getById(Long id) {
-        return sqlSession.selectOne(NS + "findById", id);
+        return sqlSession.selectOne(NS + "getById", id);
     }
 
     public Member getByEmail(String email) {
-        return sqlSession.selectOne(NS + "findByEmail", email);
+        return sqlSession.selectOne(NS + "getByEmail", email);
     }
 
     public List<Member> getAll() {
-        return sqlSession.selectList(NS + "findAll");
+        return sqlSession.selectList(NS + "getAll");
     }
 
     public int updateAddress(Long id, String address) {

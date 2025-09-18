@@ -18,7 +18,7 @@ public class Payment {
     private String pay_currency;      // 결제단위 (KRW)
     private Long   pay_amount;        // 결제 요청 금액
     private Long   pay_paid_amount;   // 실제 결제 완료 금액
-    private LocalDateTime pay_paid_at;// 결제 완료 시각
+    private String pay_paid_at;       // 결제 완료 시각
 
     private String pay_buyer_email;   // 구매자 이메일
     private String pay_buyer_name;    // 구매자 이름

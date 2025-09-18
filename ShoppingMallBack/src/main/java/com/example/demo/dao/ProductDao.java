@@ -32,4 +32,12 @@ public class ProductDao {
     public int deleteById(String id) {
         return sqlSession.delete(NS + "deleteById", id);
     }
+
+    public List<Product> getByCategory(String category) {
+        return sqlSession.selectList(NS + "getByCategory", category);
+    }
+
+    public List<Product> search(String keyword) {
+        return sqlSession.selectList(NS + "search", keyword);
+    }
 }

@@ -15,9 +15,9 @@ public class ProductController {
 
     private final ProductService service;
 
-    @PostMapping
-    public ResponseEntity<String> register(@RequestBody Product req) {
-        return ResponseEntity.ok(service.register(req));
+    @GetMapping
+    public ResponseEntity<List<Product>> getAll() {
+        return ResponseEntity.ok(service.getAll());
     }
 
     @GetMapping("/{id}")
@@ -25,9 +25,21 @@ public class ProductController {
         return ResponseEntity.ok(service.getById(id));
     }
 
-    @GetMapping
-    public ResponseEntity<List<Product>> getAll() {
-        return ResponseEntity.ok(service.getAll());
+    @GetMapping("/categories")
+    public ResponseEntity<List<Product>> getByCategories(@RequestParam String category){
+        return ResponseEntity.ok(service.getByCategories(category));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<Product>> search(@RequestParam String keyword){
+        return ResponseEntity.ok(service.search(keyword));
+    }
+
+
+    ////////////////////////////////////////////////// 관리자 관련 코드 //////////////////////////////////////////////////
+    @PostMapping
+    public ResponseEntity<String> register(@RequestBody Product req) {
+        return ResponseEntity.ok(service.register(req));
     }
 
     @PutMapping("/{id}")
