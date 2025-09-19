@@ -5,9 +5,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "context/CartContext";
 import { categories } from "common/categoriesData";
 
-const ShopNavbar = ({ isNarrow }) => {
+const ShopNavbar = ({ isNarrow, isLoggedIn }) => {
   const { cartItems } = useCart();
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // 임시 로그인 상태
   const navigate = useNavigate();
 
   return (

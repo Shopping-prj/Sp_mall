@@ -3,13 +3,15 @@ package com.example.demo.controller;
 import com.example.demo.model.Member;
 import com.example.demo.service.MemberService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
-@RequestMapping("/api/members")
+@RequestMapping("api/members")
 @RequiredArgsConstructor
 public class MemberController {
 
@@ -33,6 +35,18 @@ public class MemberController {
             return ResponseEntity.ok(service.getByEmail(email));
         }
         return ResponseEntity.badRequest().build();
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody Member req) {
+        try {
+            Member m = service.login(req.getM_email(), req.getM_password());
+            return ResponseEntity.ok(m);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("message", e.getMessage()));
+        }
     }
 
     @GetMapping("/all")
