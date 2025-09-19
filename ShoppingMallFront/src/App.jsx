@@ -5,13 +5,12 @@ import ShopLayout from "./layouts/ShopLayout";
 // 페이지들
 import HomePage from "./pages/HomePage";
 import Categories from "pages/Categories";
-import SearchPage from "pages/Searchpage";
+import SearchPage from "pages/SearchPage";
 import MyPage from "auth/account/MyPage";
 import OrderList from "auth/account/OrderList";
 import LoginPage from "auth/LoginPage";
 import JoinPage from "auth/JoinPage";
 import Member from "auth/account/Member";
-import { useState } from "react";
 import CartPage from "pages/CartPage";
 
 const App = () => {

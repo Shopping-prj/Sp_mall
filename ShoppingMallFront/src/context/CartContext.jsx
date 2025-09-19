@@ -69,10 +69,10 @@ export const CartProvider = ({ children }) => {
   const changeCount = async (item, count) => {
     if (isLoggedIn) {
       await updateCartCount(item.c_no, count);
-      loadCart(email);
+      await loadCart(email);
     } else {
-      setCartItems(
-        cartItems.map((i) =>
+      setCartItems((prev) =>
+        prev.map((i) =>
           i.p_productId === item.p_productId ? { ...i, c_count: count } : i
         )
       );
@@ -82,7 +82,7 @@ export const CartProvider = ({ children }) => {
   const removeItem = async (item) => {
     if (isLoggedIn) {
       await removeCartItem(item.c_no);
-      loadCart(email);
+      await loadCart(email);
     } else {
       setCartItems(cartItems.filter((i) => i.p_productId !== item.p_productId));
     }
@@ -97,30 +97,6 @@ export const CartProvider = ({ children }) => {
       localStorage.removeItem("guest_cart");
     }
   };
-
-  // 로그인 시 호출하는 함수
-const migrateGuestCartToDB = async (userEmail) => {
-  const saved = localStorage.getItem("guest_cart");
-  if (!saved) return;
-
-  const guestItems = JSON.parse(saved);
-
-  // 로컬 장바구니 아이템을 DB로 하나씩 추가
-  for (const item of guestItems) {
-    await addToCart({
-      c_email: userEmail,
-      c_productId: item.p_productId,
-      c_count: item.c_count,
-      c_payment: 0,
-    });
-  }
-
-  // 로컬 장바구니 비우기
-  localStorage.removeItem("guest_cart");
-
-  // DB 장바구니 다시 불러오기
-  await loadCart(userEmail);
-};
 
   return (
     <CartContext.Provider

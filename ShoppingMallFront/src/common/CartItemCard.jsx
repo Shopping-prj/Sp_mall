@@ -1,13 +1,12 @@
-import { Card, Button } from "react-bootstrap";
+import { Card, Button, FormControl } from "react-bootstrap";
 import RemoveIcon from "@mui/icons-material/Remove";
 import AddIcon from "@mui/icons-material/Add";
-import { red } from "@mui/material/colors";
 
-const CartItemCard = ({ item, onIncrease, onDecrease, onRemove }) => {
+const CartItemCard = ({ item, changeCount, onRemove }) => {
   return (
     <Card
       style={{
-        width: "100%",
+        width: "740px",
         border: "none",
         borderRadius: "12px",
         boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
@@ -67,10 +66,8 @@ const CartItemCard = ({ item, onIncrease, onDecrease, onRemove }) => {
 
           {/* 수량 조절 + 삭제 */}
           <div className="d-flex justify-content-between align-items-center mt-2">
-            <div
-              className="d-flex align-items-center"
-              style={{ gap: "12px" }}
-            >
+            <div className="d-flex align-items-center" style={{ gap: "12px" }}>
+              {/* - 버튼 */}
               <Button
                 style={{
                   border: "1px solid #ddd",
@@ -82,23 +79,35 @@ const CartItemCard = ({ item, onIncrease, onDecrease, onRemove }) => {
                   justifyContent: "center",
                   borderRadius: "8px",
                 }}
-                onClick={() => onDecrease(item)}
+                onClick={() => changeCount(item, item.c_count - 1)}
                 disabled={item.c_count <= 1}
               >
                 <RemoveIcon fontSize="small" />
               </Button>
 
-              <span
-                style={{
-                  fontSize: "1.2rem",
-                  fontWeight: "600",
-                  minWidth: "32px",
-                  textAlign: "center",
+              {/* 직접 입력 */}
+              <FormControl
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                value={item.c_count}
+                onChange={(e) => {
+                  const onlyNum = e.target.value.replace(/[^0-9]/g, "");
+                  if (onlyNum === "") return;
+                  const parsed = parseInt(onlyNum, 10);
+                  if (!isNaN(parsed) && parsed > 0) {
+                    changeCount(item, parsed);
+                  }
                 }}
-              >
-                {item.c_count}
-              </span>
+                style={{
+                  width: "60px",
+                  textAlign: "center",
+                  fontSize: "1.1rem",
+                  fontWeight: "600",
+                }}
+              />
 
+              {/* + 버튼 */}
               <Button
                 style={{
                   border: "1px solid #ddd",
@@ -110,19 +119,19 @@ const CartItemCard = ({ item, onIncrease, onDecrease, onRemove }) => {
                   justifyContent: "center",
                   borderRadius: "8px",
                 }}
-                onClick={() => onIncrease(item)}
+                onClick={() => changeCount(item, item.c_count + 1)}
               >
                 <AddIcon fontSize="small" />
               </Button>
             </div>
 
-            <Button 
+            <Button
               style={{
                 borderRadius: "10px",
                 color: "#ec5a5aff",
                 fontSize: "1rem",
                 borderColor: "#ec5a5aff",
-                fontWeight: "bold"
+                fontWeight: "bold",
               }}
               variant="outline-danger"
               size="sm"

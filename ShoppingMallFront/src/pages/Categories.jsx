@@ -61,7 +61,7 @@ const Categories = () => {
       <Row>
         {Array.isArray(currentItems) && currentItems.length > 0 ? (
           currentItems.map((p) => (
-            <Col key={p.p_productId} md={3} className="mb-4" style={{borderBottom: "1px solid #9eb9d3ff",}}>
+            <Col key={p.p_productId} md={3} className="mb-4 d-flex justify-content-center" style={{borderBottom: "1px solid #9eb9d3ff",}}>
               <ProductCard
                 product={p}
                 onBuy={handleBuy}

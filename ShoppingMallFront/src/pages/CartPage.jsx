@@ -9,12 +9,8 @@ const CartPage = () => {
     (sum, item) => sum + item.p_lprice * item.c_count,
     0
   );
-  const shipping = totalPrice > 50000 ? 0 : 2500; // 예시: 5만원 이상 무료배송
+  const shipping = totalPrice > 50000 ? 0 : 2500; 
   const finalPrice = totalPrice + shipping;
-
-  const handleIncrease = (item) => changeCount(item, item.c_count + 1);
-  const handleDecrease = (item) =>
-    item.c_count > 1 && changeCount(item, item.c_count - 1);
 
   return (
     <Container className="mt-4">
@@ -31,15 +27,14 @@ const CartPage = () => {
         장바구니
       </h2>
 
-      <Row>
+      <Row className="flex-wrap">
         <Col md={8}>
           {cartItems.length > 0 ? (
             cartItems.map((item) => (
               <CartItemCard
                 key={item.c_no || item.p_productId}
                 item={item}
-                onIncrease={handleIncrease}
-                onDecrease={handleDecrease}
+                changeCount={changeCount}
                 onRemove={removeItem}
               />
             ))
@@ -49,8 +44,8 @@ const CartPage = () => {
         </Col>
 
         {/* 합계 카드 */}
-        <Col md={4}>
-          <Card style={{ borderRadius: "12px", boxShadow: "0 2px 8px rgba(0,0,0,0.15)" }}>
+        <Col>
+          <Card style={{ width: "300px", borderRadius: "12px", boxShadow: "0 2px 8px rgba(0,0,0,0.15)" }}>
             <Card.Body>
               <h5>주문 요약</h5>
               <p>상품가격: {totalPrice.toLocaleString()}원</p>
@@ -61,7 +56,7 @@ const CartPage = () => {
                   display: "flex",
                   justifyContent: "space-between",
                   marginTop: "20px",
-                  gap: "12px", // 버튼 간격
+                  gap: "12px",
                 }}
               >
                 <Button

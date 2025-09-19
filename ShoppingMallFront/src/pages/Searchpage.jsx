@@ -1,10 +1,9 @@
 // src/pages/SearchPage.jsx
-import { categories } from "common/categoriesData";
 import PaginationComponent from "common/PaginationComponent";
 import ProductCard from "common/ProductCard";
 import SearchBar from "common/SearchBar";
 import React, { useEffect, useState } from "react";
-import { Row, Col, Card, Button } from "react-bootstrap";
+import { Row, Col } from "react-bootstrap";
 import { useLocation } from "react-router-dom";
 import { searchProducts } from "service/productsDB";
 
@@ -14,7 +13,7 @@ const SearchPage = () => {
   const query = new URLSearchParams(location.search);
   const keyword = query.get("keyword") || "";
 
-  const[products, setProducts] = useState([])
+  // const[products, setProducts] = useState([])
   const[currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 20
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -65,7 +64,7 @@ const SearchPage = () => {
       <Row>
         {Array.isArray(currentItems) && currentItems.length > 0 ? (
         currentItems.map((p) => (
-          <Col key={p.productId} md={3} className="mb-4">
+          <Col key={p.productId} md={3} className="mb-4 d-flex justify-content-center">
             <ProductCard 
               product={p}
               onBuy={handleBuy}
