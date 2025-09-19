@@ -1,86 +1,49 @@
-// src/components/member/Members.jsx
 import React, { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
-/** ERD 필드명에 맞춘 더미데이터 (백엔드 붙이기 전 임시) */
-const MOCK = [
-  {
-    m_id: 4,
-    m_email: "submall@example.com",
-    m_name: "가맹점홍길동",
-    m_social: "local",                // 가입방식: local/kakao/naver 등
-    m_class: "ADMIN",                 // USER | ADMIN
-    m_created: "2024-12-16 06:14:39", // 가입날짜
-    m_address: "서울특별시 강남구 테헤란로 123",
-  },
-  {
-    m_id: 3,
-    m_email: "test3@example.com",
-    m_name: "세금환급",
-    m_social: "kakao",
-    m_class: "USER",
-    m_created: "2020-10-04 18:05:42",
-    m_address: "부산광역시 해운대구 센텀중앙로 55",
-  },
-  {
-    m_id: 2,
-    m_email: "test2@example.com",
-    m_name: "두끗만",
-    m_social: "local",
-    m_class: "USER",
-    m_created: "2020-10-04 18:05:04",
-    m_address: "대구광역시 수성구 달구벌대로 23",
-  },
-  {
-    m_id: 1,
-    m_email: "test1@example.com",
-    m_name: "한끝만",
-    m_social: "naver",
-    m_class: "USER",
-    m_created: "2020-10-04 18:04:17",
-    m_address: "인천광역시 연수구 송도과학로 88",
-  },
-];
+const API_BASE = (process.env.REACT_APP_API_BASE_URL || "/proxy").replace(/\/$/, "");
 
-const Members = () => {
+export default function Members() {
   const [keywordType, setKeywordType] = useState("email"); // email | name
   const [keyword, setKeyword] = useState("");
   const [cls, setCls] = useState("ALL");                   // USER | ADMIN | ALL
-  const [social, setSocial] = useState("ALL");             // local/kakao/naver/ALL
+  const [social, setSocial] = useState("ALL");             // LOCAL | KAKAO | NAVER | GOOGLE | ALL
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
 
-  const filtered = useMemo(() => {
-    return MOCK.filter((m) => {
-      // 키워드
-      const target =
-        keywordType === "email" ? m.m_email : m.m_name ?? "";
-      const passKeyword = keyword
-        ? target.toLowerCase().includes(keyword.toLowerCase())
-        : true;
+  const [rows, setRows] = useState([]);    
+  const [loading, setLoading] = useState(false);
+  const [alert, setAlert] = useState(null);
 
-      // 등급
-      const passClass = cls === "ALL" ? true : m.m_class === cls;
+  const fetchMembers = async () => {
+    setLoading(true);
+    setAlert(null);
+    try {
+      const q = new URLSearchParams();
+      if (keyword)     q.set("keyword", keyword.trim());
+      if (keywordType) q.set("keywordType", keywordType);
+      if (cls !== "ALL")     q.set("cls", cls);
+      if (social !== "ALL")  q.set("social", social);
+      if (from) q.set("from", from);
+      if (to)   q.set("to", to);
 
-      // 가입방식
-      const passSocial = social === "ALL" ? true : m.m_social === social;
-
-      // 날짜
-      const passDate =
-        from || to
-          ? (() => {
-              const ts = new Date(m.m_created.replace(" ", "T"));
-              const f = from ? new Date(from + "T00:00:00") : null;
-              const t = to ? new Date(to + "T23:59:59") : null;
-              if (f && ts < f) return false;
-              if (t && ts > t) return false;
-              return true;
-            })()
-          : true;
-
-      return passKeyword && passClass && passSocial && passDate;
-    });
-  }, [keywordType, keyword, cls, social, from, to]);
+      const url = `${API_BASE}/api/admin/members${q.toString() ? `?${q}` : ""}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`조회 실패 (${res.status})`);
+      const data = await res.json();
+      setRows(Array.isArray(data) ? data : []);
+      setAlert(
+        !Array.isArray(data) || data.length === 0
+          ? { type: "warning", msg: "검색 결과가 없습니다." }
+          : { type: "success", msg: `총 ${data.length}명 조회되었습니다.` }
+      );
+    } catch (e) {
+      setAlert({ type: "danger", msg: e.message || "조회 중 오류가 발생했습니다." });
+      setRows([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const reset = () => {
     setKeywordType("email");
@@ -89,11 +52,44 @@ const Members = () => {
     setSocial("ALL");
     setFrom("");
     setTo("");
+    setRows([]);
+    setAlert(null);
+  };
+
+  const total = useMemo(() => rows.length, [rows]);
+
+  const fmtDateTime = (v) => {
+    if (!v) return "-";
+    try {
+      const d = typeof v === "string" ? new Date(v.replace(" ", "T")) : new Date(v);
+      if (isNaN(d)) return v;
+      const pad = (n) => String(n).padStart(2, "0");
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    } catch { return String(v); }
+  };
+
+  const downloadCsv = () => {
+    if (!rows.length) return;
+    const header = ["m_no","m_email","m_name","m_social","m_class","m_created","m_address"];
+    const escape = (s) => {
+      const v = s == null ? "" : String(s);
+      return /[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v;
+    };
+    const body = rows
+      .map(r => header.map(h => escape(h === "m_created" ? fmtDateTime(r[h]) : r[h])).join(","))
+      .join("\n");
+    const csv = header.join(",") + "\n" + body;
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `members_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(a.href);
   };
 
   return (
     <div className="container-fluid py-3">
-      {/* 헤더/브레드크럼 + 우측 버튼 */}
+      {/* 헤더 */}
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div>
           <h4 className="mb-1 fw-semibold">회원 정보관리</h4>
@@ -106,6 +102,7 @@ const Members = () => {
       <div className="card mb-3">
         <div className="card-header fw-semibold">기본검색</div>
         <div className="card-body">
+          {/* 검색어 */}
           <div className="row g-3 align-items-center mb-2">
             <div className="col-12 col-md-2">
               <label className="col-form-label fw-semibold">검색어</label>
@@ -130,6 +127,7 @@ const Members = () => {
             </div>
           </div>
 
+          {/* 회원등급 */}
           <div className="row g-3 align-items-center mb-2">
             <div className="col-12 col-md-2">
               <label className="col-form-label fw-semibold">회원등급</label>
@@ -155,13 +153,14 @@ const Members = () => {
             </div>
           </div>
 
+          {/* 가입방식 */}
           <div className="row g-3 align-items-center mb-2">
             <div className="col-12 col-md-2">
               <label className="col-form-label fw-semibold">가입방식</label>
             </div>
             <div className="col-12 col-md-10">
               <div className="d-flex flex-wrap gap-3">
-                {["ALL", "local", "kakao", "naver"].map((v) => (
+                {["ALL", "LOCAL", "KAKAO", "NAVER", "GOOGLE"].map((v) => (
                   <div className="form-check" key={v}>
                     <input
                       className="form-check-input"
@@ -180,6 +179,7 @@ const Members = () => {
             </div>
           </div>
 
+          {/* 가입날짜 */}
           <div className="row g-3 align-items-center">
             <div className="col-12 col-md-2">
               <label className="col-form-label fw-semibold">가입날짜</label>
@@ -191,49 +191,53 @@ const Members = () => {
               <input type="date" className="form-control" value={to} onChange={(e) => setTo(e.target.value)} />
             </div>
             <div className="col-12 col-md-4 d-flex gap-2">
-              <button className="btn btn-dark">검색</button>
+              <button className="btn btn-dark" onClick={fetchMembers} disabled={loading}>
+                {loading ? "검색 중..." : "검색"}
+              </button>
               <button type="button" className="btn btn-outline-secondary" onClick={reset}>초기화</button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* 상단 요약/액션 */}
+      {/* 상단 요약 */}
       <div className="d-flex justify-content-between align-items-center mb-2">
-        <div className="small text-muted">총 회원수 : {filtered.length}명</div>
+        <div className="small text-muted">총 회원수 : {total}명</div>
         <div className="d-flex gap-2">
-          <button className="btn btn-outline-secondary btn-sm">엑셀저장</button>
+          <button className="btn btn-outline-secondary btn-sm" onClick={downloadCsv} disabled={!rows.length}>
+            엑셀저장
+          </button>
         </div>
       </div>
 
-      {/* 리스트 (ERD 컬럼만 표시 — 비밀번호는 표기하지 않음) */}
+      {/* 리스트 */}
       <div className="table-responsive">
         <table className="table table-bordered table-hover align-middle">
           <thead className="table-light">
             <tr className="text-center">
-              <th style={{width: 90}}>회원번호</th>
+              <th style={{width: 110}}>회원번호</th>
               <th>회원이메일</th>
               <th>회원닉네임</th>
               <th>가입방식</th>
               <th>회원등급</th>
               <th>가입날짜</th>
-              <th>배송지</th>
+              <th>주소</th>
             </tr>
           </thead>
           <tbody>
-            {filtered.length === 0 ? (
+            {rows.length === 0 ? (
               <tr>
                 <td colSpan={7} className="text-center text-muted py-4">검색 결과가 없습니다.</td>
               </tr>
             ) : (
-              filtered.map((m) => (
-                <tr key={m.m_id}>
-                  <td className="text-center">{m.m_id}</td>
+              rows.map((m) => (
+                <tr key={m.m_no}>
+                  <td className="text-center">{m.m_no}</td>
                   <td>{m.m_email}</td>
                   <td>{m.m_name || "-"}</td>
                   <td className="text-center">{m.m_social}</td>
                   <td className="text-center">{m.m_class}</td>
-                  <td className="text-center">{m.m_created}</td>
+                  <td className="text-center">{fmtDateTime(m.m_created)}</td>
                   <td>{m.m_address}</td>
                 </tr>
               ))
@@ -241,8 +245,8 @@ const Members = () => {
           </tbody>
         </table>
       </div>
+
+      {alert && <div className={`alert alert-${alert.type} mt-2`}>{alert.msg}</div>}
     </div>
   );
 }
-
-export default Members

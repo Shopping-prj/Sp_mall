@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-const API_URL = "http://localhost:8001/api/admin/products"; // ← 필요 시 env로 분리
+const API_URL = (process.env.REACT_APP_API_BASE_URL || "/proxy").replace(/\/$/, "") + "/api/admin/products";
 
 export default function ProductsPage() {
   const nav = useNavigate();
@@ -261,15 +261,14 @@ export default function ProductsPage() {
                 <select className="form-select" value={cat1} onChange={(e)=>{setCat1(e.target.value); setCat2(""); setCat3(""); setCat4(""); setCat5("");}} style={{maxWidth:180}}>
                   <option value="">= 카테고리선택 =</option>
                   <option>가전/디지털/컴퓨터</option>
-                  <option>패션의류/잡화</option>
                 </select>
-                <select className="form-select" value={cat2} onChange={(e)=>{setCat2(e.target.value); setCat3(""); setCat4(""); setCat5("");}} style={{maxWidth:180}}>
+                {/* <select className="form-select" value={cat2} onChange={(e)=>{setCat2(e.target.value); setCat3(""); setCat4(""); setCat5("");}} style={{maxWidth:180}}>
                   <option value="">= 카테고리선택 =</option>
                   <option>노트북/PC</option>
                   <option>티셔츠</option>
                   <option>티 외 1건</option>
-                </select>
-                <select className="form-select" value={cat3} onChange={(e)=>setCat3(e.target.value)} style={{maxWidth:180}}>
+                </select> */}
+                {/* <select className="form-select" value={cat3} onChange={(e)=>setCat3(e.target.value)} style={{maxWidth:180}}>
                   <option value="">= 카테고리선택 =</option>
                 </select>
                 <select className="form-select" value={cat4} onChange={(e)=>setCat4(e.target.value)} style={{maxWidth:180}}>
@@ -277,7 +276,7 @@ export default function ProductsPage() {
                 </select>
                 <select className="form-select" value={cat5} onChange={(e)=>setCat5(e.target.value)} style={{maxWidth:180}}>
                   <option value="">= 카테고리선택 =</option>
-                </select>
+                </select> */}
               </div>
             </div>
           </div>

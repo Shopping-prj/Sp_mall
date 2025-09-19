@@ -1,16 +1,17 @@
-// src/components/member/MemberDelete.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 const API_BASE =
   process.env.REACT_APP_API_BASE_URL?.replace(/\/$/, "") || ""; // CRA 프록시면 빈 문자열도 OK
 
-const MemberDelete = () => {
+export default function MemberDelete() {
   const [sp] = useSearchParams();
   const navigate = useNavigate();
 
-  // 검색 상태
-  const [searchType, setSearchType] = useState(sp.get("type") === "id" ? "id" : "email");
+  // 검색 상태 (정확조회: id or email)
+  const [searchType, setSearchType] = useState(
+    sp.get("type") === "id" ? "id" : "email"
+  );
   const [searchValue, setSearchValue] = useState(sp.get("q") || "");
 
   // 로딩/알림
@@ -22,7 +23,6 @@ const MemberDelete = () => {
   const [confirmText, setConfirmText] = useState("");
 
   useEffect(() => {
-    // 쿼리스트링으로 들어온 경우 자동 조회 (선택)
     if (sp.get("q")) fetchMember();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -33,16 +33,23 @@ const MemberDelete = () => {
       setAlert({ type: "warning", msg: "검색값을 입력하세요." });
       return;
     }
+
     setLoading(true);
     setAlert(null);
     setMember(null);
+
     try {
       let url = "";
       if (searchType === "id") {
-        url = `${API_BASE}/api/admin/members/${encodeURIComponent(q)}`; // by id
+        // 회원번호(m_no)로 정확 매칭
+        url = `${API_BASE}/api/admin/members/${encodeURIComponent(q)}`;
       } else {
-        url = `${API_BASE}/api/admin/members?email=${encodeURIComponent(q)}`; // by email
+        // 이메일 정확 매칭 전용 엔드포인트
+        url = `${API_BASE}/api/admin/members/by-email?email=${encodeURIComponent(
+          q
+        )}`;
       }
+
       const res = await fetch(url);
       if (!res.ok) throw new Error(`조회 실패 (${res.status})`);
       const data = await res.json(); // 단건 객체 기대
@@ -50,26 +57,33 @@ const MemberDelete = () => {
       setConfirmText("");
       setAlert({ type: "success", msg: "회원 정보를 불러왔습니다." });
     } catch (err) {
-      setAlert({ type: "danger", msg: err.message || "회원 조회 중 오류가 발생했습니다." });
+      setAlert({
+        type: "danger",
+        msg: err.message || "회원 조회 중 오류가 발생했습니다.",
+      });
     } finally {
       setLoading(false);
     }
   };
 
   const canDelete =
-    !!member && confirmText.trim().toLowerCase() === (member?.m_email || "").toLowerCase();
+    !!member &&
+    confirmText.trim().toLowerCase() ===
+      (member?.m_email || "").toLowerCase();
 
   const handleDelete = async () => {
-    if (!member?.m_id) return;
+    if (!member?.m_no) return;
     if (!canDelete) {
       setAlert({ type: "warning", msg: "확인 입력이 올바르지 않습니다." });
       return;
     }
+
     setLoading(true);
     setAlert(null);
+
     try {
       const res = await fetch(
-        `${API_BASE}/api/admin/members/${encodeURIComponent(member.m_id)}`,
+        `${API_BASE}/api/admin/members/${encodeURIComponent(member.m_no)}`,
         { method: "DELETE" }
       );
       if (!res.ok) {
@@ -79,7 +93,10 @@ const MemberDelete = () => {
       setAlert({ type: "success", msg: "회원이 삭제되었습니다." });
       setTimeout(() => navigate("/admin/member"), 500);
     } catch (err) {
-      setAlert({ type: "danger", msg: err.message || "삭제 중 오류가 발생했습니다." });
+      setAlert({
+        type: "danger",
+        msg: err.message || "삭제 중 오류가 발생했습니다.",
+      });
     } finally {
       setLoading(false);
     }
@@ -91,7 +108,9 @@ const MemberDelete = () => {
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div>
           <h4 className="mb-1 fw-semibold">회원 삭제</h4>
-          <div className="text-muted small">HOME &gt; 회원관리 &gt; 회원 삭제</div>
+          <div className="text-muted small">
+            HOME &gt; 회원관리 &gt; 회원 삭제
+          </div>
         </div>
       </div>
 
@@ -108,14 +127,18 @@ const MemberDelete = () => {
                 value={searchType}
                 onChange={(e) => setSearchType(e.target.value)}
               >
-                <option value="email">이메일로</option>
-                <option value="id">회원번호로</option>
+                <option value="email">이메일로 (정확 일치)</option>
+                <option value="id">회원번호로 (정확 일치)</option>
               </select>
             </div>
             <div className="col-12 col-md-6">
               <input
                 className="form-control"
-                placeholder={searchType === "email" ? "example@domain.com" : "회원번호 (m_id)"}
+                placeholder={
+                  searchType === "email"
+                    ? "example@domain.com"
+                    : "회원번호 (m_no)"
+                }
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
               />
@@ -141,8 +164,8 @@ const MemberDelete = () => {
           <div className="card-header fw-semibold">회원 정보</div>
           <div className="card-body">
             <div className="row mb-2">
-              <div className="col-sm-2 text-muted">회원번호 (m_id)</div>
-              <div className="col-sm-4">{member.m_id}</div>
+              <div className="col-sm-2 text-muted">회원번호 (m_no)</div>
+              <div className="col-sm-4">{member.m_no}</div>
               <div className="col-sm-2 text-muted">가입날짜 (m_created)</div>
               <div className="col-sm-4">{member.m_created || "-"}</div>
             </div>
@@ -169,7 +192,7 @@ const MemberDelete = () => {
       {/* 위험 경고 + 확인 입력 */}
       <div className="alert alert-warning d-flex align-items-center" role="alert">
         <div>
-          <strong>주의:</strong> 삭제는 되돌릴 수 없습니다. 확인을 위해 아래 입력창에
+          <strong>주의:</strong> 삭제는 되돌릴 수 없습니다. 확인을 위해 아래 입력창에{" "}
           <code className="mx-1">{member?.m_email || "회원 이메일"}</code>
           을(를) 정확히 입력하세요.
         </div>
@@ -194,5 +217,3 @@ const MemberDelete = () => {
     </div>
   );
 }
-
-export default MemberDelete

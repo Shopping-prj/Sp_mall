@@ -7,7 +7,8 @@ module.exports = function(app) {
     createProxyMiddleware({
       target: 'http://localhost:8001',
       changeOrigin: true,
-      rewrite: {'^/proxy':''},
+      pathRewrite: { '^/proxy': '' }, 
+      // logLevel: 'debug', // 문제시 디버깅에 도움
     }),
   );
-}
+};

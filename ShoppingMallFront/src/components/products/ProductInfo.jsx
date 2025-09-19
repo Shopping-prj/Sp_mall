@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
-const API_BASE = (process.env.REACT_APP_API_BASE_URL || "").replace(/\/$/, "");
+const API_BASE = (process.env.REACT_APP_API_BASE_URL || "http://localhost:8001").replace(/\/$/, "");
 
 export default function ProductInfo() {
   const [sp] = useSearchParams();
@@ -15,9 +15,20 @@ export default function ProductInfo() {
 
   const [product, setProduct] = useState(null);
   const [form, setForm] = useState({
-    name: "", code: "", supplier: "", brand: "",
-    categoryPath: "", region: "전체", display: "진열",
-    stock: 0, msrp: 0, cost: 0, price: 0, point: 0,
+    code: "",
+    title: "",
+    link: "",
+    image: "",
+    lprice: "",
+    hprice: "",
+    mallName: "",
+    productType: "",
+    brand: "",
+    maker: "",
+    category1: "",
+    category2: "",
+    category3: "",
+    category4: "",
   });
 
   // 상세 조회
@@ -27,23 +38,26 @@ export default function ProductInfo() {
       setLoading(true);
       setAlert(null);
       try {
-        const res = await fetch(`${API_BASE}/api/admin/products/${id}`);
+        const res = await fetch(`${API_BASE}/api/admin/products/${encodeURIComponent(id)}`);
         if (!res.ok) throw new Error(`조회 실패 (${res.status})`);
         const data = await res.json();
+
         setProduct(data);
         setForm({
-          name: data.name ?? "",
-          code: data.code ?? "",
-          supplier: data.supplier ?? "",
-          brand: data.brand ?? "",
-          categoryPath: data.categoryPath ?? "",
-          region: data.region ?? "전체",
-          display: data.display ?? "진열",
-          stock: data.stock ?? 0,
-          msrp: data.msrp ?? 0,
-          cost: data.cost ?? 0,
-          price: data.price ?? 0,
-          point: data.point ?? 0,
+          code: data.p_productId ?? "",
+          title: data.p_title ?? "",
+          link: data.p_link ?? "",
+          image: data.p_image ?? "",
+          lprice: (data.p_lprice ?? "").toString(),
+          hprice: data.p_hprice ?? "",
+          mallName: data.p_mallName ?? "",
+          productType: data.p_productType ?? "",
+          brand: data.p_brand ?? "",
+          maker: data.p_maker ?? "",
+          category1: data.p_category1 ?? "",
+          category2: data.p_category2 ?? "",
+          category3: data.p_category3 ?? "",
+          category4: data.p_category4 ?? "",
         });
       } catch (e) {
         setAlert({ type: "danger", msg: e.message });
@@ -53,37 +67,82 @@ export default function ProductInfo() {
     })();
   }, [id]);
 
+  // 입력 변경 핸들러
   const onChange = (e) => {
     const { name, value } = e.target;
-    setForm((p) => ({ ...p, [name]: name.match(/stock|msrp|cost|price|point/) ? value.replace(/\D/g, "") : value }));
+    if (name === "lprice") {
+      setForm((p) => ({ ...p, [name]: value.replace(/\D/g, "") }));
+    } else {
+      setForm((p) => ({ ...p, [name]: value }));
+    }
   };
 
+  // 저장하기
   const save = async () => {
+    if (!id) return;
     setLoading(true);
     setAlert(null);
     try {
-      const res = await fetch(`${API_BASE}/api/admin/products/${id}`, {
+      const payload = {
+        p_productId: form.code,
+        p_title: form.title,
+        p_link: form.link,
+        p_image: form.image,
+        p_lprice: form.lprice ? Number(form.lprice) : 0,
+        p_hprice: form.hprice ?? "",
+        p_mallName: form.mallName ?? "",
+        p_productType: form.productType ?? "",
+        p_brand: form.brand ?? "",
+        p_maker: form.maker ?? "",
+        p_category1: form.category1 ?? "",
+        p_category2: form.category2 ?? "",
+        p_category3: form.category3 ?? "",
+        p_category4: form.category4 ?? "",
+      };
+
+      const res = await fetch(`${API_BASE}/api/admin/products/${encodeURIComponent(id)}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...form,
-          stock: Number(form.stock || 0),
-          msrp: Number(form.msrp || 0),
-          cost: Number(form.cost || 0),
-          price: Number(form.price || 0),
-          point: Number(form.point || 0),
-        }),
+        body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error(`수정 실패 (${res.status})`);
+
       setAlert({ type: "success", msg: "저장되었습니다." });
       setIsEdit(false);
-      // 상세 재조회
-      const data = await res.json().catch(() => null);
-      if (data) setProduct(data);
+
+      // 다시 GET 호출해서 최신 데이터 반영
+      const r2 = await fetch(`${API_BASE}/api/admin/products/${encodeURIComponent(id)}`);
+      if (r2.ok) {
+        const d2 = await r2.json();
+        setProduct(d2);
+      }
     } catch (e) {
       setAlert({ type: "danger", msg: e.message });
     } finally {
       setLoading(false);
+    }
+  };
+
+  // 수정 취소 → 원본 데이터로 롤백
+  const cancel = () => {
+    setIsEdit(false);
+    if (product) {
+      setForm({
+        code: product.p_productId ?? "",
+        title: product.p_title ?? "",
+        link: product.p_link ?? "",
+        image: product.p_image ?? "",
+        lprice: (product.p_lprice ?? "").toString(),
+        hprice: product.p_hprice ?? "",
+        mallName: product.p_mallName ?? "",
+        productType: product.p_productType ?? "",
+        brand: product.p_brand ?? "",
+        maker: product.p_maker ?? "",
+        category1: product.p_category1 ?? "",
+        category2: product.p_category2 ?? "",
+        category3: product.p_category3 ?? "",
+        category4: product.p_category4 ?? "",
+      });
     }
   };
 
@@ -108,20 +167,7 @@ export default function ProductInfo() {
               <button className="btn btn-primary" onClick={save} disabled={loading}>
                 {loading ? "저장 중..." : "저장"}
               </button>
-              <button className="btn btn-outline-secondary" onClick={() => { setIsEdit(false); setForm({
-                name: product?.name ?? "",
-                code: product?.code ?? "",
-                supplier: product?.supplier ?? "",
-                brand: product?.brand ?? "",
-                categoryPath: product?.categoryPath ?? "",
-                region: product?.region ?? "전체",
-                display: product?.display ?? "진열",
-                stock: product?.stock ?? 0,
-                msrp: product?.msrp ?? 0,
-                cost: product?.cost ?? 0,
-                price: product?.price ?? 0,
-                point: product?.point ?? 0,
-              });}}>취소</button>
+              <button className="btn btn-outline-secondary" onClick={cancel}>취소</button>
             </>
           )}
           <button className="btn btn-outline-secondary" onClick={() => nav("/admin/product/all")}>목록</button>
@@ -130,85 +176,90 @@ export default function ProductInfo() {
 
       {alert && <div className={`alert alert-${alert.type}`}>{alert.msg}</div>}
 
+      {/* ====== 폼 ====== */}
       <div className="card">
         <div className="card-header fw-semibold">기본정보</div>
         <div className="card-body">
-          {/* 행 1 */}
-          <div className="row mb-3">
+          {/* 상품명 */}
+          <div className="mb-3 row">
             <label className="col-sm-2 col-form-label">상품명</label>
             <div className="col-sm-6">
-              <input name="name" className="form-control" value={form.name} onChange={onChange} disabled={!isEdit}/>
+              <input name="title" className="form-control" value={form.title} onChange={onChange} disabled={!isEdit}/>
             </div>
           </div>
 
-          {/* 행 2 */}
-          <div className="row mb-3">
+          {/* 상품코드 / 브랜드 */}
+          <div className="mb-3 row">
             <label className="col-sm-2 col-form-label">상품코드</label>
             <div className="col-sm-3">
               <input name="code" className="form-control" value={form.code} onChange={onChange} disabled={!isEdit}/>
             </div>
-            <label className="col-sm-2 col-form-label text-md-end">공급사</label>
-            <div className="col-sm-3">
-              <input name="supplier" className="form-control" value={form.supplier} onChange={onChange} disabled={!isEdit}/>
-            </div>
-          </div>
-
-          {/* 행 3 */}
-          <div className="row mb-3">
-            <label className="col-sm-2 col-form-label">브랜드</label>
+            <label className="col-sm-2 col-form-label text-md-end">브랜드</label>
             <div className="col-sm-3">
               <input name="brand" className="form-control" value={form.brand} onChange={onChange} disabled={!isEdit}/>
             </div>
-            <label className="col-sm-2 col-form-label text-md-end">카테고리</label>
+          </div>
+
+          {/* 제조사 / 매장명 */}
+          <div className="mb-3 row">
+            <label className="col-sm-2 col-form-label">제조사</label>
+            <div className="col-sm-3">
+              <input name="maker" className="form-control" value={form.maker} onChange={onChange} disabled={!isEdit}/>
+            </div>
+            <label className="col-sm-2 col-form-label text-md-end">매장명</label>
+            <div className="col-sm-3">
+              <input name="mallName" className="form-control" value={form.mallName} onChange={onChange} disabled={!isEdit}/>
+            </div>
+          </div>
+
+          {/* 제품타입 / 링크 */}
+          <div className="mb-3 row">
+            <label className="col-sm-2 col-form-label">제품타입</label>
+            <div className="col-sm-3">
+              <input name="productType" className="form-control" value={form.productType} onChange={onChange} disabled={!isEdit}/>
+            </div>
+            <label className="col-sm-2 col-form-label text-md-end">링크</label>
             <div className="col-sm-5">
-              <input name="categoryPath" className="form-control" placeholder="예) 패션의류/잡화 > 티셔츠"
-                     value={form.categoryPath} onChange={onChange} disabled={!isEdit}/>
+              <input name="link" className="form-control" value={form.link} onChange={onChange} disabled={!isEdit}/>
             </div>
           </div>
 
-          {/* 행 4 */}
-          <div className="row mb-3">
-            <label className="col-sm-2 col-form-label">지역</label>
-            <div className="col-sm-3">
-              <select name="region" className="form-select" value={form.region} onChange={onChange} disabled={!isEdit}>
-                {["전체","전국","서울/경기","강원","충청","전라","경상","제주"].map(r=><option key={r}>{r}</option>)}
-              </select>
-            </div>
-            <label className="col-sm-2 col-form-label text-md-end">상태</label>
-            <div className="col-sm-3">
-              <select name="display" className="form-select" value={form.display} onChange={onChange} disabled={!isEdit}>
-                {["진열","품절","단종","중지"].map(v=><option key={v}>{v}</option>)}
-              </select>
+          {/* 이미지 */}
+          <div className="mb-3 row">
+            <label className="col-sm-2 col-form-label">이미지 URL</label>
+            <div className="col-sm-10">
+              <input name="image" className="form-control" value={form.image} onChange={onChange} disabled={!isEdit}/>
             </div>
           </div>
 
-          {/* 행 5 */}
-          <div className="row mb-3">
-            <label className="col-sm-2 col-form-label">재고</label>
-            <div className="col-sm-2">
-              <input name="stock" className="form-control" value={form.stock} onChange={onChange} disabled={!isEdit}/>
+          {/* 가격 */}
+          <div className="mb-3 row">
+            <label className="col-sm-2 col-form-label">판매가</label>
+            <div className="col-sm-3">
+              <input name="lprice" className="form-control" value={form.lprice} onChange={onChange} disabled={!isEdit}/>
             </div>
             <label className="col-sm-2 col-form-label text-md-end">시중가</label>
-            <div className="col-sm-2">
-              <input name="msrp" className="form-control" value={form.msrp} onChange={onChange} disabled={!isEdit}/>
-            </div>
-            <label className="col-sm-2 col-form-label text-md-end">공급가</label>
-            <div className="col-sm-2">
-              <input name="cost" className="form-control" value={form.cost} onChange={onChange} disabled={!isEdit}/>
+            <div className="col-sm-3">
+              <input name="hprice" className="form-control" value={form.hprice} onChange={onChange} disabled={!isEdit}/>
             </div>
           </div>
 
-          {/* 행 6 */}
-          <div className="row">
-            <label className="col-sm-2 col-form-label">판매가</label>
-            <div className="col-sm-2">
-              <input name="price" className="form-control" value={form.price} onChange={onChange} disabled={!isEdit}/>
-            </div>
-            <label className="col-sm-2 col-form-label text-md-end">포인트</label>
-            <div className="col-sm-2">
-              <input name="point" className="form-control" value={form.point} onChange={onChange} disabled={!isEdit}/>
-            </div>
+          {/* 카테고리 */}
+          <div className="mb-3 row">
+            <label className="col-sm-2 col-form-label">카테고리</label>
+            <div className="col-sm-2"><input name="category1" className="form-control" value={form.category1} onChange={onChange} disabled={!isEdit}/></div>
+            <div className="col-sm-2"><input name="category2" className="form-control" value={form.category2} onChange={onChange} disabled={!isEdit}/></div>
+            <div className="col-sm-2"><input name="category3" className="form-control" value={form.category3} onChange={onChange} disabled={!isEdit}/></div>
+            <div className="col-sm-2"><input name="category4" className="form-control" value={form.category4} onChange={onChange} disabled={!isEdit}/></div>
           </div>
+
+          {form.image && (
+            <div className="mb-3 row">
+              <div className="offset-sm-2 col-sm-10">
+                <img src={form.image} alt="" style={{ maxHeight: 120, objectFit: "contain" }} />
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

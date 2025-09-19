@@ -1,11 +1,10 @@
-// src/components/member/MemberUpdate.jsx
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 const API_BASE =
-  process.env.REACT_APP_API_BASE_URL?.replace(/\/$/, "") || ""; // 프록시 쓰면 빈문자열도 OK
+  process.env.REACT_APP_API_BASE_URL?.replace(/\/$/, "") || ""; // 프록시(/proxy) 쓰면 빈문자열도 OK
 
-const MemberUpdate = () => {
+export default function MemberUpdate() {
   const [sp] = useSearchParams();
   const navigate = useNavigate();
 
@@ -20,10 +19,10 @@ const MemberUpdate = () => {
   // 불러온 회원 + 수정용 폼 상태
   const [member, setMember] = useState(null);
   const [form, setForm] = useState({
-    m_id: "",
+    m_no: "",
     m_email: "",
     m_name: "",
-    m_social: "local",
+    m_social: "LOCAL", // ERD: 대문자 사용
     m_class: "USER",
     m_address: "",
     m_password: "",  // 비번 변경 시에만 채움
@@ -36,11 +35,11 @@ const MemberUpdate = () => {
     if (!member) return;
     setForm((p) => ({
       ...p,
-      m_id: member.m_id ?? "",
+      m_no: member.m_no ?? "",
       m_email: member.m_email ?? "",
       m_name: member.m_name ?? "",
-      m_social: member.m_social ?? "local",
-      m_class: member.m_class ?? "USER",
+      m_social: (member.m_social || "LOCAL"), // 서버 값이 대문자라고 가정
+      m_class: member.m_class || "USER",
       m_address: member.m_address ?? "",
       m_password: "",
       m_password2: "",
@@ -54,11 +53,11 @@ const MemberUpdate = () => {
 
   const validate = () => {
     const e = {};
-    if (!form.m_id) e.m_id = "대상 회원을 먼저 불러와 주세요.";
+    if (!form.m_no) e.m_no = "대상 회원을 먼저 불러와 주세요.";
     if (!form.m_email) e.m_email = "회원 이메일이 비어 있습니다.";
 
     if (form.m_password || form.m_password2) {
-      if (form.m_password.length < 8) e.m_password = "비밀번호는 8자 이상이어야 합니다.";
+      if ((form.m_password || "").length < 8) e.m_password = "비밀번호는 8자 이상이어야 합니다.";
       if (form.m_password !== form.m_password2) e.m_password2 = "비밀번호가 일치하지 않습니다.";
     }
 
@@ -78,15 +77,26 @@ const MemberUpdate = () => {
     setAlert(null);
     setLoading(true);
     try {
-      let url = "";
+      let data;
       if (searchType === "id") {
-        url = `${API_BASE}/api/admin/members/${encodeURIComponent(q)}`; // by id
+        // by m_no (단건)
+        const url = `${API_BASE}/api/admin/members/${encodeURIComponent(q)}`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`조회 실패 (${res.status})`);
+        data = await res.json(); // 단건
       } else {
-        url = `${API_BASE}/api/admin/members?email=${encodeURIComponent(q)}`; // by email
+        // by email (목록) → 첫 번째 항목 채택
+        const params = new URLSearchParams({ keywordType: "email", keyword: q });
+        const url = `${API_BASE}/api/admin/members?${params.toString()}`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`조회 실패 (${res.status})`);
+        const list = await res.json();
+        if (!Array.isArray(list) || list.length === 0) {
+          throw new Error("해당 이메일로 검색된 회원이 없습니다.");
+        }
+        data = list[0];
       }
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(`조회 실패 (${res.status})`);
-      const data = await res.json(); // 단건 객체를 기대
+
       setMember(data);
       setAlert({ type: "success", msg: "회원 정보를 불러왔습니다." });
     } catch (err) {
@@ -111,14 +121,14 @@ const MemberUpdate = () => {
       const payload = {
         m_email: form.m_email,
         m_name: form.m_name || null,
-        m_social: form.m_social,
-        m_class: form.m_class,
+        m_social: form.m_social, // LOCAL/KAKAO/NAVER/GOOGLE
+        m_class: form.m_class,   // USER/ADMIN
         m_address: form.m_address,
       };
       if (form.m_password) payload.m_password = form.m_password;
 
-      const res = await fetch(`${API_BASE}/api/admin/members/${encodeURIComponent(form.m_id)}`, {
-        method: "PUT", // 백엔드에 맞게 PATCH/PUT 선택
+      const res = await fetch(`${API_BASE}/api/admin/members/${encodeURIComponent(form.m_no)}`, {
+        method: "PUT", // 백엔드에 맞게 PUT 사용
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
@@ -127,7 +137,7 @@ const MemberUpdate = () => {
         throw new Error(msg || `수정 실패 (${res.status})`);
       }
       setAlert({ type: "success", msg: "회원 정보가 수정되었습니다." });
-      // 필요 시 목록으로
+      // 필요 시 목록으로 이동
       // setTimeout(() => navigate("/admin/member"), 500);
     } catch (err) {
       setAlert({ type: "danger", msg: err.message || "수정 중 오류가 발생했습니다." });
@@ -164,7 +174,7 @@ const MemberUpdate = () => {
             <div className="col-12 col-md-6">
               <input
                 className="form-control"
-                placeholder={searchType === "email" ? "example@domain.com" : "회원번호 (m_id)"}
+                placeholder={searchType === "email" ? "example@domain.com" : "회원번호 (m_no)"}
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
               />
@@ -188,10 +198,10 @@ const MemberUpdate = () => {
           <div className="card-body">
             {/* 회원번호 */}
             <div className="row mb-3">
-              <label className="col-sm-2 col-form-label">회원번호 (m_id)</label>
+              <label className="col-sm-2 col-form-label">회원번호 (m_no)</label>
               <div className="col-sm-4">
-                <input className="form-control" value={form.m_id} readOnly />
-                {errors.m_id && <div className="text-danger small mt-1">{errors.m_id}</div>}
+                <input className="form-control" value={form.m_no} readOnly />
+                {errors.m_no && <div className="text-danger small mt-1">{errors.m_no}</div>}
               </div>
             </div>
 
@@ -215,6 +225,7 @@ const MemberUpdate = () => {
                   placeholder="새 비밀번호 (선택)"
                   value={form.m_password}
                   onChange={onChange}
+                  disabled={!hasTarget}
                 />
                 {errors.m_password && <div className="invalid-feedback">{errors.m_password}</div>}
               </div>
@@ -226,6 +237,7 @@ const MemberUpdate = () => {
                   placeholder="비밀번호 확인"
                   value={form.m_password2}
                   onChange={onChange}
+                  disabled={!hasTarget}
                 />
                 {errors.m_password2 && <div className="invalid-feedback">{errors.m_password2}</div>}
               </div>
@@ -246,11 +258,11 @@ const MemberUpdate = () => {
               </div>
             </div>
 
-            {/* 가입방식 */}
+            {/* 가입방식 (ERD: 대문자) */}
             <div className="row mb-3">
               <label className="col-sm-2 col-form-label">가입방식 (m_social)</label>
               <div className="col-sm-10 d-flex gap-3 align-items-center">
-                {["local", "kakao", "naver", "google"].map((v) => (
+                {["LOCAL", "KAKAO", "NAVER", "GOOGLE"].map((v) => (
                   <div className="form-check" key={v}>
                     <input
                       className="form-check-input"
@@ -333,5 +345,3 @@ const MemberUpdate = () => {
     </div>
   );
 }
-
-export default MemberUpdate

@@ -1,6 +1,8 @@
-// src/components/member/MemberAdd.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+
+const API_BASE =
+  (process.env.REACT_APP_API_BASE_URL || "").replace(/\/$/, "");
 
 const initial = {
   m_email: "",
@@ -13,7 +15,7 @@ const initial = {
 };
 
 const MemberAdd = () => {
-    const [form, setForm] = useState(initial);
+  const [form, setForm] = useState(initial);
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [alert, setAlert] = useState(null);
@@ -27,12 +29,15 @@ const MemberAdd = () => {
   const validate = () => {
     const e = {};
     if (!form.m_email) e.m_email = "이메일을 입력하세요.";
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.m_email)) e.m_email = "올바른 이메일 형식이 아닙니다.";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.m_email))
+      e.m_email = "올바른 이메일 형식이 아닙니다.";
 
     if (!form.m_password) e.m_password = "비밀번호를 입력하세요.";
-    else if (form.m_password.length < 3) e.m_password = "비밀번호는 3자 이상이어야 합니다.";
+    else if (form.m_password.length < 8)
+      e.m_password = "비밀번호는 8자 이상이어야 합니다.";
 
-    if (form.m_password !== form.m_password2) e.m_password2 = "비밀번호가 일치하지 않습니다.";
+    if (form.m_password !== form.m_password2)
+      e.m_password2 = "비밀번호가 일치하지 않습니다.";
 
     if (!form.m_address) e.m_address = "배송지를 입력하세요.";
     if (!form.m_class) e.m_class = "회원등급을 선택하세요.";
@@ -50,10 +55,7 @@ const MemberAdd = () => {
     setAlert(null);
 
     try {
-      // ✅ 실제 API 엔드포인트로 교체하세요.
-      //  - 백엔드가 snake_case(JSON) 받으면 body: JSON.stringify(form)
-      //  - camelCase면 변환해서 보내세요.
-      const resp = await fetch("/api/admin/members", {
+      const resp = await fetch(`${API_BASE}/api/admin/members`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -135,7 +137,7 @@ const MemberAdd = () => {
                   type="password"
                   name="m_password"
                   className={`form-control ${errors.m_password ? "is-invalid" : ""}`}
-                  placeholder="3자 이상"
+                  placeholder="8자 이상"
                   value={form.m_password}
                   onChange={onChange}
                 />
@@ -238,8 +240,6 @@ const MemberAdd = () => {
                 {errors.m_address && <div className="invalid-feedback">{errors.m_address}</div>}
               </div>
             </div>
-
-            {/* 가입날짜(m_created)는 서버에서 생성되므로 입력 안 함 */}
           </div>
         </div>
 
@@ -258,6 +258,6 @@ const MemberAdd = () => {
       </form>
     </div>
   );
-}
+};
 
-export default MemberAdd
+export default MemberAdd;
