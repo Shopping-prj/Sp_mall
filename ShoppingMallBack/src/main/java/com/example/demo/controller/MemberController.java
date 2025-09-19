@@ -21,7 +21,6 @@ public class MemberController {
     }
 
 
-
     @GetMapping("/{id}")
     public ResponseEntity<Member> getById(@PathVariable Long id) {
         return ResponseEntity.ok(service.getById(id));

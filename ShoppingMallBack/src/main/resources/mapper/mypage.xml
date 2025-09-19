@@ -17,7 +17,10 @@
     </insert>
 
     <select id="getAllByEmail" parameterType="string" resultType="map">
-        SELECT * FROM myPage mp
+        SELECT
+            m.m_email, m.m_address, m.m_name, ph.ph_no, ph.ph_imp_uid,
+            ph.ph_payment, ph.ph_count, ph.ph_address, p.p_image, p.p_title
+        FROM myPage mp
         LEFT JOIN member_copy m ON mp.m_email = m.m_email
         LEFT JOIN purchaseHistory_copy ph ON mp.ph_no = ph.ph_no
         LEFT JOIN product_copy p ON mp.p_productId = p.p_productId
@@ -26,7 +29,10 @@
     </select>
 
     <select id="getAllByNo" parameterType="long" resultType="map">
-        SELECT * FROM myPage mp
+        SELECT
+            m.m_email, m.m_address, m.m_name, ph.ph_no, ph.ph_imp_uid,
+            ph.ph_payment, ph.ph_count, ph.ph_address, p.p_image, p.p_title
+        FROM myPage mp
         LEFT JOIN member_copy m ON mp.m_email = m.m_email
         LEFT JOIN purchaseHistory_copy ph ON mp.ph_no = ph.ph_no
         LEFT JOIN product_copy p ON mp.p_productId = p.p_productId
@@ -35,7 +41,10 @@
     </select>
 
     <select id="getAllByPId" parameterType="string" resultType="map">
-        SELECT * FROM myPage mp
+        SELECT
+            m.m_email, m.m_address, m.m_name, ph.ph_no, ph.ph_imp_uid,
+            ph.ph_payment, ph.ph_count, ph.ph_address, p.p_image, p.p_title
+        FROM myPage mp
         LEFT JOIN member_copy m ON mp.m_email = m.m_email
         LEFT JOIN purchaseHistory_copy ph ON mp.ph_no = ph.ph_no
         LEFT JOIN product_copy p ON mp.p_productId = p.p_productId
