@@ -1,13 +1,17 @@
 import axios from "axios";
 
-const BASE = `${process.env.REACT_APP_SPRING_IP}api/carts`;
+const BASE = `${process.env.REACT_APP_SPRING_IP}/api/carts`;
 
 // 장바구니 추가
-export const addToCart = async (cartItem) => {
+export const addToCart = async ({ c_email, c_productId, c_count }) => {
   const res = await axios({
     method: "post",
     url: `${BASE}`,
-    data: cartItem,
+    params: {
+      email: c_email,
+      productId: c_productId,
+      count: c_count || 1,
+    },
   });
   return res.data;
 };
@@ -16,36 +20,26 @@ export const addToCart = async (cartItem) => {
 export const getCartByEmail = async (email) => {
   const res = await axios({
     method: "get",
-    url: `${BASE}/member/${email}`,
-  });
-  return res.data;
-};
-
-// 장바구니 단건 조회
-export const getCartByNo = async (no) => {
-  const res = await axios({
-    method: "get",
-    url: `${BASE}/${no}`,
+    url: `${BASE}/${email}`,
   });
   return res.data;
 };
 
 // 장바구니 수량 변경
-export const updateCartCount = async (no, count) => {
+export const updateCartCount = async (ciNo, count) => {
   const res = await axios({
     method: "patch",
-    url: `${BASE}/${no}/count`,
-    data: count,
-    headers: { "Content-Type": "application/json" },
+    url: `${BASE}/item/${ciNo}`,
+    params: { count },
   });
   return res.data;
 };
 
 // 장바구니 단건 삭제
-export const removeCartItem = async (no) => {
+export const removeCartItem = async (ciNo) => {
   const res = await axios({
     method: "delete",
-    url: `${BASE}/${no}`,
+    url: `${BASE}/item/${ciNo}`,
   });
   return res.data;
 };
@@ -54,7 +48,24 @@ export const removeCartItem = async (no) => {
 export const clearCartByEmail = async (email) => {
   const res = await axios({
     method: "delete",
-    url: `${BASE}/member/${email}`,
+    url: `${BASE}/clear/${email}`,
   });
   return res.data;
+};
+
+// ✅ guest_cart → DB 머지 (추후 merge API 필요)
+export const syncGuestCartToDB = async (userEmail) => {
+  const saved = localStorage.getItem("guest_cart");
+  if (saved) {
+    const guestItems = JSON.parse(saved).map((item) => ({
+      c_email: userEmail,
+      c_productId: item.p_productId,
+      c_count: item.c_count,
+    }));
+    if (guestItems.length > 0) {
+      // TODO: 백엔드에 /merge 엔드포인트 구현 후 사용
+      await axios.post(`${BASE}/merge`, guestItems);
+      localStorage.removeItem("guest_cart");
+    }
+  }
 };

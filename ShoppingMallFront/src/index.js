@@ -8,13 +8,17 @@ import "./assets/css/demo.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import App from "App";
 import { CartProvider } from "context/CartContext";
+import { AuthProvider } from "context/AuthContext";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
+
 root.render(
   <BrowserRouter>
-  <CartProvider>
-    <App />
-  </CartProvider>
+    <AuthProvider>
+      <CartProvider>
+        <App />
+      </CartProvider>
+    </AuthProvider>
   </BrowserRouter>
 );

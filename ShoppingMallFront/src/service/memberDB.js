@@ -9,7 +9,6 @@ export const loginMember = async (m_email, m_password) => {
       m_email,   // Spring Security 기본 파라미터명
       m_password,
     },
-    withCredentials: true,
     headers: { "Content-Type": "application/json" },
   });
 

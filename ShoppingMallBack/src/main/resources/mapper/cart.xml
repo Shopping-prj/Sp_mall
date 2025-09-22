@@ -1,48 +1,65 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
 <mapper namespace="com.example.demo.dao.CartMapper">
 
-    <resultMap id="CartMap" type="com.example.demo.model.Cart">
-        <id     property="c_no"        column="c_no"/>
-        <result property="c_email"     column="c_email"/>
-        <result property="c_productId" column="c_productId"/>
-        <result property="c_count"     column="c_count"/>
-        <result property="c_payment"   column="c_payment"/>
-    </resultMap>
+    <!-- ==================== Cart ==================== -->
 
-    <insert id="insert" parameterType="com.example.demo.model.Cart" useGeneratedKeys="true" keyProperty="c_no">
-        INSERT INTO cart (
-        c_email, c_productId, c_count, c_payment
-        ) VALUES (
-        #{c_email}, #{c_productId}, #{c_count}, #{c_payment}
-        )
+    <!-- 새로운 Cart 생성 -->
+    <insert id="insertCart" parameterType="com.example.demo.model.Cart"
+            useGeneratedKeys="true" keyProperty="c_no">
+        INSERT INTO cart (c_email, created_at)
+        VALUES (#{c_email}, NOW())
     </insert>
 
-    <select id="getByNo" parameterType="long" resultMap="CartMap">
-        SELECT * FROM cart WHERE c_no = #{value}
-    </select>
-
-    <select id="getByEmail" parameterType="string" resultMap="CartMap">
+    <!-- 이메일로 Cart 조회 -->
+    <select id="getCartByEmail" parameterType="string" resultType="com.example.demo.model.Cart">
         SELECT * FROM cart WHERE c_email = #{value}
-        ORDER BY c_no DESC
     </select>
 
-    <select id="getAllCart" resultMap="CartMap">
-        SELECT * FROM cart ORDER BY c_no DESC
+    <!-- ==================== CartItem ==================== -->
+
+    <!-- CartItem 추가 -->
+    <insert id="insertCartItem" parameterType="com.example.demo.model.CartItem"
+            useGeneratedKeys="true" keyProperty="ci_no">
+        INSERT INTO cart_item (c_no, c_productId, c_count)
+        VALUES (#{c_no}, #{c_productId}, #{c_count})
+    </insert>
+
+    <!-- 특정 Cart + 상품 조회 -->
+    <select id="getCartItem" resultType="com.example.demo.model.CartItem">
+        SELECT * FROM cart_item
+        WHERE c_no = #{c_no} AND c_productId = #{c_productId}
     </select>
 
-    <update id="updateCount">
-        UPDATE cart
-        SET c_count = #{c_count}
-        WHERE c_no = #{c_no}
+    <!-- 특정 Cart 안의 모든 아이템 조회 -->
+    <select id="getCartItems" parameterType="long" resultType="com.example.demo.model.CartItem">
+        SELECT * FROM cart_item WHERE c_no = #{c_no}
+    </select>
+
+    <!-- 특정 상품 수량 증가 -->
+    <update id="increaseCount">
+        UPDATE cart_item
+        SET c_count = c_count + #{c_count}
+        WHERE c_no = #{c_no} AND c_productId = #{c_productId}
     </update>
 
-    <delete id="deleteByNo" parameterType="long">
-        DELETE FROM cart WHERE c_no = #{value}
+    <!-- 특정 CartItem 수량 변경 -->
+    <update id="updateCount" parameterType="com.example.demo.model.CartItem">
+        UPDATE cart_item
+        SET c_count = #{c_count}
+        WHERE ci_no = #{ci_no}
+    </update>
+
+    <!-- 특정 CartItem 삭제 -->
+    <delete id="deleteCartItem" parameterType="long">
+        DELETE FROM cart_item WHERE ci_no = #{value}
     </delete>
 
-    <delete id="deleteByEmail" parameterType="string">
+    <!-- 회원 Cart 전체 삭제 (Cart 삭제 시 Item도 Cascade) -->
+    <delete id="deleteCartByEmail" parameterType="string">
         DELETE FROM cart WHERE c_email = #{value}
     </delete>
+
 </mapper>

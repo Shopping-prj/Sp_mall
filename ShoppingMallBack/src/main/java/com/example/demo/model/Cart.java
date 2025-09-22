@@ -1,15 +1,17 @@
+// Cart.java
 package com.example.demo.model;
 
-import lombok.*;
+import lombok.Data;
+import java.sql.Timestamp;
 
+/**
+ * Cart (장바구니) 엔티티
+ * - DB cart 테이블과 1:1 매핑
+ * - 회원 단위 장바구니를 표현
+ */
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class Cart {
-    private Long   c_no;          // 장바구니 번호 (PK)
-    private String c_email;       // 회원 이메일 (FK → member.m_email)
-    private String c_productId;   // 상품코드 (FK → product.p_productId)
-    private int    c_count;       // 상품수량 (기본값 1)
-    private String c_payment;     // 결제수단
+    private Long c_no;          // 장바구니 PK
+    private String c_email;     // 회원 이메일 (member.m_email FK)
+    private Timestamp created_at; // 생성일시 (DB DEFAULT CURRENT_TIMESTAMP)
 }

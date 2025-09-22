@@ -5,6 +5,7 @@ import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyAuthoritiesMapper;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
@@ -66,8 +67,8 @@ public class SecurityConfig {
         configuration.setAllowedOriginPatterns(List.of("http://localhost:3000")); // localhost 포트 전체 허용
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(true);
-        configuration.setExposedHeaders(List.of("Authorization", "Set-Cookie")); // 필요 시 추가
+        // configuration.setAllowCredentials(true);
+        // configuration.setExposedHeaders(List.of("Authorization", "Set-Cookie")); // 필요 시 추가
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
@@ -82,12 +83,14 @@ public class SecurityConfig {
                 .authenticationProvider(authenticationProvider())
                 .authorizeHttpRequests(auth -> auth
                         .dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
-                        .requestMatchers("/", "/joinForm", "/api/members/login", "/api/products/**").permitAll()
-                        .requestMatchers("/user/**", "/loginTest").authenticated()
-                        .requestMatchers("/teacher/**").hasRole("TEACHER")
-                        .requestMatchers("/manager/**").hasRole("MANAGER")
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .anyRequest().authenticated()
+                        // .requestMatchers("/", "/joinForm", "/api/members/login", "/api/products/**").permitAll()
+                        // .requestMatchers("/user/**", "/loginTest").authenticated()
+                        // .requestMatchers("/teacher/**").hasRole("TEACHER")
+                        // .requestMatchers("/manager/**").hasRole("MANAGER")
+                        // .requestMatchers("/admin/**").hasRole("ADMIN")
+                        // .anyRequest().authenticated()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .anyRequest().permitAll()
                 )
                 // ❌ formLogin 제거
                 .logout(logout -> logout
