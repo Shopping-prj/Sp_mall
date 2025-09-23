@@ -1,7 +1,9 @@
 package com.example.demo.service;
 
 
+import com.example.demo.dao.CartDao;
 import com.example.demo.dao.MemberDao;
+import com.example.demo.model.Cart;
 import com.example.demo.model.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DuplicateKeyException;
@@ -26,6 +28,7 @@ import java.util.Set;
 public class MemberService {
 
     private final MemberDao memberDao;
+    private final CartDao cartDao;   // ✅ CartDao 주입
     private final BCryptPasswordEncoder passwordEncoder;
 
     public Long register(Member m) {
@@ -38,7 +41,7 @@ public class MemberService {
         if (memberDao.getByEmail(m.getM_email()) != null)
             throw new DuplicateKeyException("이미 가입된 이메일입니다.");
 
-        // social 검증(수업 호환: 문자열). null이면 DB DEFAULT 사용(LOCAL 권장)
+        // social 검증
         if (m.getM_social() != null) {
             String s = m.getM_social().toUpperCase();
             if (!Set.of("LOCAL","GOOGLE","NAVER","KAKAO").contains(s))
@@ -46,15 +49,19 @@ public class MemberService {
             m.setM_social(s);
         }
 
-        // role 검증. null이면 DB DEFAULT 사용(USER 권장). 클라 입력은 신뢰X
-        if (m.getM_class() != null) {
+        // role 검증
+        if (m.getM_class() == null) {
+            // 기본값 지정
+            m.setM_class("USER");
+        } else {
             String r = m.getM_class().toUpperCase();
-            if (!Set.of("USER","ADMIN").contains(r))
+            if (!Set.of("USER","ADMIN").contains(r)) {
                 throw new IllegalArgumentException("허용되지 않은 role 값입니다.");
+            }
             m.setM_class(r);
         }
 
-        // 비밀번호 정책: LOCAL만 허용/필수, 소셜은 금지
+        // 비밀번호 정책
         String effectiveSocial = (m.getM_social() == null) ? "LOCAL" : m.getM_social();
         if ("LOCAL".equalsIgnoreCase(effectiveSocial)) {
             if (m.getM_password() == null || m.getM_password().isBlank())
@@ -64,9 +71,17 @@ public class MemberService {
             m.setM_password(null);
         }
 
+        // 1. 회원 등록
         memberDao.insert(m);
+
+        // 2. 장바구니 자동 생성 (회원 이메일 기준)
+        Cart cart = new Cart();
+        cart.setC_email(m.getM_email());
+        cartDao.insertCart(cart);
+
         return m.getM_no();
     }
+
 
     @Transactional(readOnly = true)
     public Member getById(Long id) {

@@ -1,7 +1,10 @@
 // Cart.java
 package com.example.demo.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.sql.Timestamp;
 
 /**
@@ -9,6 +12,8 @@ import java.sql.Timestamp;
  * - DB cart 테이블과 1:1 매핑
  * - 회원 단위 장바구니를 표현
  */
+@NoArgsConstructor
+@AllArgsConstructor
 @Data
 public class Cart {
     private Long c_no;          // 장바구니 PK

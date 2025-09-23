@@ -87,15 +87,12 @@ export const CartProvider = ({ children }) => {
   }, [isLoggedIn, loginMember]);
 
   const loadCart = async (userEmail) => {
-  if (userEmail) {
-    const data = await getCartByEmail(userEmail);
-    // 🔹 ci_no가 null인 아이템은 제외
-    const items = Array.isArray(data.items)
-      ? data.items.filter(i => i.ci_no !== null)
-      : [];
-    setCartItems(items);
-  }
-};
+    if (userEmail) {
+      const data = await getCartByEmail(userEmail);
+      setCartItems(data);
+    }
+  };
+
   // 2. 회원 → 상품 추가
   const addItemDB = async (product, count = 1) => {
     // UI 낙관적 반영
