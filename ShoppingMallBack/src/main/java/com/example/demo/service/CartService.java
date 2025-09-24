@@ -7,10 +7,13 @@ import com.example.demo.model.Cart;
 import com.example.demo.model.CartItem;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.http11.filters.SavedRequestInputFilter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -30,31 +33,31 @@ public class CartService {
     }
 
     // 2. 상품 추가
-    public CartDTO addToCart(String email, String productId, int count) {
-        // cart는 항상 존재한다고 가정
-        Cart cart = cartDao.findCartEntityByEmail(email);
-        System.out.println("=== DEBUG: findCartEntityByEmail result ===");
-        System.out.println("email");
-        // cart_item 처리
-        CartItemDTO item = cartDao.findCartItem(cart.getC_no(), productId);
-        System.out.println("c_no");
-        System.out.println(email);
-        if (item != null) {
-            System.out.println("NULL 반환됨 (email=" + email + ")");
-            cartDao.updateCartItemCount(item.getCi_no(), item.getC_count() + count);
-        } else {
-            cartDao.insertCartItem(new CartItem(null, cart.getC_no(), productId, count));
-            System.out.println("c_no=" + cart.getC_no() + ", c_email=" + cart.getC_email());
-        }
+    public CartItem addToCart(Long c_no, String c_productId, int count) {
+        CartItem existing = cartDao.findCartItem(c_no, c_productId);
+        System.out.println("👉 existing = " + existing);
 
-        return cartDao.getCartByEmail(email);
+        if (existing == null) {
+            System.out.println("👉 신규 상품, insert 실행");
+            CartItem newItem = new CartItem();
+            newItem.setC_no(c_no);
+            newItem.setC_productId(c_productId);
+            newItem.setC_count(count);
+            cartDao.insertCartItem(newItem);
+            return newItem;
+        } else {
+            System.out.println("👉 기존 상품, update 실행");
+            updateCartItemCount(c_no, c_productId, count);
+            existing.setC_count(existing.getC_count() + count);
+            return existing;
+        }
     }
 
     // 3. 수량 변경
-    public CartDTO updateCartCount(Long ci_no, int count) {
-        cartDao.updateCartItemCount(ci_no, count);
-        String email = cartDao.findEmailByCartItem(ci_no);
-        return getCartByEmail(email);
+    public CartDTO updateCartItemCount(Long c_no, String productId, int addCount) {
+        cartDao.updateCartItemCount(c_no, productId, addCount);
+        String email = cartDao.findEmailByCartItem(c_no);
+        return getCartByEmail(email); // DTO 반환
     }
 
     // 4. 단일 삭제

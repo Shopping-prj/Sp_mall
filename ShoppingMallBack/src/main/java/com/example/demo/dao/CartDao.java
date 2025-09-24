@@ -1,7 +1,6 @@
 package com.example.demo.dao;
 
 import com.example.demo.dto.CartDTO;
-import com.example.demo.dto.CartItemDTO;
 import com.example.demo.model.Cart;
 import com.example.demo.model.CartItem;
 import lombok.RequiredArgsConstructor;
@@ -34,11 +33,11 @@ public class CartDao {
     }
 
     // 4. CartItem 조회 (특정 상품)
-    public CartItemDTO findCartItem(Long c_no, String productId) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("c_no", c_no);
-        params.put("productId", productId);
-        return sql.selectOne(NS + "findCartItem", params);
+    public CartItem findCartItem(Long c_no, String productId) {
+        Map<String, Object> pFindCartItem = new HashMap<>();
+        pFindCartItem.put("c_no", c_no);
+        pFindCartItem.put("c_productId", productId);
+        return sql.selectOne(NS + "findCartItem", pFindCartItem);
     }
 
     // 5. CartItem 추가
@@ -47,11 +46,12 @@ public class CartDao {
     }
 
     // 6. CartItem 수량 업데이트
-    public void updateCartItemCount(Long ci_no, int count) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("ci_no", ci_no);
-        params.put("count", count);
-        sql.update(NS + "updateCartItemCount", params);
+    public int updateCartItemCount(Long c_no, String productId, int addCount) {
+        Map<String, Object> pUpdateCartItemCount = new HashMap<>();
+        pUpdateCartItemCount.put("c_no", c_no);
+        pUpdateCartItemCount.put("c_productId", productId);
+        pUpdateCartItemCount.put("addCount", addCount);
+        return sql.update(NS + "updateCartItemCount", pUpdateCartItemCount);
     }
 
     // 7. CartItem 삭제
@@ -68,4 +68,5 @@ public class CartDao {
     public void deleteCartItemsByEmail(String email) {
         sql.delete(NS + "deleteCartItemsByEmail", email);
     }
+
 }

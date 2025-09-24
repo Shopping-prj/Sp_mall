@@ -23,10 +23,10 @@ export const addToCart = async ({ c_email, c_productId, c_count }) => {
     const res = await axios({
       method: "post",
       url: `${BASE}/add`,
-      params: {
-        email: c_email,                 // @RequestParam String email
-        productId: c_productId,         // @RequestParam String productId
-        count: c_count || 1,            // @RequestParam int count (default 1)
+      data: {
+        email: c_email,
+        productId: c_productId,
+        count: c_count || 1,
       },
     });
     return res.data;
@@ -35,6 +35,7 @@ export const addToCart = async ({ c_email, c_productId, c_count }) => {
     throw err;
   }
 };
+
 
 // 3. 회원 → 수량 변경
 export const updateCartCount = async (ci_no, c_count) => {

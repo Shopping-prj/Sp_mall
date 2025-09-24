@@ -30,6 +30,12 @@
         <result property="created_at" column="created_at" jdbcType="TIMESTAMP"/>
     </resultMap>
 
+    <resultMap id="CartItemEntity" type="com.example.demo.model.CartItem">
+        <id     property="ci_no"       column="ci_no"/>
+        <result property="c_no"        column="c_no"/>
+        <result property="c_productId" column="c_productId"/>
+        <result property="c_count"     column="c_count"/>
+    </resultMap>
     <!-- ==================== Cart ==================== -->
 
     <!-- 회원 이메일로 CartDTO 조회 -->
@@ -61,24 +67,23 @@
     <!-- ==================== CartItem ==================== -->
 
     <!-- 특정 상품 조회 -->
-    <select id="findCartItem" resultType="com.example.demo.dto.CartItemDTO">
+    <select id="findCartItem" parameterType="map" resultMap="CartItemEntity">
         SELECT ci_no, c_no, c_productId, c_count
         FROM cart_item
-        WHERE c_no = #{c_no} AND c_productId = #{productId}
+        WHERE c_no = #{c_no} AND c_productId = #{c_productId}
     </select>
 
     <!-- CartItem 추가 -->
-    <insert id="insertCartItem" parameterType="com.example.demo.model.CartItem"
-            useGeneratedKeys="true" keyProperty="ci_no">
+    <insert id="insertCartItem" parameterType="com.example.demo.model.CartItem">
         INSERT INTO cart_item (c_no, c_productId, c_count)
         VALUES (#{c_no}, #{c_productId}, #{c_count})
     </insert>
 
-    <!-- CartItem 수량 수정 -->
-    <update id="updateCartItemCount">
+    <!-- 장바구니 아이템 수량 증가 -->
+    <update id="updateCartItemCount" parameterType="map">
         UPDATE cart_item
-        SET c_count = #{count}
-        WHERE ci_no = #{ci_no}
+        SET c_count = c_count + #{addCount}
+        WHERE c_no = #{c_no} AND c_productId = #{c_productId}
     </update>
 
     <!-- CartItem 삭제 -->

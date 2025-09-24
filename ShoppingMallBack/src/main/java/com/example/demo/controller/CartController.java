@@ -1,6 +1,9 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.CartAddRequestDTO;
 import com.example.demo.dto.CartDTO;
+import com.example.demo.dto.CartItemDTO;
+import com.example.demo.model.CartItem;
 import com.example.demo.service.CartService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -21,19 +24,19 @@ public class CartController {
 
     // 2. 상품 추가
     @PostMapping("/add")
-    public ResponseEntity<CartDTO> addToCart(
-            @RequestParam String email,
-            @RequestParam String productId,
-            @RequestParam(defaultValue = "1") int count) {
-        return ResponseEntity.ok(cartService.addToCart(email, productId, count));
+    public ResponseEntity<CartDTO> addToCart(@RequestBody CartAddRequestDTO cartAddReqDTO) {
+        CartDTO cart = cartService.getCartByEmail(cartAddReqDTO.getEmail());
+        cartService.addToCart(cart.getC_no(), cartAddReqDTO.getProductId(), cartAddReqDTO.getCount());
+        return ResponseEntity.ok(cartService.getCartByEmail(cartAddReqDTO.getEmail()));
     }
 
     // 3. 수량 변경
     @PutMapping("/update")
     public ResponseEntity<CartDTO> updateCartCount(
-            @RequestParam Long ci_no,
-            @RequestParam int count) {
-        return ResponseEntity.ok(cartService.updateCartCount(ci_no, count));
+            @RequestParam Long c_no,
+            @RequestParam String c_productId,
+            @RequestParam int addCount) {
+        return ResponseEntity.ok(cartService.updateCartItemCount(c_no, c_productId, addCount));
     }
 
     // 4. 단일 삭제

@@ -19,6 +19,8 @@ const ShopNavbar = ({ isNarrow }) => {
     navigate("/");
   };
 
+  const cartCount = cartItems.reduce((sum, item) => sum + item.c_count, 0);
+  
   return (
     <Navbar bg="light" expand="lg">
       <Container fluid>
@@ -57,7 +59,7 @@ const ShopNavbar = ({ isNarrow }) => {
             <Nav.Item>
               <Nav.Link onClick={() => navigate("/shop/cart")}>
                 <i className="nc-icon nc-cart-simple"></i>
-                <span className="notification">{cartItems.length}</span>
+                <span className="notification">{cartCount}</span>
                 <span className="d-lg-none ml-1">Cart</span>
               </Nav.Link>
             </Nav.Item>

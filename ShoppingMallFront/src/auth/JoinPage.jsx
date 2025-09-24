@@ -25,7 +25,7 @@ const JoinPage = () => {
       navigate("/login");  // ✅ 장바구니도 이미 DB에 생성된 상태
     } catch (err) {
       console.error(err);
-      alert("회원가입 실패");
+      alert("회원가입 실패하였습니다. 다시 시도해주세요.");
     }
   };
 
