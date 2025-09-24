@@ -34,7 +34,7 @@ const menuConfig = {
       { label: "배송준비", path: "/admin/order/ready" },
       { label: "배송중", path: "/admin/order/shipping" },
       { label: "배송완료", path: "/admin/order/done" },
-      { label: "취소/교환/반품", path: "/admin/order/cancel" },
+      { label: "취소/교환", path: "/admin/order/cancel" },
     ],
   },
   // 필요에 따라 추가...

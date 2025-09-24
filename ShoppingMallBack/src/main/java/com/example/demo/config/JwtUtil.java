@@ -1,4 +1,4 @@
 package com.example.demo.config;
 
-public class JwtTokenProvider {
+public class JwtUtil {
 }

@@ -1,11 +1,8 @@
-import React from 'react'
-import Header from '../include/Header'
-import Footer from '../include/Footer'
 
 const MainPage = () => {
   return (
     <>
-      MainPage
+      관리자 메인 페이지
     </>
   )
 }

@@ -1,10 +1,7 @@
 import { Route, Routes, Navigate } from "react-router-dom";
 import './components/style/MainBoard.css'
 import "bootstrap/dist/css/bootstrap.min.css";
-import NoticePage from "./components/page/NoticePage";
 import MainPage from "./components/page/MainPage";
-import LoginForm from "./components/auth/LoginForm";
-import LocalSignUpPage from "./components/page/LocalSignUpPage";
 import { useState } from "react";
 import Header from "./components/include/Header";
 import Footer from "./components/include/Footer";
@@ -25,8 +22,9 @@ import OrderReady from "./components/orders/OrderReady";
 import OrderShipping from "./components/orders/OrderShipping";
 import OrderDone from "./components/orders/OrderDone";
 import OrderCancel from "./components/orders/OrderCancel";
-import NoticeRow from "./components/notice/NoticeRow";
-import NoticeDetail from "./components/notice/NoticeDetail";
+import BoardList from "./components/board/BoardList";
+import BoardUpsert from "./components/board/BoardUpsert";
+import LoginPage from "./components/auth/LoginPage";
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
@@ -50,17 +48,16 @@ export default function App() {
 
         <Routes>
           {/* 메인/공용 라우트 */}
-          <Route path="/" element={<MainPage onLogout={handleLogout} />} />
-          <Route path="/login" element={<LoginForm onLogin={handleLogin} />} />
-          <Route path="/localSignUp" element={<LocalSignUpPage />} />
+          <Route path="/admin" element={<MainPage onLogout={handleLogout} />} />
+          <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
           <Route path="/stats" element={<StatsPage />} />
           <Route path="/setting" element={<SettingPage />} />
 
-          {/* notice start */}
-          <Route path="/notice" element={<NoticePage />} />
-          <Route path="/notice/row" element={<NoticeRow />} />
-          <Route path="/notice/detail" element={<NoticeDetail />} />
-          {/* notice end */}
+          {/* board start */}
+          <Route path="/admin/board" element={<BoardList />} />
+          <Route path="/admin/board/new" element={<BoardUpsert />} />
+          <Route path="/admin/board/:bNo/edit" element={<BoardUpsert />} />
+          {/* board end */}
 
           {/*  Admin 레이아웃 + 중첩 라우트 */}
           <Route path="/member" element={<Navigate to="/admin/member" replace />} />
