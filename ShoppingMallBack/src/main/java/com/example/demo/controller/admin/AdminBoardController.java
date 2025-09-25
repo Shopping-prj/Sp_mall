@@ -2,7 +2,7 @@ package com.example.demo.controller.admin;
 
 import com.example.demo.model.admin.AdminBoard;
 import com.example.demo.service.admin.AdminBoardService;
-import lombok.*;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,51 +12,33 @@ import java.util.List;
 @RequestMapping("/api/admin/boards")
 @RequiredArgsConstructor
 public class AdminBoardController {
+    private final AdminBoardService service;
 
-    private final AdminBoardService adminBoardService;
+    @GetMapping
+    public List<AdminBoard> list() { return service.getAll(); }
 
-    @PostMapping
-    public ResponseEntity<String> create(@RequestBody AdminBoard req) {
-        String id = adminBoardService.create(req);
-        return ResponseEntity.ok(id);
+    @GetMapping("/{id}")
+    public ResponseEntity<AdminBoard> detail(@PathVariable Long id) {
+        AdminBoard b = service.getDetail(id);
+        return (b == null) ? ResponseEntity.notFound().build() : ResponseEntity.ok(b);
+    }
+
+    @PostMapping(consumes="application/json")
+    public ResponseEntity<Long> create(@RequestBody AdminBoard req) {
+        service.insert(req);
+        return ResponseEntity.ok(req.getB_no());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> update(@PathVariable String id, @RequestBody AdminBoard req) {
-        adminBoardService.update(id, req);
+    public ResponseEntity<Void> update(@PathVariable Long id, @RequestBody AdminBoard req) {
+        req.setB_no(id);
+        service.update(req);
         return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<AdminBoard> detail(@PathVariable String id,
-                                             @RequestParam(defaultValue = "false") boolean inc) {
-        return ResponseEntity.ok(adminBoardService.detail(id, inc));
-    }
-
-    @GetMapping
-    public ResponseEntity<PageDto> list(
-            @RequestParam(required = false) String keyword,
-            @RequestParam(required = false) String status,
-            @RequestParam(required = false) Boolean pinned,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "20") int size
-    ) {
-        List<AdminBoard> content = adminBoardService.list(keyword, status, pinned, page, size);
-        long totalCount = adminBoardService.count(keyword, status, pinned);
-        return ResponseEntity.ok(new PageDto(content, totalCount, page, size));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable String id) {
-        adminBoardService.delete(id);
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        service.delete(id);
         return ResponseEntity.noContent().build();
-    }
-
-    @Getter @AllArgsConstructor
-    static class PageDto {
-        private List<AdminBoard> content;
-        private long totalCount;
-        private int page;
-        private int size;
     }
 }

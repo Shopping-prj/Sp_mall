@@ -65,7 +65,7 @@ public class MemberService {
         }
 
         memberDao.insert(m);
-        return m.getM_id();
+        return m.getM_no();
     }
 
     @Transactional(readOnly = true)
@@ -94,4 +94,5 @@ public class MemberService {
     public void delete(Long id) {
         memberDao.deleteById(id);
     }
+
 }

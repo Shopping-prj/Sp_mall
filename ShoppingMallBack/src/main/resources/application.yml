@@ -9,7 +9,7 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://project-mall-db.cpocwiywq77l.ap-southeast-2.rds.amazonaws.com:3306/test_mall?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    url: jdbc:mysql://project-mall-db.cpocwiywq77l.ap-southeast-2.rds.amazonaws.com:3306/sp_mall?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: admin
     password: abcd1234
     hikari:

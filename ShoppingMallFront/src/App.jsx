@@ -1,98 +1,76 @@
-import { Route, Routes, Navigate } from "react-router-dom";
-import './components/style/MainBoard.css'
-import "bootstrap/dist/css/bootstrap.min.css";
-import MainPage from "./components/page/MainPage";
-import { useState } from "react";
-import Header from "./components/include/Header";
-import Footer from "./components/include/Footer";
-import SettingPage from "./components/settings/Settings";
-import StatsPage from "./components/stats/stats";
-import OrdersPage from "./components/orders/Orders";
-import ProductsPage from "./components/products/Products";
-import MemberAdd from "./components/member/MemberAdd";
-import MemberUpdate from "./components/member/MemberUpdate";
-import MemberDelete from "./components/member/MemberDelete";
-import AdminLayout from "./components/include/AdminLayout";
-import Members from "./components/member/Members";
-import ProductInfo from "./components/products/ProductInfo";
-import ProductDelete from "./components/products/ProductDelete";
-import ProductAdd from "./components/products/ProductAdd";
-import OrderWaiting from "./components/orders/OrderWaiting";
-import OrderReady from "./components/orders/OrderReady";
-import OrderShipping from "./components/orders/OrderShipping";
-import OrderDone from "./components/orders/OrderDone";
-import OrderCancel from "./components/orders/OrderCancel";
-import BoardList from "./components/board/BoardList";
-import BoardUpsert from "./components/board/BoardUpsert";
-import LoginPage from "./components/auth/LoginPage";
+import { Routes, Route, Navigate } from "react-router-dom";
+import ShopLayout from "./layouts/ShopLayout";
 
-export default function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(() => {
-  return localStorage.getItem('isLoggedIn') === 'true';
-});
-  // 로그인 시 호출
-  const handleLogin = () => {
-    setIsLoggedIn(true);
-    localStorage.setItem('isLoggedIn', 'true'); // 로그인 상태 저장
+// 페이지들
+import HomePage from "./pages/HomePage";
+import Categories from "pages/Categories";
+import MyPage from "auth/account/MyPage";
+import OrderList from "auth/account/OrderList";
+import JoinPage from "auth/JoinPage";
+import Member from "auth/account/Member";
+import CartPage from "pages/CartPage";
+import { useAuth } from "context/AuthContext";
+import LoginPage from "auth/LoginPage";
+import ShopNavbar from "components/include/ShopNavbar";
+import PaymentPage from "pages/PaymentPage";
+import SearchPage from "pages/Searchpage";
+
+const App = () => {
+  const { isLoggedIn } = useAuth();
+
+  const ProtectedRoute = ({ children }) => {
+    if (!isLoggedIn) {
+      return <Navigate to="/login" replace />;
+    }
+    return children;
   };
-  //로그아웃시 호출
-  const handleLogout = () => {
-    console.log('로그아웃 호출');
-    setIsLoggedIn(false);
-    localStorage.removeItem('isLoggedIn'); // 로그인 상태 삭제
-  }
+
   return (
-    <>
-      <div style={{ height: "100vh" }}>
-        <Header onLogout={handleLogout} isLoggedIn={isLoggedIn} />
+    <Routes>
+      {/* 공통 레이아웃 (헤더/푸터 포함) */}
+      <Route path="shop" element={<ShopLayout/>}>
+        {/* 누구나 접근 가능한 페이지 */}
+        <Route index element={<HomePage />} />
+        <Route path="category" element={<Categories />} />
+        <Route path="search" element={<SearchPage />} />
+        <Route path="cart" element={<CartPage />} />
+        <Route path="payment" element={<PaymentPage />} />
 
-        <Routes>
-          {/* 메인/공용 라우트 */}
-          <Route path="/admin" element={<MainPage onLogout={handleLogout} />} />
-          <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
-          <Route path="/stats" element={<StatsPage />} />
-          <Route path="/setting" element={<SettingPage />} />
+        {/* 로그인해야 접근 가능한 페이지 */}
+        <Route
+          path="mypage"
+          element={
+            <ProtectedRoute>
+              <MyPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="mypage/member"
+          element={
+            <ProtectedRoute>
+              <Member />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="mypage/orders"
+          element={
+            <ProtectedRoute>
+              <OrderList />
+            </ProtectedRoute>
+          }
+        />
+      </Route>
 
-          {/* board start */}
-          <Route path="/admin/board" element={<BoardList />} />
-          <Route path="/admin/board/new" element={<BoardUpsert />} />
-          <Route path="/admin/board/:bNo/edit" element={<BoardUpsert />} />
-          {/* board end */}
+      {/* 로그인/회원가입 페이지 */}
+        <Route path="login" element={<LoginPage />} />
+        <Route path="join" element={<JoinPage />} />
 
-          {/*  Admin 레이아웃 + 중첩 라우트 */}
-          <Route path="/member" element={<Navigate to="/admin/member" replace />} />
-          <Route path="/product" element={<Navigate to="/admin/product" replace />} />
-          <Route path="/order" element={<Navigate to="/admin/order" replace />} />
-          <Route path="/admin" element={<AdminLayout />}>
-          {/* index 라우트(선택): /admin 진입 시 기본 페이지 */}
-          {/* <Route index element={<Dashboard />} /> */}
-
-          {/* member start */}
-          <Route path="member" element={<Members />} />
-          <Route path="member/add" element={<MemberAdd />} />
-          <Route path="member/update" element={<MemberUpdate />} />
-          <Route path="member/delete" element={<MemberDelete />} />
-          {/* member end */}
-
-          {/* product start */}
-          <Route path="product" element={<ProductsPage />} />
-          <Route path="product/Info" element={<ProductInfo />} />
-          <Route path="product/Add" element={<ProductAdd />} />
-          <Route path="product/Delete" element={<ProductDelete />} />
-          {/* product end */}
-
-          {/* order start */}
-          <Route path="order" element={<OrdersPage />} />
-          <Route path="order/waiting" element={<OrderWaiting />} />
-          <Route path="order/ready" element={<OrderReady />} />
-          <Route path="order/shipping" element={<OrderShipping />} />
-          <Route path="order/done" element={<OrderDone />} />
-          <Route path="order/cancel" element={<OrderCancel />} />
-          {/* order end */}
-          </Route>
-        </Routes>
-        <Footer />
-      </div>
-    </>
+      {/* 루트 접근 시 /shop으로 이동 */}
+      <Route path="/" element={<Navigate to="/shop" replace />} />
+    </Routes>
   );
-}
+};
+
+export default App;

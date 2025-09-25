@@ -4,95 +4,36 @@
 <mapper namespace="com.example.demo.dao.admin.AdminBoardMapper">
 
     <resultMap id="AdminBoardMap" type="com.example.demo.model.admin.AdminBoard">
-        <id     property="b_id"        column="b_id"/>
-        <result property="b_title"     column="b_title"/>
-        <result property="b_content"   column="b_content"/>
-        <result property="b_writer"    column="b_writer"/>
-        <result property="b_views"     column="b_views"/>
-        <result property="b_pinned"    column="b_pinned"/>
-        <result property="b_status"    column="b_status"/>
-        <result property="b_createdAt" column="b_created_at"/>
-        <result property="b_updatedAt" column="b_updated_at"/>
+        <id     property="b_no"     column="b_no"/>
+        <result property="b_email"  column="b_email"/>
+        <result property="b_title"  column="b_title"/>
+        <result property="b_content" column="b_content"/>
+        <result property="b_date"   column="b_date"/>
     </resultMap>
 
-    <!-- 등록 -->
-    <insert id="insert" parameterType="com.example.demo.model.admin.AdminBoard">
-        INSERT INTO board (
-        b_id, b_title, b_content, b_writer,
-        b_views, b_pinned, b_status,
-        b_created_at, b_updated_at
-        ) VALUES (
-        #{b_id}, #{b_title}, #{b_content}, #{b_writer},
-        #{b_views}, #{b_pinned}, #{b_status},
-        #{b_createdAt}, #{b_updatedAt}
-        )
+    <insert id="insert" parameterType="com.example.demo.model.admin.AdminBoard" useGeneratedKeys="true" keyProperty="b_no" keyColumn="b_no">
+        INSERT INTO board (b_email, b_title, b_content, b_date)
+        VALUES (#{b_email}, #{b_title}, #{b_content}, NOW())
     </insert>
 
-    <!-- 수정 -->
     <update id="update" parameterType="com.example.demo.model.admin.AdminBoard">
         UPDATE board
-        SET
+        SET b_email = #{b_email},
         b_title = #{b_title},
-        b_content = #{b_content},
-        b_writer = #{b_writer},
-        b_pinned = #{b_pinned},
-        b_status = #{b_status},
-        b_updated_at = #{b_updatedAt}
-        WHERE b_id = #{b_id}
+        b_content = #{b_content}
+        WHERE b_no = #{b_no}
     </update>
 
-    <!-- 소프트 삭제 -->
-    <update id="softDelete" parameterType="string">
-        UPDATE board
-        SET b_status = 'DELETED', b_updated_at = NOW()
-        WHERE b_id = #{value}
-    </update>
+    <delete id="delete" parameterType="long">
+        DELETE FROM board WHERE b_no = #{b_no}
+    </delete>
 
-    <!-- 단건 -->
-    <select id="getById" parameterType="string" resultMap="AdminBoardMap">
-        SELECT * FROM board WHERE b_id = #{value}
+    <select id="findById" parameterType="long" resultMap="AdminBoardMap">
+        SELECT * FROM board WHERE b_no = #{b_no}
     </select>
 
-    <!-- 조회수 증가 -->
-    <update id="increaseViews" parameterType="string">
-        UPDATE board SET b_views = b_views + 1 WHERE b_id = #{value}
-    </update>
-
-    <!-- 목록 -->
-    <select id="list" parameterType="map" resultMap="AdminBoardMap">
-        SELECT * FROM board
-        <where>
-            <if test="keyword != null and keyword != ''">
-                (b_title LIKE CONCAT('%', #{keyword}, '%')
-                OR b_content LIKE CONCAT('%', #{keyword}, '%'))
-            </if>
-            <if test="status != null and status != ''">
-                AND b_status = #{status}
-            </if>
-            <if test="pinned != null">
-                AND b_pinned = #{pinned}
-            </if>
-        </where>
-        ORDER BY b_pinned DESC, b_created_at DESC
-        <if test="size != null">  LIMIT #{size}  </if>
-        <if test="offset != null"> OFFSET #{offset} </if>
-    </select>
-
-    <!-- 카운트 -->
-    <select id="count" parameterType="map" resultType="long">
-        SELECT COUNT(1) FROM board
-        <where>
-            <if test="keyword != null and keyword != ''">
-                (b_title LIKE CONCAT('%', #{keyword}, '%')
-                OR b_content LIKE CONCAT('%', #{keyword}, '%'))
-            </if>
-            <if test="status != null and status != ''">
-                AND b_status = #{status}
-            </if>
-            <if test="pinned != null">
-                AND b_pinned = #{pinned}
-            </if>
-        </where>
+    <select id="findAll" resultMap="AdminBoardMap">
+        SELECT * FROM board ORDER BY b_no DESC
     </select>
 
 </mapper>

@@ -3,10 +3,12 @@ package com.example.demo.controller;
 import com.example.demo.model.Member;
 import com.example.demo.service.MemberService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/members")
@@ -52,4 +54,6 @@ public class MemberController {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }
+
+
 }
