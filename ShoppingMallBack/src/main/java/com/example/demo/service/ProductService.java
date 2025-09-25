@@ -15,8 +15,8 @@ public class ProductService {
 
     private final ProductDao productDao;
 
-    public String register(Product product) {
-        productDao.insert(product);
+    public String addProduct(Product product) {
+        productDao.addProduct(product);
         return product.getP_productId();
     }
 
@@ -45,4 +45,5 @@ public class ProductService {
     public List<Product> search(String keyword) {
         return productDao.search("%" + keyword + "%");
     }
+
 }

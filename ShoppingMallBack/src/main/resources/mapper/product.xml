@@ -19,7 +19,7 @@
         <result property="p_category4" column="p_category4"/>
     </resultMap>
 
-    <insert id="insert" parameterType="com.example.demo.model.Product">
+    <insert id="addProduct" parameterType="com.example.demo.model.Product">
         INSERT INTO product (
         p_productId, p_title, p_link, p_image,
         p_lprice, p_hprice, p_productType,

@@ -37,4 +37,9 @@ public class PaymentService {
     public void delete(String payImpUid) {
         paymentDao.deleteById(payImpUid);
     }
+
+    @Transactional(readOnly = true)
+    public List<Payment> getPaymentsByEmail(String email) {
+        return paymentDao.getByEmail(email);
+    }
 }

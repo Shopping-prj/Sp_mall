@@ -36,4 +36,8 @@ public class PaymentDao {
     public int deleteById(String payImpUid) {
         return sqlSession.delete(NS + "deleteById", payImpUid);
     }
+
+    public List<Payment> getByEmail(String email) {
+        return sqlSession.selectList(NS + "getByEmail", email);
+    }
 }

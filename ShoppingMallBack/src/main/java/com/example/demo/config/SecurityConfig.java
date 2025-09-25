@@ -1,6 +1,7 @@
 package com.example.demo.config;
 
 import com.example.demo.config.auth.PrincipalDetailsService;
+import com.example.demo.service.MemberService;
 import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -17,23 +18,23 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
-@EnableWebSecurity // 스프링 시큐리티 필터가 스프링 필터 체인에 등록됨
-@EnableMethodSecurity(prePostEnabled = true) // @Secured, @PreAuthorize 활성화
+@EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true) // @Secured, @PreAuthorize 사용
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private final PrincipalDetailsService userDetailsService;
 
-    @Bean
-    public BCryptPasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+    private final PrincipalDetailsService userDetailsService;
+    private final JwtUtil jwtUtil;
+    private final MemberService memberService;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     @Bean
     public RoleHierarchy roleHierarchy() {
@@ -46,7 +47,6 @@ public class SecurityConfig {
 
     @Bean
     public GrantedAuthoritiesMapper authoritiesMapper(RoleHierarchy roleHierarchy) {
-        // ADMIN권한 자동 추가
         return new RoleHierarchyAuthoritiesMapper(roleHierarchy);
     }
 
@@ -54,19 +54,25 @@ public class SecurityConfig {
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setUserDetailsService(userDetailsService);
-        provider.setPasswordEncoder(passwordEncoder());
+        provider.setPasswordEncoder(passwordEncoder);
         return provider;
+    }
+
+    // ✅ JwtAuthFilter Bean 등록
+    @Bean
+    public JwtAuthFilter jwtAuthFilter() {
+        return new JwtAuthFilter(jwtUtil, memberService);
     }
 
     // ✅ CORS 전역 설정
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(List.of("http://localhost:3000")); // localhost 포트 전체 허용
+        configuration.setAllowedOriginPatterns(List.of("http://localhost:3000"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
-        // configuration.setAllowCredentials(true);
-        // configuration.setExposedHeaders(List.of("Authorization", "Set-Cookie")); // 필요 시 추가
+        configuration.setAllowCredentials(true);
+        configuration.setExposedHeaders(List.of("Authorization", "Set-Cookie"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
@@ -80,15 +86,31 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authenticationProvider(authenticationProvider())
                 .authorizeHttpRequests(auth -> auth
-                        .dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
-                        // .requestMatchers("/", "/joinForm", "/api/members/login", "/api/products/**").permitAll()
-                        // .requestMatchers("/user/**", "/loginTest").authenticated()
-                        // .requestMatchers("/admin/**").hasRole("ADMIN")
-                        // .anyRequest().authenticated()
+                        // 공개 접근
+                        .requestMatchers(
+                                "/login", "/join",
+                                "/shop",                // 메인 shop 페이지
+                                "/shop/category",       // 카테고리
+                                "/shop/search",         // 검색
+                                "/api/users/login",
+                                "/api/products/**"
+                        ).permitAll()
+
+                        // 로그인 필요
+                        .requestMatchers(
+                                "/shop/cart",
+                                "/shop/payment",
+                                "/user/**",
+                                "/loginTest"
+                        ).authenticated()
+
+                        // 관리자 전용
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+
+                        // 기타
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .anyRequest().permitAll()
+                        .anyRequest().authenticated()
                 )
-                // ❌ formLogin 제거
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/")
@@ -98,9 +120,11 @@ public class SecurityConfig {
                 )
                 .exceptionHandling(exception -> exception
                         .accessDeniedHandler((request, response, accessDeniedException) ->
-                                response.sendError(403, "Access Denied") // JSON 응답 가능
+                                response.sendError(403, "Access Denied")
                         )
-                );
+                )
+                // ✅ UsernamePasswordAuthenticationFilter 전에 JwtAuthFilter 삽입
+                .addFilterBefore(jwtAuthFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

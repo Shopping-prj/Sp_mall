@@ -1,9 +1,8 @@
-package com.example.demo.controller;
+package com.example.demo.controller.user;
 
 import com.example.demo.dto.CartAddRequestDTO;
 import com.example.demo.dto.CartDTO;
 import com.example.demo.dto.CartItemDTO;
-import com.example.demo.model.CartItem;
 import com.example.demo.service.CartService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/carts")
 @RequiredArgsConstructor
-public class CartController {
+public class UserCartController {
 
     private final CartService cartService;
 

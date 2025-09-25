@@ -44,6 +44,13 @@
         SELECT * FROM payment WHERE pay_imp_uid = #{value}
     </select>
 
+    <select id="getByEmail" resultType="com.example.demo.model.Payment">
+        SELECT *
+        FROM payment
+        WHERE pay_buyer_email = #{value}
+        ORDER BY pay_paid_at DESC
+    </select>
+
     <select id="getAllPayment" resultMap="Payment">
         SELECT * FROM payment
         ORDER BY pay_paid_at DESC

@@ -45,7 +45,7 @@ const ShopNavbar = ({ isNarrow }) => {
             </Dropdown>
           )}
           <Navbar.Brand type="button" className="ml-2" onClick={toHome}>
-            CosmoShop
+            COSMOSHOP
           </Navbar.Brand>
         </div>
 
