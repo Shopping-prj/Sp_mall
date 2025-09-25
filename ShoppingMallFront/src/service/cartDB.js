@@ -38,14 +38,15 @@ export const addToCart = async ({ c_email, c_productId, c_count }) => {
 
 
 // 3. 회원 → 수량 변경
-export const updateCartCount = async (ci_no, c_count) => {
+export const updateCartCount = async (c_no, c_productId, addCount) => {
   try {
     const res = await axios({
       method: "put",
       url: `${BASE}/update`,
       params: {
-        ci_no,   // @RequestParam Long ci_no
-        count: c_count, // @RequestParam int count
+        c_no,   // @RequestParam Long ci_no
+        c_productId, 
+        addCount, // @RequestParam int count
       },
     });
     return res.data;
@@ -56,12 +57,12 @@ export const updateCartCount = async (ci_no, c_count) => {
 };
 
 // 4. 회원 → 단일 삭제
-export const removeCartItem = async (ci_no) => {
+export const removeCartItem = async (ci_no, email) => {
   try {
     const res = await axios({
       method: "delete",
       url: `${BASE}/item`,
-      params: { ci_no }, // @RequestParam Long ci_no
+      params: { ci_no, email }, // @RequestParam Long ci_no
     });
     return res.data;
   } catch (err) {

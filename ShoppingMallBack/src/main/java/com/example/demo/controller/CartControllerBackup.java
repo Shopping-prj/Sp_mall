@@ -1,60 +1,55 @@
 //package com.example.demo.controller;
 //
+//import com.example.demo.dto.CartAddRequestDTO;
+//import com.example.demo.dto.CartDTO;
 //import com.example.demo.dto.CartItemDTO;
-//import com.example.demo.service.CartServiceBacup;
+//import com.example.demo.model.CartItem;
+//import com.example.demo.service.CartService;
 //import lombok.RequiredArgsConstructor;
 //import org.springframework.http.ResponseEntity;
 //import org.springframework.web.bind.annotation.*;
 //
-//import java.util.List;
-//
-///**
-// * CartController
-// * 🔧 변경 핵심:
-// * 1) GET /api/carts/{email} → List<CartItemDTO> (배열) 반환
-// *    - 프론트가 setCartItems(data)로 바로 쓰도록 맞춤
-// * 2) POST /api/carts → @RequestParam(email, productId, count)
-// *    - 프론트 service/cartDB.js의 axios 객체 호출(params)과 1:1 매칭
-// */
 //@RestController
 //@RequestMapping("/api/carts")
 //@RequiredArgsConstructor
-//public class CartControllerBackup {
-//    private final CartServiceBacup cartService;
+//public class CartController {
 //
-//    /** 장바구니에 상품 추가 */
-//    @PostMapping
-//    public ResponseEntity<Void> addToCart(@RequestParam String email,
-//                                          @RequestParam String productId,
-//                                          @RequestParam(defaultValue = "1") int count) {
-//        cartService.addToCart(email, productId, count);
-//        return ResponseEntity.ok().build();
+//    private final CartService cartService;
+//
+//    // 1. 장바구니 조회
+//    @GetMapping()
+//    public ResponseEntity<CartDTO> getCart(@RequestParam String email) {
+//        return ResponseEntity.ok(cartService.getCartByEmail(email));
 //    }
 //
-//    /** 회원별 장바구니 조회 → 배열(List<CartItemDTO>) 반환 */
-//    @GetMapping("/{email}")
-//    public ResponseEntity<List<CartItemDTO>> getCart(@PathVariable String email) {
-//        return ResponseEntity.ok(cartService.getItemsWithProductByEmail(email));
+//    // 2. 상품 추가
+//    @PostMapping("/add")
+//    public ResponseEntity<CartDTO> addToCart(@RequestBody CartAddRequestDTO cartAddReqDTO) {
+//        CartDTO cart = cartService.getCartByEmail(cartAddReqDTO.getEmail());
+//        cartService.addToCart(cart.getC_no(), cartAddReqDTO.getProductId(), cartAddReqDTO.getCount());
+//        return ResponseEntity.ok(cartService.getCartByEmail(cartAddReqDTO.getEmail()));
 //    }
 //
-//    /** 장바구니 아이템 수량 변경 */
-//    @PatchMapping("/item/{ciNo}")
-//    public ResponseEntity<Void> updateCount(@PathVariable Long ciNo, @RequestParam int count) {
-//        cartService.updateCount(ciNo, count);
-//        return ResponseEntity.noContent().build();
+//    // 3. 수량 변경
+//    @PutMapping("/update")
+//    public ResponseEntity<CartDTO> updateCartCount(
+//            @RequestParam Long c_no,
+//            @RequestParam String c_productId,
+//            @RequestParam int addCount) {
+//        return ResponseEntity.ok(cartService.updateCartItemCount(c_no, c_productId, addCount));
 //    }
 //
-//    /** 장바구니 아이템 삭제 */
-//    @DeleteMapping("/item/{ciNo}")
-//    public ResponseEntity<Void> deleteItem(@PathVariable Long ciNo) {
-//        cartService.deleteItem(ciNo);
-//        return ResponseEntity.noContent().build();
+//    // 4. 단일 삭제
+//    @DeleteMapping("/item")
+//    public ResponseEntity<CartDTO> removeCartItem(
+//            @RequestParam Long ci_no,
+//            @RequestParam String email) {
+//        return ResponseEntity.ok(cartService.removeCartItem(ci_no, email));
 //    }
 //
-//    /** 장바구니 전체 비우기 */
-//    @DeleteMapping("/clear/{email}")
-//    public ResponseEntity<Void> clearCart(@PathVariable String email) {
-//        cartService.clearCart(email);
-//        return ResponseEntity.noContent().build();
+//    // 5. 전체 삭제
+//    @DeleteMapping("/clear")
+//    public ResponseEntity<CartDTO> clearCart(@RequestParam String email) {
+//        return ResponseEntity.ok(cartService.clearCartByEmail(email));
 //    }
 //}

@@ -1,6 +1,6 @@
 //package com.example.demo.dao;
 //
-//import com.example.demo.dto.CartItemDTO;
+//import com.example.demo.dto.CartDTO;
 //import com.example.demo.model.Cart;
 //import com.example.demo.model.CartItem;
 //import lombok.RequiredArgsConstructor;
@@ -8,64 +8,65 @@
 //import org.springframework.stereotype.Repository;
 //
 //import java.util.HashMap;
-//import java.util.List;
 //import java.util.Map;
 //
-///**
-// * CartDao
-// * - MyBatis DAO (Entity 중심, DTO는 Service에서 조합)
-// * - 🔧 변경: getCartItemsWithProduct 추가
-// * - 🔧 변경: insertCart 후 c_no null 검사 책임은 Service에서 수행(여기선 그대로)
-// */
 //@Repository
 //@RequiredArgsConstructor
-//public class CartDaoBackup {
-//    private final SqlSessionTemplate sqlSession;
+//public class CartDao {
 //    private static final String NS = "com.example.demo.dao.CartMapper.";
 //
-//    public Cart getCartByEmail(String email) {
-//        return sqlSession.selectOne(NS + "getCartByEmail", email);
+//    private final SqlSessionTemplate sql;
+//
+//    // 1. 이메일로 CartDTO 조회 (Cart + Items)
+//    public CartDTO getCartByEmail(String email) {
+//        return sql.selectOne(NS + "getCartByEmail", email);
 //    }
 //
-//    public int insertCart(Cart cart) {
-//        return sqlSession.insert(NS + "insertCart", cart);
+//    // 2. CartEntity 조회 (Cart row만)
+//    public Cart findCartEntityByEmail(String email) {
+//        return sql.selectOne(NS + "findCartEntityByEmail", email);
 //    }
 //
-//    public CartItem getCartItem(Long c_no, String c_productId) {
-//        Map<String, Object> param = new HashMap<>();
-//        param.put("c_no", c_no);
-//        param.put("c_productId", c_productId);
-//        return sqlSession.selectOne(NS + "getCartItem", param);
+//    // 3. Cart 생성
+//    public void insertCart(Cart cart) {
+//        sql.insert(NS + "insertCart", cart);
 //    }
 //
-//    public List<CartItemDTO> getCartItemsWithProduct(Long c_no) {
-//        return sqlSession.selectList(NS + "getCartItemsWithProduct", c_no);
+//    // 4. CartItem 조회 (특정 상품)
+//    public CartItem findCartItem(Long c_no, String productId) {
+//        Map<String, Object> pFindCartItem = new HashMap<>();
+//        pFindCartItem.put("c_no", c_no);
+//        pFindCartItem.put("c_productId", productId);
+//        return sql.selectOne(NS + "findCartItem", pFindCartItem);
 //    }
 //
-//    public int insertCartItem(CartItem item) {
-//        return sqlSession.insert(NS + "insertCartItem", item);
+//    // 5. CartItem 추가
+//    public void insertCartItem(CartItem item) {
+//        sql.insert(NS + "insertCartItem", item);
 //    }
 //
-//    public int increaseCount(Long c_no, String c_productId, int count) {
-//        Map<String, Object> param = new HashMap<>();
-//        param.put("c_no", c_no);
-//        param.put("c_productId", c_productId);
-//        param.put("c_count", count);
-//        return sqlSession.update(NS + "increaseCount", param);
+//    // 6. CartItem 수량 업데이트
+//    public int updateCartItemCount(Long c_no, String productId, int addCount) {
+//        Map<String, Object> pUpdateCartItemCount = new HashMap<>();
+//        pUpdateCartItemCount.put("c_no", c_no);
+//        pUpdateCartItemCount.put("c_productId", productId);
+//        pUpdateCartItemCount.put("addCount", addCount);
+//        return sql.update(NS + "updateCartItemCount", pUpdateCartItemCount);
 //    }
 //
-//    public int updateCount(Long ci_no, int count) {
-//        CartItem param = new CartItem();
-//        param.setCi_no(ci_no);
-//        param.setC_count(count);
-//        return sqlSession.update(NS + "updateCount", param);
+//    // 7. CartItem 삭제
+//    public void deleteCartItem(Long ci_no) {
+//        sql.delete(NS + "deleteCartItem", ci_no);
 //    }
 //
-//    public int deleteCartItem(Long ci_no) {
-//        return sqlSession.delete(NS + "deleteCartItem", ci_no);
+//    // 8. ci_no → email 찾기
+//    public String findEmailByCartItem(Long ci_no) {
+//        return sql.selectOne(NS + "findEmailByCartItem", ci_no);
 //    }
 //
-//    public int deleteCartByEmail(String email) {
-//        return sqlSession.delete(NS + "deleteCartByEmail", email);
+//    // 9. 특정 회원 전체 아이템 삭제
+//    public void deleteCartItemsByEmail(String email) {
+//        sql.delete(NS + "deleteCartItemsByEmail", email);
 //    }
+//
 //}

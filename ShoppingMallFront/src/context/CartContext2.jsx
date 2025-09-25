@@ -87,12 +87,15 @@ export const CartProvider = ({ children }) => {
   }, [isLoggedIn, loginMember]);
 
   const loadCart = async (userEmail) => {
-    if (userEmail) {
-      const data = await getCartByEmail(userEmail);
-      setCartItems(data);
-    }
-  };
-
+  if (userEmail) {
+    const data = await getCartByEmail(userEmail);
+    // 🔹 ci_no가 null인 아이템은 제외
+    const items = Array.isArray(data.items)
+      ? data.items.filter(i => i.ci_no !== null)
+      : [];
+    setCartItems(items);
+  }
+};
   // 2. 회원 → 상품 추가
   const addItemDB = async (product, count = 1) => {
     // UI 낙관적 반영
@@ -194,3 +197,40 @@ export const CartProvider = ({ children }) => {
     </CartContext.Provider>
   );
 };
+
+
+
+
+/* 
+최종 수정 백업 현재 문제 생길시 적용 시켜 보기
+// CartContext.jsx
+// ... (생략)
+const handleAddToCart = async (product, count = 1) => {
+    if (loginMember?.m_email) {
+      try {
+        // 백엔드에서 완전한 CartItemDTO를 받으므로, 그대로 사용
+        const newItemWithDetails = await addToCart({
+          c_email: loginMember.m_email,
+          c_productId: product.p_productId,
+          c_count: count,
+        });
+
+        setCartItems((prevItems) => {
+          const existing = prevItems.find((i) => i.c_productId === newItemWithDetails.c_productId);
+          return existing
+            ? prevItems.map((i) =>
+                i.c_productId === newItemWithDetails.c_productId
+                  ? { ...i, c_count: i.c_count + count }
+                  : i
+              )
+            : [...prevItems, newItemWithDetails];
+        });
+      } catch (err) {
+        console.error("❌ addToCart 실패:", err);
+      }
+    } else {
+      // ... (비로그인 로직은 그대로)
+    }
+};
+// ... (생략)
+ */

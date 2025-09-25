@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Row, Col, Card, Button, Form, InputGroup } from "react-bootstrap";
+import { Row, Col } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { categories } from "common/categoriesData";
 import { getProductsByCategory } from "service/productsDB";
 import ProductCard from "common/ProductCard";
 import SearchBar from "common/SearchBar";
+import bannerImg from "../assets/images/bg-sign-in-basic.jpeg";
 
 const HomePage = () => {
   const [productsByCategory, setProductsByCategory] = useState({});
@@ -40,20 +41,20 @@ const HomePage = () => {
       {/* 배너 */}
       <div
         style={{
-          /* backgroundImage: "url(https://via.placeholder.com/1200x250)", */
+          backgroundImage: `url(${bannerImg})`,
           backgroundSize: "cover",
           borderRadius: "10px",
           height: "250px",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          color: "#979eaaff ",
+          color: "#d6d9dfb9 ",
           fontSize: "2rem",
           fontWeight: "bold",
           marginBottom: "20px",
         }}
       >
-        쇼핑몰에 오신 것을 환영합니다!
+        Welcome to COSMOSHOP!
       </div>
 
       {/* 검색창 */}
@@ -66,7 +67,7 @@ const HomePage = () => {
         if (visibleItems.length === 0) return null;
         return (
           <div key={c.key} style={{
-            marginBottom: "40px",
+            marginBottom: "20px",
             paddingTop: "20px",
             borderBottom: "1px solid #90acc7ff",
             }}

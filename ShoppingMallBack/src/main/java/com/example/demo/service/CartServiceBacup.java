@@ -1,71 +1,74 @@
 //package com.example.demo.service;
 //
-//import com.example.demo.dao.CartDaoBackup;
+//import com.example.demo.dao.CartDao;
+//import com.example.demo.dto.CartDTO;
 //import com.example.demo.dto.CartItemDTO;
 //import com.example.demo.model.Cart;
 //import com.example.demo.model.CartItem;
 //import lombok.RequiredArgsConstructor;
+//import lombok.extern.slf4j.Slf4j;
+//import org.apache.coyote.http11.filters.SavedRequestInputFilter;
 //import org.springframework.stereotype.Service;
 //import org.springframework.transaction.annotation.Transactional;
 //
-//import java.util.List;
+//import java.util.Collections;
+//import java.util.HashMap;
+//import java.util.Map;
 //
-///**
-// * CartService
-// * - 🔧 변경: getCartItems를 List<CartItemDTO>로 바로 반환(프론트가 배열을 기대)
-// * - 🔧 변경: insertCart 후 c_no null 검증(정상 동작 보장)
-// */
 //@Service
 //@RequiredArgsConstructor
 //@Transactional
-//public class CartServiceBacup {
-//    private final CartDaoBackup cartDao;
+//@Slf4j
+//public class CartService {
+//    private final CartDao cartDao;
 //
-//    /** 장바구니 담기 */
-//    public void addToCart(String email, String productId, int count) {
-//        Cart cart = cartDao.getCartByEmail(email);
+//    // 1. 장바구니 조회
+//    public CartDTO getCartByEmail(String email) {
+//        // 회원가입 시 cart는 항상 생성됨
+//        CartDTO cart = cartDao.getCartByEmail(email);
 //        if (cart == null) {
-//            cart = new Cart();
-//            cart.setC_email(email);
-//            cartDao.insertCart(cart);
-//            // 🔐 중요: MyBatis useGeneratedKeys 로 c_no 가 채워져 있어야 함
-//            if (cart.getC_no() == null) {
-//                throw new IllegalStateException("장바구니 생성 실패: 생성된 c_no 가 null 입니다.");
-//            }
+//            throw new IllegalStateException("회원가입 시 cart가 생성되지 않았습니다: " + email);
 //        }
+//        return cart;
+//    }
 //
-//        CartItem exist = cartDao.getCartItem(cart.getC_no(), productId);
-//        if (exist == null) {
-//            CartItem item = CartItem.builder()
-//                    .c_no(cart.getC_no())
-//                    .c_productId(productId)
-//                    .c_count(Math.max(count, 1)) // 음수/0 방지
-//                    .build();
-//            cartDao.insertCartItem(item);
+//    // 2. 상품 추가
+//    public CartItem addToCart(Long c_no, String c_productId, int count) {
+//        CartItem existing = cartDao.findCartItem(c_no, c_productId);
+//        System.out.println("👉 existing = " + existing);
+//
+//        if (existing == null) {
+//            System.out.println("👉 신규 상품, insert 실행");
+//            CartItem newItem = new CartItem();
+//            newItem.setC_no(c_no);
+//            newItem.setC_productId(c_productId);
+//            newItem.setC_count(count);
+//            cartDao.insertCartItem(newItem);
+//            return newItem;
 //        } else {
-//            cartDao.increaseCount(cart.getC_no(), productId, Math.max(count, 1));
+//            System.out.println("👉 기존 상품, update 실행");
+//            updateCartItemCount(c_no, c_productId, count);
+//            existing.setC_count(existing.getC_count() + count);
+//            return existing;
 //        }
 //    }
 //
-//    /** 회원 장바구니 조회 → 프론트가 바로 쓰는 List<CartItemDTO> (상품정보 포함) */
-//    public List<CartItemDTO> getItemsWithProductByEmail(String email) {
-//        Cart cart = cartDao.getCartByEmail(email);
-//        if (cart == null) return List.of();
-//        return cartDao.getCartItemsWithProduct(cart.getC_no());
+//    // 3. 수량 변경
+//    public CartDTO updateCartItemCount(Long c_no, String productId, int addCount) {
+//        cartDao.updateCartItemCount(c_no, productId, addCount);
+//        String email = cartDao.findEmailByCartItem(c_no);
+//        return getCartByEmail(email); // DTO 반환
 //    }
 //
-//    /** 수량 변경 */
-//    public void updateCount(Long ciNo, int count) {
-//        cartDao.updateCount(ciNo, Math.max(count, 1));
+//    // 4. 단일 삭제
+//    public CartDTO removeCartItem(Long ci_no, String email) {
+//        cartDao.deleteCartItem(ci_no);
+//        return getCartByEmail(email);
 //    }
 //
-//    /** 단건 삭제 */
-//    public void deleteItem(Long ciNo) {
-//        cartDao.deleteCartItem(ciNo);
-//    }
-//
-//    /** 장바구니 전체 비우기 */
-//    public void clearCart(String email) {
-//        cartDao.deleteCartByEmail(email);
+//    // 5. 전체 삭제
+//    public CartDTO clearCartByEmail(String email) {
+//        cartDao.deleteCartItemsByEmail(email);
+//        return getCartByEmail(email);
 //    }
 //}

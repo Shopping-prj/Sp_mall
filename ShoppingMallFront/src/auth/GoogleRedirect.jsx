@@ -1,5 +1,5 @@
 import axios from 'axios'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 /*
 구글 서버에서 응답으로 보내주는 URL이 http://localhost:3000/oauth/google/redirect

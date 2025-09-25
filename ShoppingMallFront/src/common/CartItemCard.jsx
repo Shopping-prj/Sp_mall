@@ -1,8 +1,12 @@
+// src/components/cart/CartItemCard.jsx
 import { Card, Button, FormControl } from "react-bootstrap";
 import RemoveIcon from "@mui/icons-material/Remove";
 import AddIcon from "@mui/icons-material/Add";
+import { useCart } from "context/CartContext";
 
-const CartItemCard = ({ item, changeCount, onRemove }) => {
+const CartItemCard = ({ item }) => {
+const { handleChangeCount, handleRemoveItem } = useCart();
+
   return (
     <Card
       style={{
@@ -79,7 +83,7 @@ const CartItemCard = ({ item, changeCount, onRemove }) => {
                   justifyContent: "center",
                   borderRadius: "8px",
                 }}
-                onClick={() => changeCount(item, item.c_count - 1)}
+                onClick={() => handleChangeCount(item, -1)} // ✅ delta = -1
                 disabled={item.c_count <= 1}
               >
                 <RemoveIcon fontSize="small" />
@@ -96,7 +100,8 @@ const CartItemCard = ({ item, changeCount, onRemove }) => {
                   if (onlyNum === "") return;
                   const parsed = parseInt(onlyNum, 10);
                   if (!isNaN(parsed) && parsed > 0) {
-                    changeCount(item, parsed);
+                    // 직접 입력일 땐 delta가 아니라 target count 전달
+                    handleChangeCount(item, parsed - item.c_count);
                   }
                 }}
                 style={{
@@ -119,12 +124,13 @@ const CartItemCard = ({ item, changeCount, onRemove }) => {
                   justifyContent: "center",
                   borderRadius: "8px",
                 }}
-                onClick={() => changeCount(item, item.c_count + 1)}
+                  onClick={() => handleChangeCount(item, +1)} // ✅ delta = +1
               >
                 <AddIcon fontSize="small" />
               </Button>
             </div>
 
+            {/* 삭제 버튼 */}
             <Button
               style={{
                 borderRadius: "10px",
@@ -135,7 +141,7 @@ const CartItemCard = ({ item, changeCount, onRemove }) => {
               }}
               variant="outline-danger"
               size="sm"
-              onClick={() => onRemove(item)}
+              onClick={() => handleRemoveItem(item.ci_no, item.p_productId)}
             >
               삭제
             </Button>

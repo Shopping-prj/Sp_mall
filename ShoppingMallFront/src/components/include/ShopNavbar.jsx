@@ -19,8 +19,10 @@ const ShopNavbar = ({ isNarrow }) => {
     navigate("/");
   };
 
-  const cartCount = cartItems.reduce((sum, item) => sum + item.c_count, 0);
-  
+  const cartCount = Array.isArray(cartItems)
+  ? cartItems.reduce((sum, item) => sum + (item.c_count || 0), 0)
+  : 0;
+
   return (
     <Navbar bg="light" expand="lg">
       <Container fluid>
@@ -77,10 +79,10 @@ const ShopNavbar = ({ isNarrow }) => {
                 <Dropdown as={Nav.Item}>
                   <Dropdown.Toggle as={Nav.Link}>계정관리</Dropdown.Toggle>
                   <Dropdown.Menu className="account-menu">
-                    <Dropdown.Item as={Link} to="/mypage">마이 페이지</Dropdown.Item>
-                    <Dropdown.Item as={Link} to="/mypage/member">회원정보 수정</Dropdown.Item>
-                    <Dropdown.Item as={Link} to="/mypage/orders">주문 내역</Dropdown.Item>
-                    <Dropdown.Item as={Link} to="/mypage/address">배송지 관리</Dropdown.Item>
+                    <Dropdown.Item as={Link} to="mypage">마이 페이지</Dropdown.Item>
+                    <Dropdown.Item as={Link} to="mypage/member">회원정보 수정</Dropdown.Item>
+                    <Dropdown.Item as={Link} to="mypage/orders">주문 내역</Dropdown.Item>
+                    <Dropdown.Item as={Link} to="mypage/address">배송지 관리</Dropdown.Item>
                     <Dropdown.Divider />
                     <Dropdown.Item onClick={handleLogout}>로그아웃</Dropdown.Item>
                   </Dropdown.Menu>

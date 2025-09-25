@@ -7,10 +7,11 @@ import { loginMember } from "service/memberDB";
 import { useCart } from "context/CartContext";
 import { useAuth } from "context/AuthContext";
 import ShopNavbar from "components/include/ShopNavbar";
+import { getCartByEmail } from "service/cartDB";
 
 const LoginPage = () => {
+  const { setCartItems } = useCart();
   const { login } = useAuth();
-  const { loadCart } = useCart();
   const navigate = useNavigate();
 
   const [User, setUser] = useState({
@@ -37,16 +38,17 @@ const LoginPage = () => {
   };
 
   const loginE = async () => {
-    try {
-      const userData = await loginMember(User.m_email, User.m_password);
-      login(userData);                     // ✅ AuthContext 저장
-      await loadCart(userData.m_email);   // ✅ 로그인 직후 장바구니 로딩 (검증 로직 반영)
-      navigate("/shop");
-    } catch (err) {
-      console.error("로그인 실패:", err);
-      alert(err.response?.data?.message || "로그인 실패");
-    }
-  };
+  try {
+    const userData = await loginMember(User.m_email, User.m_password);
+    login(userData);
+    const cart = await getCartByEmail(userData.m_email);  // ✅ 직접 호출
+    setCartItems(cart.items || []);
+    navigate("/shop");
+  } catch (err) {
+    console.error("로그인 실패:", err);
+    alert(err.response?.data?.message || "로그인 실패");
+  }
+};
 
   const loginG = () => {
     const googleUrl = "https://accounts.google.com/o/oauth2/auth";

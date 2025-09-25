@@ -27,7 +27,7 @@
     <resultMap id="CartEntity" type="com.example.demo.model.Cart">
         <id property="c_no" column="c_no"/>
         <result property="c_email" column="c_email"/>
-        <result property="created_at" column="created_at" jdbcType="TIMESTAMP"/>
+        <result property="created_at" column="created_at"/>
     </resultMap>
 
     <resultMap id="CartItemEntity" type="com.example.demo.model.CartItem">
@@ -36,9 +36,10 @@
         <result property="c_productId" column="c_productId"/>
         <result property="c_count"     column="c_count"/>
     </resultMap>
+
     <!-- ==================== Cart ==================== -->
 
-    <!-- 회원 이메일로 CartDTO 조회 -->
+    <!-- 1. 회원 이메일로 CartDTO 조회 -->
     <select id="getCartByEmail" parameterType="string" resultMap="CartDTO">
         SELECT
         c.c_no, c.c_email,
@@ -50,57 +51,53 @@
         WHERE c.c_email = #{value}
     </select>
 
-    <!-- Cart row 조회 (Entity 전용) -->
+    <!-- 2. 회원 이메일로 Cart row 조회 (Entity 전용) -->
     <select id="findCartEntityByEmail" parameterType="string" resultMap="CartEntity">
         SELECT c_no, c_email, created_at
         FROM cart
         WHERE c_email = #{value}
     </select>
 
-    <!-- Cart 생성 -->
+    <!-- 3. Cart 생성 -->
     <insert id="insertCart" parameterType="com.example.demo.model.Cart"
             useGeneratedKeys="true" keyProperty="c_no">
         INSERT INTO cart (c_email, created_at)
         VALUES (#{c_email}, NOW())
     </insert>
 
+    <!-- 4. c_no → email 조회 -->
+    <select id="findEmailByCart" parameterType="long" resultType="string">
+        SELECT c_email FROM cart WHERE c_no = #{c_no}
+    </select>
+
     <!-- ==================== CartItem ==================== -->
 
-    <!-- 특정 상품 조회 -->
+    <!-- 5. 특정 상품 조회 -->
     <select id="findCartItem" parameterType="map" resultMap="CartItemEntity">
         SELECT ci_no, c_no, c_productId, c_count
         FROM cart_item
         WHERE c_no = #{c_no} AND c_productId = #{c_productId}
     </select>
 
-    <!-- CartItem 추가 -->
+    <!-- 6. CartItem 추가 -->
     <insert id="insertCartItem" parameterType="com.example.demo.model.CartItem">
         INSERT INTO cart_item (c_no, c_productId, c_count)
         VALUES (#{c_no}, #{c_productId}, #{c_count})
     </insert>
 
-    <!-- 장바구니 아이템 수량 증가 -->
+    <!-- 7. 장바구니 아이템 수량 증가 -->
     <update id="updateCartItemCount" parameterType="map">
         UPDATE cart_item
         SET c_count = c_count + #{addCount}
         WHERE c_no = #{c_no} AND c_productId = #{c_productId}
     </update>
 
-    <!-- CartItem 삭제 -->
-    <delete id="deleteCartItem">
-        DELETE FROM cart_item
-        WHERE ci_no = #{ci_no}
+    <!-- 8. CartItem 단일 삭제 -->
+    <delete id="deleteCartItem" parameterType="long">
+        DELETE FROM cart_item WHERE ci_no = #{ci_no}
     </delete>
 
-    <!-- ci_no → email 역추적 -->
-    <select id="findEmailByCartItem" parameterType="long" resultType="string">
-        SELECT c.c_email
-        FROM cart c
-        JOIN cart_item ci ON c.c_no = ci.c_no
-        WHERE ci.ci_no = #{ci_no}
-    </select>
-
-    <!-- 특정 회원 전체 아이템 삭제 -->
+    <!-- 9. 특정 회원 전체 아이템 삭제 -->
     <delete id="deleteCartItemsByEmail" parameterType="string">
         DELETE FROM cart_item
         WHERE c_no = (SELECT c_no FROM cart WHERE c_email = #{email})

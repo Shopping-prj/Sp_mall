@@ -9,6 +9,7 @@ const JoinPage = () => {
     m_password: "",
     m_name: "",
     m_address: "",
+    m_class: "USER",
     m_social: "LOCAL",
   });
   const navigate = useNavigate();

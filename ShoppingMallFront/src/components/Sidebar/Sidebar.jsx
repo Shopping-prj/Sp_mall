@@ -13,7 +13,9 @@ const Sidebar = ({ color, image, routes }) => {
     <div className="sidebar" data-image={image} data-color={color}>
       <div
         className="sidebar-background"
-        style={{ backgroundImage: `url(${image})` }}
+        style={{ 
+          backgroundImage: `url(${image})`,
+        }}
       />
       <div className="sidebar-wrapper">
         {/* 상단 로고 + 브랜드명 */}
@@ -39,7 +41,7 @@ const Sidebar = ({ color, image, routes }) => {
                   currentCategory === c.key
                     ? {
                         fontWeight: "bold",
-                        backgroundColor: "rgba(255,255,255,0.13)",
+                        backgroundColor: "rgba(255, 255, 255, 0.36) ",
                         borderRadius: "6px",
                       }
                     : {}

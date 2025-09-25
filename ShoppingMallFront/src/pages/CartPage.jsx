@@ -4,7 +4,7 @@ import CartItemCard from "common/CartItemCard";
 import { Container, Row, Col, Card, Button } from "react-bootstrap";
 
 const CartPage = () => {
-  const { cartItems, updateCount, removeItem, clearCart } = useCart();
+  const { cartItems, handleChangeCount, handleRemoveItem, handleClearCart, handleOrder } = useCart();
 
   const totalPrice = cartItems.reduce((sum, item) => sum + item.p_lprice * item.c_count, 0);
   const shipping = totalPrice > 50000 ? 0 : 2500;
@@ -20,7 +20,12 @@ const CartPage = () => {
         <Col md={8}>
           {cartItems.length > 0 ? (
             cartItems.map(item => (
-              <CartItemCard key={item.ci_no || item.p_productId} item={item} changeCount={updateCount} onRemove={removeItem} />
+              <CartItemCard
+              key={item.ci_no ? `ci-${item.ci_no}` : `p-${item.p_productId}`}
+              item={item}
+              changeCount={handleChangeCount}
+              onRemove={handleRemoveItem}
+            />
             ))
           ) : (
             <p>장바구니가 비어 있습니다.</p>
@@ -36,11 +41,22 @@ const CartPage = () => {
               <h5>결제금액: {finalPrice.toLocaleString()}원</h5>
 
               <div style={{ display: "flex", justifyContent: "space-between", marginTop: "20px", gap: "12px" }}>
-                <Button style={{ borderRadius: "10px", color: "#ec5a5aff", borderColor: "#ec5a5aff", minWidth: "120px", height: "42px", fontSize: "15px", fontWeight: "500" }} variant="outline" onClick={clearCart}>
+                <Button style={{ borderRadius: "10px", color: "#ec5a5aff", borderColor: "#ec5a5aff", minWidth: "120px", height: "42px", fontSize: "15px", fontWeight: "500" }} variant="outline" onClick={handleClearCart}>
                   전체 비우기
                 </Button>
-                <Button style={{ borderRadius: "10px", borderColor: "#0d6efd", minWidth: "120px", height: "42px", fontSize: "15px", fontWeight: "500" }} variant="primary">
-                  결제하기
+                <Button 
+                  style={{ 
+                    borderRadius: "10px", 
+                    borderColor: "#0d6efd", 
+                    minWidth: "120px", 
+                    height: "42px", 
+                    fontSize: "15px", 
+                    fontWeight: "500" 
+                  }} 
+                    variant="primary"
+                    onClick={handleOrder}
+                    >
+                  주문하기
                 </Button>
               </div>
             </Card.Body>

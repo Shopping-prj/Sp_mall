@@ -39,16 +39,14 @@ public class SecurityConfig {
     public RoleHierarchy roleHierarchy() {
         RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
         roleHierarchy.setHierarchy("""
-            ROLE_ADMIN > ROLE_MANAGER
-            ROLE_MANAGER > ROLE_TEACHER
-            ROLE_TEACHER > ROLE_USER
+            ROLE_ADMIN > ROLE_USER
         """);
         return roleHierarchy;
     }
 
     @Bean
     public GrantedAuthoritiesMapper authoritiesMapper(RoleHierarchy roleHierarchy) {
-        // ADMIN이면 MANAGER/TEACHER/USER 권한 자동 추가
+        // ADMIN권한 자동 추가
         return new RoleHierarchyAuthoritiesMapper(roleHierarchy);
     }
 
@@ -85,8 +83,6 @@ public class SecurityConfig {
                         .dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
                         // .requestMatchers("/", "/joinForm", "/api/members/login", "/api/products/**").permitAll()
                         // .requestMatchers("/user/**", "/loginTest").authenticated()
-                        // .requestMatchers("/teacher/**").hasRole("TEACHER")
-                        // .requestMatchers("/manager/**").hasRole("MANAGER")
                         // .requestMatchers("/admin/**").hasRole("ADMIN")
                         // .anyRequest().authenticated()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()

@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 
 /**
  * Cart (장바구니) 엔티티
@@ -18,5 +19,5 @@ import java.sql.Timestamp;
 public class Cart {
     private Long c_no;          // 장바구니 PK
     private String c_email;     // 회원 이메일 (member.m_email FK)
-    private Timestamp created_at; // 생성일시 (DB DEFAULT CURRENT_TIMESTAMP)
+    private Instant created_at; // 생성일시 (DB DEFAULT CURRENT_TIMESTAMP)
 }
