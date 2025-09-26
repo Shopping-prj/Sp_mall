@@ -16,10 +16,10 @@ public class JwtUtil {
     private final Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
 
     // 토큰 생성 (이메일 + 회원등급 저장)
-    public String generateToken(String email, String role) {
+    public String generateToken(String email, String m_class) {
         return Jwts.builder()
                 .setSubject(email)             // sub = 회원 이메일
-                .claim("role", role)           // m_class(USER/ADMIN)
+                .claim("role", m_class)           // m_class(USER/ADMIN)
                 .setIssuedAt(new Date())       // iat
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME)) // exp
                 .signWith(key, SignatureAlgorithm.HS256)
@@ -53,4 +53,23 @@ public class JwtUtil {
                 .parseClaimsJws(token)
                 .getBody();
     }
+
+    // ✅ Authorization 헤더에서 "Bearer " 제거 후 이메일 추출
+    public String extractEmailFromHeader(String header) {
+        if (header == null || !header.startsWith("Bearer ")) {
+            throw new IllegalArgumentException("잘못된 Authorization 헤더 형식입니다.");
+        }
+        String token = header.substring(7); // "Bearer " 이후 부분 추출
+        return getEmail(token);
+    }
+
+    // ✅ Authorization 헤더에서 "Bearer " 제거 후 role 추출
+    public String extractRoleFromHeader(String header) {
+        if (header == null || !header.startsWith("Bearer ")) {
+            throw new IllegalArgumentException("잘못된 Authorization 헤더 형식입니다.");
+        }
+        String token = header.substring(7);
+        return getRole(token);
+    }
+
 }

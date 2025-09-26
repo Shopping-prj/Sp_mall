@@ -12,31 +12,23 @@ import CartPage from "pages/CartPage";
 import { useAuth } from "context/AuthContext";
 import SearchPage from "pages/SearchPage";
 import LoginPage from "auth/LoginPage";
-import ShopNavbar from "components/include/ShopNavbar";
 import PaymentPage from "pages/PaymentPage";
 
 const App = () => {
-  const { isLoggedIn } = useAuth();
-
-  const ProtectedRoute = ({ children }) => {
-    if (!isLoggedIn) {
-      return <Navigate to="/login" replace />;
-    }
-    return children;
-  };
+  const { ProtectedRoute, PublicRoute } = useAuth();
 
   return (
     <Routes>
       {/* 공통 레이아웃 (헤더/푸터 포함) */}
-      <Route path="shop" element={<ShopLayout/>}>
-        {/* 누구나 접근 가능한 페이지 */}
+      <Route path="shop" element={<ShopLayout />}>
+        {/* 누구나 접근 가능 */}
         <Route index element={<HomePage />} />
         <Route path="category" element={<Categories />} />
         <Route path="search" element={<SearchPage />} />
         <Route path="cart" element={<CartPage />} />
         <Route path="payment" element={<PaymentPage />} />
 
-        {/* 로그인해야 접근 가능한 페이지 */}
+        {/* 로그인 필요 */}
         <Route
           path="mypage"
           element={
@@ -63,11 +55,18 @@ const App = () => {
         />
       </Route>
 
-      {/* 로그인/회원가입 페이지 */}
-        <Route path="login" element={<LoginPage />} />
-        <Route path="join" element={<JoinPage />} />
+      {/* 로그인/회원가입 */}
+      <Route
+        path="login"
+        element={
+          <PublicRoute>
+            <LoginPage />
+          </PublicRoute>
+        }
+      />
+      <Route path="join" element={<JoinPage />} />
 
-      {/* 루트 접근 시 /shop으로 이동 */}
+      {/* 루트 접근 시 /shop으로 */}
       <Route path="/" element={<Navigate to="/shop" replace />} />
     </Routes>
   );

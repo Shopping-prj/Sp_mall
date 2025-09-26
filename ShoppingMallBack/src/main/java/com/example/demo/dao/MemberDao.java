@@ -14,14 +14,11 @@ import java.util.Map;
 public class MemberDao {
 
     private final SqlSessionTemplate sqlSession;
-
     private static final String NS = "com.example.demo.dao.MemberMapper.";
 
     public int insert(Member member) {
         return sqlSession.insert(NS + "insert", member);
     }
-
-
 
     public Member getById(Long id) {
         return sqlSession.selectOne(NS + "getById", id);
@@ -35,27 +32,18 @@ public class MemberDao {
         return sqlSession.selectList(NS + "getAll");
     }
 
-    public Member Login(String email, String password) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("email", email);
-        params.put("password", password);
-        return sqlSession.selectOne(NS + "login", params);
-    }
-
     public int updateAddress(Long id, String address) {
-        return sqlSession.update(NS + "updateAddress",
-                new java.util.HashMap<>() {{
-                    put("id", id);
-                    put("address", address);
-                }});
+        Map<String, Object> param = new HashMap<>();
+        param.put("id", id);
+        param.put("address", address);
+        return sqlSession.update(NS + "updateAddress", param);
     }
 
     public int updatePassword(Long id, String password) {
-        return sqlSession.update(NS + "updatePassword",
-                new java.util.HashMap<>() {{
-                    put("id", id);
-                    put("password", password);
-                }});
+        Map<String, Object> param = new HashMap<>();
+        param.put("id", id);
+        param.put("password", password);
+        return sqlSession.update(NS + "updatePassword", param);
     }
 
     public int deleteById(Long id) {

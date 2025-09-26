@@ -33,8 +33,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
 
         // ✅ 토큰 검사에서 제외할 경로들 (로그인, 회원가입, 공개 API 등)
-        if (path.startsWith("/api/members/login") ||
-                path.startsWith("/api/members/join") ||
+        if (path.startsWith("/api/users/login") ||
+                path.startsWith("/api/users/join") ||
                 path.startsWith("/api/products")) {
             filterChain.doFilter(request, response);
             return;

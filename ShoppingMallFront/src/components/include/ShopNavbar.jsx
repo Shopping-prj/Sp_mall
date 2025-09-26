@@ -57,14 +57,6 @@ const ShopNavbar = ({ isNarrow }) => {
 
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="ml-auto" navbar>
-            {/* 장바구니 버튼 */}
-            <Nav.Item>
-              <Nav.Link onClick={() => navigate("/shop/cart")}>
-                <i className="nc-icon nc-cart-simple"></i>
-                <span className="notification">{cartCount}</span>
-                <span className="d-lg-none ml-1">Cart</span>
-              </Nav.Link>
-            </Nav.Item>
 
             {/* 로그인 여부 분기 */}
             {!isLoggedIn ? (
@@ -76,6 +68,15 @@ const ShopNavbar = ({ isNarrow }) => {
               </>
             ) : (
               <>
+            {/* 장바구니 버튼 */}
+              <Nav.Item>
+                <Nav.Link onClick={() => navigate("/shop/cart")}>
+                  <i className="nc-icon nc-cart-simple"></i>
+                  <span className="notification">{cartCount}</span>
+                  <span className="d-lg-none ml-1">Cart</span>
+                </Nav.Link>
+              </Nav.Item>
+            
                 <Dropdown as={Nav.Item}>
                   <Dropdown.Toggle as={Nav.Link}>계정관리</Dropdown.Toggle>
                   <Dropdown.Menu className="account-menu">

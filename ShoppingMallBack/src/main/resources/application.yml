@@ -17,6 +17,7 @@ mybatis:
   configuration:
     map-underscore-to-camel-case: true  # DB 컬럼명(snake_case) → Java 필드(camelCase) 자동 매핑
 server:
+  port: 8080
   error:
     include-message: always
     include-binding-errors: always

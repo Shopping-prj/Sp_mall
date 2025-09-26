@@ -88,35 +88,22 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // 공개 접근
                         .requestMatchers(
-                                "/login", "/join",
-                                "/shop",                // 메인 shop 페이지
-                                "/shop/category",       // 카테고리
-                                "/shop/search",         // 검색
                                 "/api/users/login",
+                                "/api/users/join",
                                 "/api/products/**"
                         ).permitAll()
 
                         // 로그인 필요
                         .requestMatchers(
-                                "/shop/cart",
-                                "/shop/payment",
-                                "/user/**",
-                                "/loginTest"
+                        "/api/carts/**"
                         ).authenticated()
 
                         // 관리자 전용
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/admin/products", "/api/admin/**").hasRole("ADMIN")
 
                         // 기타
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .anyRequest().authenticated()
-                )
-                .logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/")
-                        .invalidateHttpSession(true)
-                        .deleteCookies("JSESSIONID")
-                        .permitAll()
                 )
                 .exceptionHandling(exception -> exception
                         .accessDeniedHandler((request, response, accessDeniedException) ->

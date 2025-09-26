@@ -38,17 +38,25 @@ const LoginPage = () => {
   };
 
   const loginE = async () => {
-  try {
-    const userData = await loginMember(User.m_email, User.m_password);
-    login(userData);
-    const cart = await getCartByEmail(userData.m_email);  // ✅ 직접 호출
-    setCartItems(cart.items || []);
-    navigate("/shop");
-  } catch (err) {
-    console.error("로그인 실패:", err);
-    alert(err.response?.data?.message || "로그인 실패");
-  }
-};
+    try {
+      // 1. 로그인 시도
+      const userData = await loginMember(User.m_email, User.m_password);
+
+      // 2. AuthContext에 로그인 처리 (토큰 저장)
+      login(userData);
+
+      // 3. 장바구니 불러오기 (토큰 기반 → email 불필요)
+      const cart = await getCartByEmail();
+      setCartItems(cart.items || []);
+
+      // 4. 홈으로 이동
+      navigate("/shop");
+    } catch (err) {
+      console.error("로그인 실패:", err);
+      alert(err.response?.data?.message || "로그인 실패");
+    }
+  };
+
 
   const loginG = () => {
     const googleUrl = "https://accounts.google.com/o/oauth2/auth";
