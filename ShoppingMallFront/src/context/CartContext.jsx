@@ -8,134 +8,110 @@ const CartContext = createContext();
 export const useCart = () => useContext(CartContext);
 
 export const CartProvider = ({ children }) => {
-  const { loginMember } = useAuth();
+  const { isLoggedIn } = useAuth();
   const [cartItems, setCartItems] = useState([]);
-  const [cartKey, setCartKey] = useState(0); // 🔑 강제 리마운트 트리거
-  const navigate = useNavigate()
+  const [cartKey, setCartKey] = useState(0);
+  const navigate = useNavigate();
 
-  // ✅ 최초 로딩: 회원 → DB, 비회원 → localStorage
+  // ✅ 최초 로딩: 로그인 사용자만 DB에서 장바구니 로드
   useEffect(() => {
-    if (loginMember?.m_email) {
-      getCartByEmail(loginMember.m_email).then((cart) => {
-        setCartItems(cart.items || []);
-      });
+    if (isLoggedIn) {
+      getCartByEmail() // email은 토큰 기반으로 백엔드에서 추출
+        .then((cart) => {
+          setCartItems(cart.items || []);
+        })
+        .catch((err) => {
+          console.error("❌ 장바구니 불러오기 실패:", err);
+        });
     } else {
-      const local = JSON.parse(localStorage.getItem("cartItems") || "[]");
-      setCartItems(local);
+      setCartItems([]); // 로그인 안 된 상태 → 비워둠
     }
-  }, [loginMember, cartKey]); // cartKey 추가 → 리셋 시 강제 실행
+  }, [isLoggedIn, cartKey]);
+
+  // ✅ 로그인 여부 체크 공통 함수
+  const requireLogin = () => {
+    if (!isLoggedIn) {
+      alert("로그인이 필요합니다.");
+      navigate("/login");
+      return false;
+    }
+    return true;
+  };
 
   // ✅ 장바구니 담기
   const handleAddToCart = async (product, count = 1) => {
-    if (loginMember?.m_email) {
-      try {
-        const newItem = await addToCart({
-          c_email: loginMember.m_email,
-          c_productId: product.p_productId,
-          c_count: count,
-        });
-        
-        setCartItems((prevItems) => {
-          const existing = prevItems.find((i) => i.c_productId === newItem.c_productId);
-          return existing
-            ? prevItems.map((i) =>
-                i.c_productId === newItem.c_productId
-                  ? { ...i, c_count: i.c_count + count }
-                  : i
-              )
-            : [...prevItems, newItem];
-        });
-      } catch (err) {
-        console.error("❌ addToCart 실패:", err);
-      }
-    } else {
-      alert("로그인 후 사용해주세요.")
-      // const local = JSON.parse(localStorage.getItem("cartItems") || "[]");
-      // const idx = local.findIndex((i) => i.p_productId === product.p_productId);
+    if (!requireLogin()) return;
+    try {
+      const newItem = await addToCart({
+        c_productId: product.p_productId,
+        c_count: count,
+      });
 
-      // if (idx >= 0) {
-      //   local[idx].c_count += count;
-      // } else {
-      //   local.push({
-      //     p_productId: product.p_productId,
-      //     p_title: product.p_title,
-      //     p_image: product.p_image,
-      //     p_lprice: product.p_lprice,
-      //     c_count: count,
-      //   });
-      // }
-
-      // localStorage.setItem("cartItems", JSON.stringify(local));
-      // setCartItems(local);
+      setCartItems((prevItems) => {
+        const existing = prevItems.find((i) => i.c_productId === newItem.c_productId);
+        return existing
+          ? prevItems.map((i) =>
+              i.c_productId === newItem.c_productId
+                ? { ...i, c_count: i.c_count + count }
+                : i
+            )
+          : [...prevItems, newItem];
+      });
+    } catch (err) {
+      console.error("❌ addToCart 실패:", err);
     }
   };
 
   // ✅ 단일 삭제
-  const handleRemoveItem = async (ci_no, p_productId) => {
-    if (loginMember?.m_email) {
-      try {
-        await removeCartItem(ci_no, loginMember.m_email);
-        setCartItems((prev) => prev.filter((item) => item.ci_no !== ci_no));
-      } catch (err) {
-        console.error("❌ removeCartItem 실패:", err);
-      }
-    } else {
-      const local = JSON.parse(localStorage.getItem("cartItems") || "[]");
-      const filtered = local.filter((item) => item.p_productId !== p_productId);
-      localStorage.setItem("cartItems", JSON.stringify(filtered));
-      setCartItems(filtered);
+  const handleRemoveItem = async (ci_no) => {
+    if (!requireLogin()) return;
+    try {
+      await removeCartItem(ci_no);
+      setCartItems((prev) => prev.filter((item) => item.ci_no !== ci_no));
+    } catch (err) {
+      console.error("❌ removeCartItem 실패:", err);
     }
   };
 
   // ✅ 전체 삭제
   const handleClearCart = async () => {
-    if (loginMember?.m_email) {
-      try {
-        await clearCartByEmail(loginMember.m_email);
-        setCartItems([]);
-      } catch (err) {
-        console.error("❌ clearCart 실패:", err);
-      }
-    } else {
-      localStorage.removeItem("cartItems");
+    if (!requireLogin()) return;
+    try {
+      await clearCartByEmail();
       setCartItems([]);
+    } catch (err) {
+      console.error("❌ clearCart 실패:", err);
     }
   };
 
   // ✅ 수량 변경
   const handleChangeCount = async (item, delta) => {
+    if (!requireLogin()) return;
     const newCount = item.c_count + delta;
     if (newCount < 1) return;
-
-    if (loginMember?.m_email) {
-      try {
-        await updateCartCount(item.c_no, item.c_productId, delta);
-        setCartItems((prev) =>
-          prev.map((i) =>
-            i.ci_no === item.ci_no ? { ...i, c_count: i.c_count + delta } : i
-          )
-        );
-      } catch (err) {
-        console.error("❌ changeCount 실패:", err);
-      }
-    } else {
-      const local = JSON.parse(localStorage.getItem("cartItems") || "[]");
-      const updated = local.map((i) =>
-        i.p_productId === item.p_productId ? { ...i, c_count: newCount } : i
+    try {
+      await updateCartCount(item.c_no, item.c_productId, delta);
+      setCartItems((prev) =>
+        prev.map((i) =>
+          i.ci_no === item.ci_no ? { ...i, c_count: i.c_count + delta } : i
+        )
       );
-      localStorage.setItem("cartItems", JSON.stringify(updated));
-      setCartItems(updated);
+    } catch (err) {
+      console.error("❌ changeCount 실패:", err);
     }
   };
 
-  const handleOrder = () => navigate("/shop/payment")
+  const handleOrder = () => {
+    if (!requireLogin()) return;
+    navigate("/shop/payment");
+  };
 
-  // ✅ CartContext 전체 리셋 (외부에서 호출 가능)
+  // ✅ CartContext 전체 리셋
   const resetCart = () => setCartKey((prev) => prev + 1);
 
   return (
     <CartContext.Provider
-      key={cartKey} // 🔑 리마운트 트리거
+      key={cartKey}
       value={{
         cartItems,
         handleAddToCart,
@@ -144,7 +120,7 @@ export const CartProvider = ({ children }) => {
         handleChangeCount,
         handleOrder,
         setCartItems,
-        resetCart, // 🔑 외부에서 강제로 리셋할 수 있음
+        resetCart,
       }}
     >
       {children}

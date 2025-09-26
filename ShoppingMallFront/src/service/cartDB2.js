@@ -2,19 +2,13 @@ import axios from "axios";
 
 const BASE = `${process.env.REACT_APP_SPRING_IP}/api/carts`;
 
-// ✅ 공통 헤더 생성 함수
-const getAuthHeaders = () => {
-  const token = localStorage.getItem("accessToken");
-  return token ? { Authorization: `Bearer ${token}` } : {};
-};
-
 // 1. 회원 → 장바구니 로드
-export const getCartByEmail = async () => {
+export const getCartByEmail = async (email) => {
   try {
     const res = await axios({
       method: "get",
       url: `${BASE}`,
-      headers: getAuthHeaders(),
+      params: { email }, // Controller: @RequestParam String email
     });
     return res.data; // CartDTO 반환 예상
   } catch (err) {
@@ -24,16 +18,16 @@ export const getCartByEmail = async () => {
 };
 
 // 2. 회원 → 상품 추가
-export const addToCart = async ({ c_productId, c_count }) => {
+export const addToCart = async ({ c_email, c_productId, c_count }) => {
   try {
     const res = await axios({
       method: "post",
       url: `${BASE}/add`,
-      data: {
-        productId: c_productId,
-        count: c_count || 1,
+      params: {
+        email: c_email,                 // @RequestParam String email
+        productId: c_productId,         // @RequestParam String productId
+        count: c_count || 1,            // @RequestParam int count (default 1)
       },
-      headers: getAuthHeaders(),
     });
     return res.data;
   } catch (err) {
@@ -43,17 +37,15 @@ export const addToCart = async ({ c_productId, c_count }) => {
 };
 
 // 3. 회원 → 수량 변경
-export const updateCartCount = async (c_no, c_productId, addCount) => {
+export const updateCartCount = async (ci_no, c_count) => {
   try {
     const res = await axios({
       method: "put",
       url: `${BASE}/update`,
       params: {
-        c_no,       // @RequestParam Long c_no
-        c_productId,
-        addCount,   // @RequestParam int count
+        ci_no,   // @RequestParam Long ci_no
+        count: c_count, // @RequestParam int count
       },
-      headers: getAuthHeaders(),
     });
     return res.data;
   } catch (err) {
@@ -69,7 +61,6 @@ export const removeCartItem = async (ci_no) => {
       method: "delete",
       url: `${BASE}/item`,
       params: { ci_no }, // @RequestParam Long ci_no
-      headers: getAuthHeaders(),
     });
     return res.data;
   } catch (err) {
@@ -79,12 +70,12 @@ export const removeCartItem = async (ci_no) => {
 };
 
 // 5. 회원 → 전체 삭제
-export const clearCartByEmail = async () => {
+export const clearCartByEmail = async (email) => {
   try {
     const res = await axios({
       method: "delete",
       url: `${BASE}/clear`,
-      headers: getAuthHeaders(),
+      params: { email }, // @RequestParam String email
     });
     return res.data;
   } catch (err) {

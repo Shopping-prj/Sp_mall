@@ -79,7 +79,8 @@ const PaymentPage = () => {
       pay_merchant_uid: makeMerchantUid("mid"),
       pay_status: "ready",
       pay_currency: "KRW",
-      pay_amount: finalPrice,
+      m_amount: finalPrice,
+      m_email: loginMember?.m_email ?? buyerEmail,
 
       c_no: cartItems.length > 0 ? cartItems[0].c_no : null, // 🔹 장바구니 FK
 
