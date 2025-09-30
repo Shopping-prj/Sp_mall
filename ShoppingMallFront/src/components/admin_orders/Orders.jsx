@@ -37,12 +37,11 @@ const STATUSES = [
   "배송중",
   "배송완료",
   "취소",
-  "환불",
   "반품",
   "교환",
 ];
 
-const REX = ["전체", "없음", "환불", "교환"]; // ph_Refund_or_exchange
+const REX = ["전체", "없음", "교환"]; // ph_Refund_or_exchange
 
 export default function OrdersPage() {
   const [sp] = useSearchParams();
@@ -75,7 +74,6 @@ export default function OrdersPage() {
       shipping: "배송중",
       done: "배송완료",
       cancel: "취소",
-      refund: "환불",
       return: "반품",
       exchange: "교환",
     };
@@ -203,7 +201,7 @@ export default function OrdersPage() {
 
   return (
     <div className="container-fluid py-3">
-      <h4 className="fw-semibold mb-3">주문리스트(ERD 기반)</h4>
+      <h4 className="fw-semibold mb-3">주문리스트</h4>
 
       {/* 검색 카드 */}
       <div className="card mb-3">
@@ -300,7 +298,7 @@ export default function OrdersPage() {
           {/* 환불/교환 (ph_Refund_or_exchange) */}
           <div className="row g-3 align-items-center mb-2">
             <div className="col-12 col-md-2">
-              <span className="fw-semibold">환불/교환</span>
+              <span className="fw-semibold">취소/교환</span>
             </div>
             <div className="col">
               <div className="d-flex flex-wrap gap-3">

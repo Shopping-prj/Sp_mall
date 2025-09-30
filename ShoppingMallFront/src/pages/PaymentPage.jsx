@@ -4,12 +4,13 @@ import { useCart } from "context/CartContext";
 import { useAuth } from "context/AuthContext";
 
 const PORTONE_IMP = "imp63553763";  // 포트원 가맹점 식별코드
-const PG = "kakaopay";              // PG사: "kakaopay", "html5_inicis", "tosspayments" 등
+const PG = "kakaopay";              // PG사
 const BASE_URL = process.env.REACT_APP_SPRING_IP || "http://localhost:8080";
 
 // 토큰 헤더
 const AUTH_HEADER = () => {
   const token = localStorage.getItem("accessToken");
+  console.log("accessToken:", token); // 👈 디버깅용 로그
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
@@ -37,6 +38,12 @@ const PaymentPage = () => {
   const { cartItems } = useCart();
   const { isLoggedIn, loginMember } = useAuth();
 
+  // ✅ 장바구니 번호 (공통 c_no)
+  const cartNo = useMemo(
+    () => (cartItems && cartItems.length > 0 ? cartItems[0].c_no : null),
+    [cartItems]
+  );
+
   // 장바구니 합계
   const totalPrice = useMemo(
     () => (cartItems || []).reduce((sum, it) => sum + (it.p_lprice || 0) * (it.c_count || 0), 0),
@@ -52,6 +59,9 @@ const PaymentPage = () => {
   const [buyerPostcode, setBuyerPostcode] = useState("");
   const [buyerAddr, setBuyerAddr] = useState("");
   const [isPaying, setIsPaying] = useState(false);
+
+  // ✅ 결제 상세 조회 상태
+  const [paymentDetail, setPaymentDetail] = useState(null);
 
   useEffect(() => {
     if (loginMember) {
@@ -79,10 +89,10 @@ const PaymentPage = () => {
       pay_merchant_uid: makeMerchantUid("mid"),
       pay_status: "ready",
       pay_currency: "KRW",
-      m_amount: finalPrice,
-      m_email: loginMember?.m_email ?? buyerEmail,
+      pay_amount: finalPrice,       // ✅ pay_amount 로 맞춤
+      pay_email: loginMember?.m_email ?? buyerEmail, // ✅ pay_email 로 맞춤
 
-      c_no: cartItems.length > 0 ? cartItems[0].c_no : null, // 🔹 장바구니 FK
+      c_no: cartNo, // ✅ 장바구니 번호 (공통)
 
       pay_buyer_name: buyerName,
       pay_buyer_email: buyerEmail,
@@ -95,8 +105,32 @@ const PaymentPage = () => {
       pg_provider: PG,
       pg_type: "payment",
     }),
-    [buyerName, buyerEmail, buyerTel, buyerPostcode, buyerAddr, finalPrice, cartItems]
+    [buyerName, buyerEmail, buyerTel, buyerPostcode, buyerAddr, finalPrice, cartNo, cartItems]
   );
+
+  // ✅ 결제 상세 조회 함수
+  const fetchPaymentDetail = async () => {
+    try {
+      const payload = {
+        pay_email: loginMember?.m_email,   // 로그인된 사용자 이메일
+        pay_amount: finalPrice,          // 장바구니 총 금액
+      };
+
+      const res = await fetch(`${BASE_URL}/api/payments`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...AUTH_HEADER() },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) throw new Error("결제 요청 실패");
+      const merchantUid = await res.text(); // 백에서 merchant_uid 리턴
+      console.log("결제 요청 성공:", merchantUid);
+      return merchantUid;
+    } catch (err) {
+      console.error("결제 요청 오류:", err);
+      throw err;
+    }
+  };
 
   const onClickPayment = useCallback(async () => {
     if (!isLoggedIn) {
@@ -125,6 +159,7 @@ const PaymentPage = () => {
         body: JSON.stringify(pendingPayload),
       });
       if (!pendingRes.ok) {
+        console.log("🚀 pendingPayload", pendingPayload);
         const text = await pendingRes.text();
         throw new Error(`결제 요청 기록 실패: ${text}`);
       }
@@ -156,6 +191,11 @@ const PaymentPage = () => {
                 body: JSON.stringify(rsp),
               });
               alert("결제가 완료되었습니다.");
+
+              // ✅ 결제 상세 조회 추가
+              if (rsp.imp_uid) {
+                await fetchPaymentDetail(rsp.imp_uid);
+              }
             } else {
               await fetch(`${BASE_URL}/api/payments/callback/cancel`, {
                 method: "POST",
@@ -251,6 +291,13 @@ const PaymentPage = () => {
                 {isPaying ? "결제 진행중..." : "결제하기"}
               </Button>
             </div>
+
+            {paymentDetail && (
+              <div className="mt-3">
+                <h5>결제 상세</h5>
+                <pre>{JSON.stringify(paymentDetail, null, 2)}</pre>
+              </div>
+            )}
           </Card.Body>
         </Card>
       </Col>

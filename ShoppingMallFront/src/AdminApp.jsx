@@ -26,6 +26,7 @@ import BoardList from "./components/admin_board/BoardList";
 import BoardUpsert from "./components/admin_board/BoardUpsert";
 import Header from "components/admin_include/Header";
 import Footer from "components/include/Footer";
+import Dashboard from "components/admin_dashboard/DashBoard";
 
 const AdminApp = () => {
   return (
@@ -33,7 +34,8 @@ const AdminApp = () => {
       <Header />
       <Routes>
         <Route path="" element={<AdminLayout />}>
-          <Route index element={<MainPage />} />
+        <Route index element={<Dashboard />} />
+        <Route index element={<MainPage />} />
 
           {/* 통계/설정 */}
           <Route path="stats" element={<StatsPage />} />

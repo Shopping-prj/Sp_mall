@@ -21,7 +21,7 @@ const JoinPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(`${process.env.REACT_APP_SPRING_IP}/api/members/join`, form);
+      await axios.post(`${process.env.REACT_APP_SPRING_IP}/api/users/join`, form);
       alert("회원가입 완료. 로그인해주세요.");
       navigate("/login");  // ✅ 장바구니도 이미 DB에 생성된 상태
     } catch (err) {
