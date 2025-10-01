@@ -22,6 +22,8 @@ export default function MemberDelete() {
   const [member, setMember] = useState(null);
   const [confirmText, setConfirmText] = useState("");
 
+  const token = localStorage.getItem("accessToken");
+
   useEffect(() => {
     if (sp.get("q")) fetchMember();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -45,12 +47,16 @@ export default function MemberDelete() {
         url = `${API_BASE}/api/admin/members/${encodeURIComponent(q)}`;
       } else {
         // 이메일 정확 매칭 전용 엔드포인트
-        url = `${API_BASE}/api/admin/members/by-email?email=${encodeURIComponent(
-          q
-        )}`;
+        url = `${API_BASE}/api/admin/members/by-email?email=${encodeURIComponent(q)}`;
       }
 
-      const res = await fetch(url);
+      const token = localStorage.getItem("accessToken");
+      const res = await fetch(url, {
+        headers: {
+          "Authorization": `Bearer ${token}`   // ✅ 추가
+        }
+      });
+
       if (!res.ok) throw new Error(`조회 실패 (${res.status})`);
       const data = await res.json(); // 단건 객체 기대
       setMember(data);
@@ -84,7 +90,10 @@ export default function MemberDelete() {
     try {
       const res = await fetch(
         `${API_BASE}/api/admin/members/${encodeURIComponent(member.m_no)}`,
-        { method: "DELETE" }
+        {
+          method: "DELETE",
+          headers: { "Authorization": `Bearer ${token}` },  // ✅ 추가
+        }
       );
       if (!res.ok) {
         const msg = await res.text();

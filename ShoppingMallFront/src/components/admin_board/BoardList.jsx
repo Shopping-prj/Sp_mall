@@ -87,7 +87,7 @@ export default function BoardList() {
           </button>
           <button
             className="btn btn-primary btn-sm"
-            onClick={() => nav("/admin/board/new")}
+            onClick={() => nav("/board/new")}
           >
             + 추가하기
           </button>
@@ -137,7 +137,7 @@ export default function BoardList() {
                     <button
                       type="button"
                       className="btn btn-link p-0 text-start"
-                      onClick={() => nav(`/admin/board/${b.b_no}/edit`)}
+                      onClick={() => nav(`/board/${b.b_no}/edit`)}
                     >
                       {b.b_title || "(제목 없음)"}
                     </button>
@@ -148,7 +148,7 @@ export default function BoardList() {
                     <div className="d-flex justify-content-center gap-2">
                       <button
                         className="btn btn-outline-primary btn-sm"
-                        onClick={() => nav(`/admin/board/${b.b_no}/edit`)}
+                        onClick={() => nav(`/board/${b.b_no}/edit`)}
                       >
                         수정
                       </button>

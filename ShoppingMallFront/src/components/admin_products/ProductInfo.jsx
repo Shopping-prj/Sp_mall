@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 const API_BASE = (process.env.REACT_APP_SPRING_IP || "http://localhost:8001").replace(/\/$/, "");
+const PRODUCTS_URL = `${API_BASE}/api/admin/products`;
+const REFRESH_URL  = `${API_BASE}/api/users/refresh`;
 
 export default function ProductInfo() {
   const [sp] = useSearchParams();
@@ -31,49 +33,90 @@ export default function ProductInfo() {
     category4: "",
   });
 
-  // 상세 조회
-  useEffect(() => {
-    if (!id) return;
-    (async () => {
-      setLoading(true);
-      setAlert(null);
-      try {
-        const token = localStorage.getItem("accessToken");
-        const res = await fetch(`${API_BASE}/api/admin/products/${encodeURIComponent(id)}`, {
-          headers: {
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "application/json"
-          }
-        });
-        if (!res.ok) throw new Error(`조회 실패 (${res.status})`);
-        const data = await res.json();
+  // 공통 fetch: 액세스 토큰 + 401시 refresh 1회 재시도
+  const apiFetch = async (url, options = {}) => {
+    const accessToken  = localStorage.getItem("accessToken");
+    const refreshToken = localStorage.getItem("refreshToken");
 
-        setProduct(data);
-        setForm({
-          code: data.p_productId ?? "",
-          title: data.p_title ?? "",
-          link: data.p_link ?? "",
-          image: data.p_image ?? "",
-          lprice: (data.p_lprice ?? "").toString(),
-          hprice: data.p_hprice ?? "",
-          mallName: data.p_mallName ?? "",
-          productType: data.p_productType ?? "",
-          brand: data.p_brand ?? "",
-          maker: data.p_maker ?? "",
-          category1: data.p_category1 ?? "",
-          category2: data.p_category2 ?? "",
-          category3: data.p_category3 ?? "",
-          category4: data.p_category4 ?? "",
+    const merged = {
+      cache: "no-store", // 캐시 회피
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...(options.headers || {}),
+        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+      },
+    };
+
+    let res = await fetch(url, merged);
+
+    if (res.status === 401 && refreshToken) {
+      try {
+        const r = await fetch(REFRESH_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ refreshToken }),
         });
-      } catch (e) {
-        setAlert({ type: "danger", msg: e.message });
-      } finally {
-        setLoading(false);
+        if (r.ok) {
+          const { accessToken: newToken } = await r.json();
+          if (newToken) localStorage.setItem("accessToken", newToken);
+          const retry = {
+            ...merged,
+            headers: { ...merged.headers, Authorization: `Bearer ${newToken}` },
+          };
+          res = await fetch(url, retry);
+        }
+      } catch {
+        // 그대로 반환
       }
-    })();
+    }
+    return res;
+  };
+
+  // product -> form 동기화
+  useEffect(() => {
+    if (!product) return;
+    setForm({
+      code:        product.p_productId ?? "",
+      title:       product.p_title ?? "",
+      link:        product.p_link ?? "",
+      image:       product.p_image ?? "",
+      lprice:      (product.p_lprice ?? "").toString(),
+      hprice:      (product.p_hprice ?? "").toString(),
+      mallName:    product.p_mallName ?? "",
+      productType: product.p_productType ?? "",
+      brand:       product.p_brand ?? "",
+      maker:       product.p_maker ?? "",
+      category1:   product.p_category1 ?? "",
+      category2:   product.p_category2 ?? "",
+      category3:   product.p_category3 ?? "",
+      category4:   product.p_category4 ?? "",
+    });
+  }, [product]);
+
+  // 상세 조회
+  const fetchDetail = async () => {
+    if (!id) return;
+    setLoading(true);
+    try {
+      // 캐시 버스터 추가
+      const res = await apiFetch(`${PRODUCTS_URL}/${encodeURIComponent(id)}?_=${Date.now()}`, { method: "GET" });
+      if (!res.ok) throw new Error(`조회 실패 (${res.status})`);
+      const data = await res.json();
+      setProduct(data);
+      // 성공 알림은 유지
+    } catch (e) {
+      setAlert({ type: "danger", msg: e.message || "조회 중 오류" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDetail();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  // 입력 변경 핸들러
   const onChange = (e) => {
     const { name, value } = e.target;
     if (name === "lprice") {
@@ -83,76 +126,76 @@ export default function ProductInfo() {
     }
   };
 
-  // 저장하기
   const save = async () => {
     if (!id) return;
     setLoading(true);
     setAlert(null);
     try {
       const payload = {
-        p_productId: form.code,
-        p_title: form.title,
-        p_link: form.link,
-        p_image: form.image,
-        p_lprice: form.lprice ? Number(form.lprice) : 0,
-        p_hprice: form.hprice ?? "",
-        p_mallName: form.mallName ?? "",
-        p_productType: form.productType ?? "",
-        p_brand: form.brand ?? "",
-        p_maker: form.maker ?? "",
-        p_category1: form.category1 ?? "",
-        p_category2: form.category2 ?? "",
-        p_category3: form.category3 ?? "",
-        p_category4: form.category4 ?? "",
+        p_productId:  form.code, // PK 변경이 허용되는지 백엔드 정책에 맞춰 사용
+        p_title:      form.title,
+        p_link:       form.link,
+        p_image:      form.image,
+        p_lprice:     form.lprice ? Number(form.lprice) : 0,
+        p_hprice:     form.hprice ?? "",
+        p_mallName:   form.mallName ?? "",
+        p_productType:form.productType ?? "",
+        p_brand:      form.brand ?? "",
+        p_maker:      form.maker ?? "",
+        p_category1:  form.category1 ?? "",
+        p_category2:  form.category2 ?? "",
+        p_category3:  form.category3 ?? "",
+        p_category4:  form.category4 ?? "",
       };
-      const token = localStorage.getItem("accessToken");
-      const res = await fetch(`${API_BASE}/api/admin/products/${encodeURIComponent(id)}`, {
+
+      // 1) 서버 업데이트
+      const res = await apiFetch(`${PRODUCTS_URL}/${encodeURIComponent(id)}`, {
         method: "PUT",
-        headers: { 
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json" 
-        },
         body: JSON.stringify(payload),
       });
-      if (!res.ok) throw new Error(`수정 실패 (${res.status})`);
+      if (!res.ok) {
+        const msg = await res.text().catch(() => "");
+        throw new Error(`수정 실패 (${res.status}) ${msg}`);
+      }
 
+      // 2) 성공 알림 유지
       setAlert({ type: "success", msg: "저장되었습니다." });
       setIsEdit(false);
 
-      // 다시 GET 호출해서 최신 데이터 반영
-      const r2 = await fetch(`${API_BASE}/api/admin/products/${encodeURIComponent(id)}`);
-      if (r2.ok) {
-        const d2 = await r2.json();
-        setProduct(d2);
-      }
+      // 3) 로컬 즉시 반영(원복 느낌 방지)
+      setProduct((prev) => ({
+        ...(prev || {}),
+        p_productId:  payload.p_productId,
+        p_title:      payload.p_title,
+        p_link:       payload.p_link,
+        p_image:      payload.p_image,
+        p_lprice:     payload.p_lprice,
+        p_hprice:     payload.p_hprice,
+        p_mallName:   payload.p_mallName,
+        p_productType:payload.p_productType,
+        p_brand:      payload.p_brand,
+        p_maker:      payload.p_maker,
+        p_category1:  payload.p_category1,
+        p_category2:  payload.p_category2,
+        p_category3:  payload.p_category3,
+        p_category4:  payload.p_category4,
+      }));
+
+      // 4) 서버 최신값으로 한번 더 동기화(알림은 유지)
+      await fetchDetail();
+
+      // 5) 목록 새로고침 플래그 (목록 컴포넌트에서 감지)
+      sessionStorage.setItem("PRODUCTS_SHOULD_REFRESH", "1");
     } catch (e) {
-      setAlert({ type: "danger", msg: e.message });
+      setAlert({ type: "danger", msg: e.message || "수정 중 오류" });
     } finally {
       setLoading(false);
     }
   };
 
-  // 수정 취소 → 원본 데이터로 롤백
   const cancel = () => {
     setIsEdit(false);
-    if (product) {
-      setForm({
-        code: product.p_productId ?? "",
-        title: product.p_title ?? "",
-        link: product.p_link ?? "",
-        image: product.p_image ?? "",
-        lprice: (product.p_lprice ?? "").toString(),
-        hprice: product.p_hprice ?? "",
-        mallName: product.p_mallName ?? "",
-        productType: product.p_productType ?? "",
-        brand: product.p_brand ?? "",
-        maker: product.p_maker ?? "",
-        category1: product.p_category1 ?? "",
-        category2: product.p_category2 ?? "",
-        category3: product.p_category3 ?? "",
-        category4: product.p_category4 ?? "",
-      });
-    }
+    // product -> form 동기화는 useEffect에서 처리
   };
 
   if (!id) {
@@ -160,7 +203,9 @@ export default function ProductInfo() {
       <div className="container-fluid py-3">
         <h5 className="mb-3">상품 정보관리</h5>
         <div className="alert alert-warning">id가 없습니다. 목록에서 상품을 선택해주세요.</div>
-        <button className="btn btn-outline-secondary" onClick={() => nav("/admin/product/all")}>목록</button>
+        <button className="btn btn-outline-secondary" onClick={() => nav("/admin/product")}>
+          목록
+        </button>
       </div>
     );
   }
@@ -170,22 +215,29 @@ export default function ProductInfo() {
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h4 className="mb-0 fw-semibold">상품 정보관리</h4>
         <div className="d-flex gap-2">
-          {!isEdit && <button className="btn btn-primary" onClick={() => setIsEdit(true)}>수정</button>}
+          {!isEdit && (
+            <button className="btn btn-primary" onClick={() => setIsEdit(true)}>
+              수정
+            </button>
+          )}
           {isEdit && (
             <>
               <button className="btn btn-primary" onClick={save} disabled={loading}>
                 {loading ? "저장 중..." : "저장"}
               </button>
-              <button className="btn btn-outline-secondary" onClick={cancel}>취소</button>
+              <button className="btn btn-outline-secondary" onClick={cancel} disabled={loading}>
+                취소
+              </button>
             </>
           )}
-          <button className="btn btn-outline-secondary" onClick={() => nav("/admin/product/all")}>목록</button>
+          <button className="btn btn-outline-secondary" onClick={() => nav("/admin/product")}>
+            목록
+          </button>
         </div>
       </div>
 
       {alert && <div className={`alert alert-${alert.type}`}>{alert.msg}</div>}
 
-      {/* ====== 폼 ====== */}
       <div className="card">
         <div className="card-header fw-semibold">기본정보</div>
         <div className="card-body">

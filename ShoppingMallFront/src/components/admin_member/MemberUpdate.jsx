@@ -30,6 +30,8 @@ export default function MemberUpdate() {
   });
   const [errors, setErrors] = useState({});
 
+  const token = localStorage.getItem("accessToken");
+
   // member → form 동기화
   useEffect(() => {
     if (!member) return;
@@ -81,14 +83,18 @@ export default function MemberUpdate() {
       if (searchType === "id") {
         // by m_no (단건)
         const url = `${API_BASE}/api/admin/members/${encodeURIComponent(q)}`;
-        const res = await fetch(url);
+        const res = await fetch(url, {
+          headers: { "Authorization": `Bearer ${token}` }   // ✅ 추가
+        });
         if (!res.ok) throw new Error(`조회 실패 (${res.status})`);
         data = await res.json(); // 단건
       } else {
         // by email (목록) → 첫 번째 항목 채택
         const params = new URLSearchParams({ keywordType: "email", keyword: q });
         const url = `${API_BASE}/api/admin/members?${params.toString()}`;
-        const res = await fetch(url);
+        const res = await fetch(url, {
+          headers: { "Authorization": `Bearer ${token}` }   // ✅ 추가
+        });
         if (!res.ok) throw new Error(`조회 실패 (${res.status})`);
         const list = await res.json();
         if (!Array.isArray(list) || list.length === 0) {
@@ -129,7 +135,10 @@ export default function MemberUpdate() {
 
       const res = await fetch(`${API_BASE}/api/admin/members/${encodeURIComponent(form.m_no)}`, {
         method: "PUT", // 백엔드에 맞게 PUT 사용
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,   // ✅ 추가
+        },
         body: JSON.stringify(payload),
       });
       if (!res.ok) {

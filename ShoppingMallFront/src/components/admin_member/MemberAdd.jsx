@@ -20,6 +20,7 @@ const MemberAdd = () => {
   const [submitting, setSubmitting] = useState(false);
   const [alert, setAlert] = useState(null);
   const navigate = useNavigate();
+  const token = localStorage.getItem("accessToken");
 
   const onChange = (e) => {
     const { name, value } = e.target;
@@ -33,8 +34,8 @@ const MemberAdd = () => {
       e.m_email = "올바른 이메일 형식이 아닙니다.";
 
     if (!form.m_password) e.m_password = "비밀번호를 입력하세요.";
-    else if (form.m_password.length < 8)
-      e.m_password = "비밀번호는 8자 이상이어야 합니다.";
+    else if (form.m_password.length < 5)
+      e.m_password = "비밀번호는 5자 이상이어야 합니다.";
 
     if (form.m_password !== form.m_password2)
       e.m_password2 = "비밀번호가 일치하지 않습니다.";
@@ -55,9 +56,12 @@ const MemberAdd = () => {
     setAlert(null);
 
     try {
-      const resp = await fetch(`${API_BASE}/api/admin/members`, {
+      const resp = await fetch(`${API_BASE}/api/admin/members/add`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,   // ✅ 추가
+        },
         body: JSON.stringify({
           m_email: form.m_email,
           m_password: form.m_password,
@@ -137,7 +141,7 @@ const MemberAdd = () => {
                   type="password"
                   name="m_password"
                   className={`form-control ${errors.m_password ? "is-invalid" : ""}`}
-                  placeholder="8자 이상"
+                  placeholder="5자 이상"
                   value={form.m_password}
                   onChange={onChange}
                 />
@@ -176,22 +180,22 @@ const MemberAdd = () => {
               <label className="col-sm-2 col-form-label">
                 가입방식 <span className="text-danger">*</span>
               </label>
-              <div className="col-sm-10 d-flex gap-3 align-items-center">
+              <div className="col-sm-10" style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
                 {["local", "kakao", "naver", "google"].map((v) => (
-                  <div className="form-check" key={v}>
+                  <label 
+                    key={v}
+                    style={{ display: "inline-flex", alignItems: "center", gap: "4px", cursor: "pointer" }}
+                  >
                     <input
-                      className="form-check-input"
                       type="radio"
                       name="m_social"
-                      id={`social-${v}`}
                       value={v}
                       checked={form.m_social === v}
                       onChange={onChange}
+                      style={{ margin: 0 }}
                     />
-                    <label className="form-check-label" htmlFor={`social-${v}`}>
-                      {v}
-                    </label>
-                  </div>
+                    {v.toUpperCase()}
+                  </label>
                 ))}
                 {errors.m_social && <div className="text-danger small">{errors.m_social}</div>}
               </div>
@@ -202,22 +206,22 @@ const MemberAdd = () => {
               <label className="col-sm-2 col-form-label">
                 회원등급 <span className="text-danger">*</span>
               </label>
-              <div className="col-sm-10 d-flex gap-3 align-items-center">
+              <div className="col-sm-10" style={{ display: "flex", gap: "20px" }}>
                 {["USER", "ADMIN"].map((v) => (
-                  <div className="form-check" key={v}>
+                  <label 
+                    key={v}
+                    style={{ display: "inline-flex", alignItems: "center", gap: "4px", cursor: "pointer" }}
+                  >
                     <input
-                      className="form-check-input"
                       type="radio"
                       name="m_class"
-                      id={`class-${v}`}
                       value={v}
                       checked={form.m_class === v}
                       onChange={onChange}
+                      style={{ margin: 0 }}
                     />
-                    <label className="form-check-label" htmlFor={`class-${v}`}>
-                      {v}
-                    </label>
-                  </div>
+                    {v}
+                  </label>
                 ))}
                 {errors.m_class && <div className="text-danger small">{errors.m_class}</div>}
               </div>

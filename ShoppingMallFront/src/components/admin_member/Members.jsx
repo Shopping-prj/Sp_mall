@@ -108,12 +108,13 @@ export default function Members() {
       <div className="card mb-3">
         <div className="card-header fw-semibold">기본검색</div>
         <div className="card-body">
+          
           {/* 검색어 */}
           <div className="row g-3 align-items-center mb-2">
             <div className="col-12 col-md-2">
               <label className="col-form-label fw-semibold">검색어</label>
             </div>
-            <div className="col-6 col-md-2">
+            <div className="col-4 col-md-2">
               <select
                 className="form-select"
                 value={keywordType}
@@ -123,13 +124,32 @@ export default function Members() {
                 <option value="name">닉네임</option>
               </select>
             </div>
-            <div className="col-6 col-md-5">
+            <div 
+              className="col-8 col-md-8" 
+              style={{ display: "flex", gap: "8px", alignItems: "center" }}
+            >
               <input
                 className="form-control"
                 placeholder="검색어"
                 value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}
               />
+              <button 
+                className="btn btn-dark"
+                onClick={fetchMembers}
+                disabled={loading}
+                style={{ whiteSpace: "nowrap" }}
+              >
+                {loading ? "검색 중..." : "검색"}
+              </button>
+              <button
+                type="button"
+                className="btn btn-outline-secondary"
+                onClick={reset}
+                style={{ whiteSpace: "nowrap" }}
+              >
+                초기화
+              </button>
             </div>
           </div>
 
@@ -138,24 +158,25 @@ export default function Members() {
             <div className="col-12 col-md-2">
               <label className="col-form-label fw-semibold">회원등급</label>
             </div>
-            <div className="col-12 col-md-10">
-              <div className="d-flex flex-wrap gap-3">
-                {["ALL", "USER", "ADMIN"].map((v) => (
-                  <div className="form-check" key={v}>
-                    <input
-                      className="form-check-input"
-                      type="radio"
-                      id={`cls-${v}`}
-                      name="cls"
-                      checked={cls === v}
-                      onChange={() => setCls(v)}
-                    />
-                    <label className="form-check-label" htmlFor={`cls-${v}`}>
-                      {v === "ALL" ? "전체" : v}
-                    </label>
-                  </div>
-                ))}
-              </div>
+            <div 
+              className="col-12 col-md-10" 
+              style={{ display: "flex", flexWrap: "wrap", gap: "20px" }}
+            >
+              {["ALL", "USER", "ADMIN"].map((v) => (
+                <label 
+                  key={v}
+                  style={{ display: "inline-flex", alignItems: "center", gap: "4px", cursor: "pointer" }}
+                >
+                  <input
+                    type="radio"
+                    name="cls"
+                    checked={cls === v}
+                    onChange={() => setCls(v)}
+                    style={{ margin: 0 }}
+                  />
+                  {v === "ALL" ? "전체" : v}
+                </label>
+              ))}
             </div>
           </div>
 
@@ -164,24 +185,25 @@ export default function Members() {
             <div className="col-12 col-md-2">
               <label className="col-form-label fw-semibold">가입방식</label>
             </div>
-            <div className="col-12 col-md-10">
-              <div className="d-flex flex-wrap gap-3">
-                {["ALL", "LOCAL", "KAKAO", "NAVER", "GOOGLE"].map((v) => (
-                  <div className="form-check" key={v}>
-                    <input
-                      className="form-check-input"
-                      type="radio"
-                      id={`social-${v}`}
-                      name="social"
-                      checked={social === v}
-                      onChange={() => setSocial(v)}
-                    />
-                    <label className="form-check-label" htmlFor={`social-${v}`}>
-                      {v === "ALL" ? "전체" : v}
-                    </label>
-                  </div>
-                ))}
-              </div>
+            <div 
+              className="col-12 col-md-10" 
+              style={{ display: "flex", flexWrap: "wrap", gap: "20px" }}
+            >
+              {["ALL", "LOCAL", "KAKAO", "NAVER", "GOOGLE"].map((v) => (
+                <label 
+                  key={v}
+                  style={{ display: "inline-flex", alignItems: "center", gap: "4px", cursor: "pointer" }}
+                >
+                  <input
+                    type="radio"
+                    name="social"
+                    checked={social === v}
+                    onChange={() => setSocial(v)}
+                    style={{ margin: 0 }}
+                  />
+                  {v === "ALL" ? "전체" : v}
+                </label>
+              ))}
             </div>
           </div>
 
@@ -190,17 +212,38 @@ export default function Members() {
             <div className="col-12 col-md-2">
               <label className="col-form-label fw-semibold">가입날짜</label>
             </div>
-            <div className="col-6 col-md-3">
-              <input type="date" className="form-control" value={from} onChange={(e) => setFrom(e.target.value)} />
-            </div>
-            <div className="col-6 col-md-3">
-              <input type="date" className="form-control" value={to} onChange={(e) => setTo(e.target.value)} />
-            </div>
-            <div className="col-12 col-md-4 d-flex gap-2">
-              <button className="btn btn-dark" onClick={fetchMembers} disabled={loading}>
+            <div 
+              className="col-12 col-md-10" 
+              style={{ display: "flex", gap: "8px", alignItems: "center" }}
+            >
+              <input 
+                type="date" 
+                className="form-control" 
+                value={from} 
+                onChange={(e) => setFrom(e.target.value)} 
+              />
+              <input 
+                type="date" 
+                className="form-control" 
+                value={to} 
+                onChange={(e) => setTo(e.target.value)} 
+              />
+              <button
+                className="btn btn-dark"
+                onClick={fetchMembers}
+                disabled={loading}
+                style={{ whiteSpace: "nowrap" }}
+              >
                 {loading ? "검색 중..." : "검색"}
               </button>
-              <button type="button" className="btn btn-outline-secondary" onClick={reset}>초기화</button>
+              <button
+                type="button"
+                className="btn btn-outline-secondary"
+                onClick={reset}
+                style={{ whiteSpace: "nowrap" }}
+              >
+                초기화
+              </button>
             </div>
           </div>
         </div>
@@ -210,7 +253,12 @@ export default function Members() {
       <div className="d-flex justify-content-between align-items-center mb-2">
         <div className="small text-muted">총 회원수 : {total}명</div>
         <div className="d-flex gap-2">
-          <button className="btn btn-outline-secondary btn-sm" onClick={downloadCsv} disabled={!rows.length}>
+          <button 
+            className="btn btn-outline-secondary btn-sm" 
+            onClick={downloadCsv} 
+            disabled={!rows.length}
+            style={{ whiteSpace: "nowrap" }}
+          >
             엑셀저장
           </button>
         </div>

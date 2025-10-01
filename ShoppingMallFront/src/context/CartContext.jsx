@@ -18,7 +18,7 @@ export const CartProvider = ({ children }) => {
     if (isLoggedIn) {
       getCartByEmail() // email은 토큰 기반으로 백엔드에서 추출
         .then((cart) => {
-          setCartItems(cart.items || []);
+          setCartItems((cart.items || []).filter(it => it.ci_no !== null));
         })
         .catch((err) => {
           console.error("❌ 장바구니 불러오기 실패:", err);
