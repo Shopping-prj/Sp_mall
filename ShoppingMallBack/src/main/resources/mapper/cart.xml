@@ -46,8 +46,8 @@
         ci.ci_no, ci.c_productId, ci.c_count,
         p.p_title, p.p_lprice, p.p_image
         FROM cart c
-        LEFT JOIN cart_item ci ON c.c_no = ci.c_no
-        LEFT JOIN product p ON ci.c_productId = p.p_productId
+        JOIN cart_item ci ON c.c_no = ci.c_no
+        JOIN product p ON ci.c_productId = p.p_productId
         WHERE c.c_email = #{value}
     </select>
 
@@ -102,5 +102,20 @@
         DELETE FROM cart_item
         WHERE c_no = (SELECT c_no FROM cart WHERE c_email = #{email})
     </delete>
+
+
+
+    <!-- 장바구니 합계를 계산하는 쿼리
+         특정 이메일(c_email)에 해당하는 장바구니(cart)와 상품(product)을 조인
+         p_lprice(상품 가격) * c_count(장바구니 수량)의 합을 구한다
+         SUM 결과가 NULL일 경우 0으로 대체(COALESCE 사용) -->
+    <select id="getTotalAmountByEmail" parameterType="string" resultType="long">
+        SELECT COALESCE(SUM(p.p_lprice * ci.c_count), 0)
+        FROM cart c
+        JOIN cart_item ci ON c.c_no = ci.c_no
+        JOIN product p ON ci.c_productId = p.p_productId
+        WHERE c.c_email = #{email}
+    </select>
+
 
 </mapper>

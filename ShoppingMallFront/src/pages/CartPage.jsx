@@ -19,9 +19,13 @@ const CartPage = () => {
       <Row className="flex-wrap">
         <Col md={8}>
           {cartItems.length > 0 ? (
-            cartItems.map(item => (
+            cartItems.map((item, index) => (
               <CartItemCard
-              key={item.ci_no ? `ci-${item.ci_no}` : `p-${item.p_productId}`}
+              key={item.ci_no 
+              ? `ci-${item.ci_no}` 
+              : item.c_productId 
+                ? `p-${item.c_productId}` 
+                : `idx-${index}`}
               item={item}
               changeCount={handleChangeCount}
               onRemove={handleRemoveItem}

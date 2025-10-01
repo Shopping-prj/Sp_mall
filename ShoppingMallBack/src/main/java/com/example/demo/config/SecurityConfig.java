@@ -90,12 +90,14 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/users/login",
                                 "/api/users/join",
+                                "/api/users/refresh",
                                 "/api/products/**"
                         ).permitAll()
 
                         // 로그인 필요
                         .requestMatchers(
-                        "/api/carts/**"
+                        "/api/carts/**",
+                                "/api/payments/**"
                         ).authenticated()
 
                         // 관리자 전용

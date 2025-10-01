@@ -7,7 +7,7 @@ import { categories } from "common/categoriesData";
 
 const ShopNavbar = ({ isNarrow }) => {
   const { cartItems } = useCart();
-  const { isLoggedIn, logout } = useAuth();
+  const { isLoggedIn, logout, role } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -84,6 +84,15 @@ const ShopNavbar = ({ isNarrow }) => {
                     <Dropdown.Item as={Link} to="mypage/member">회원정보 수정</Dropdown.Item>
                     <Dropdown.Item as={Link} to="mypage/orders">주문 내역</Dropdown.Item>
                     <Dropdown.Item as={Link} to="mypage/address">배송지 관리</Dropdown.Item>
+
+                    {/* ✅ role이 ADMIN일 때만 관리자 버튼 표시 */}
+                    {role?.toUpperCase() === "ADMIN" && (
+                      <>
+                        <Dropdown.Divider />
+                        <Dropdown.Item as={Link} to="/admin">관리자 페이지</Dropdown.Item>
+                      </>
+                    )}
+
                     <Dropdown.Divider />
                     <Dropdown.Item onClick={handleLogout}>로그아웃</Dropdown.Item>
                   </Dropdown.Menu>

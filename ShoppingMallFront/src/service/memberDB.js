@@ -1,18 +1,21 @@
-import axios from "axios";
+// src/service/memberDB.js
+import api from "./axios";
 
-// 로컬로그인
+// 로그인 API만 호출, 토큰 저장은 안 함
 export const loginMember = async (m_email, m_password) => {
-  const res = await axios({
+  const res = await api({
     method: "post",
-    url: `${process.env.REACT_APP_SPRING_IP}/api/users/login`,
+    url: "/api/users/login",
     data: { m_email, m_password },
     headers: { "Content-Type": "application/json" },
   });
+  return res.data; // accessToken, refreshToken, member, role 포함
+};
 
-  // 서버에서 토큰을 내려주면 localStorage 저장
-  if (res.data.token) {
-    localStorage.setItem("accessToken", res.data.token);
-  }
-
+export const getMyInfo = async () => {
+  const res = await api({
+    method: "get",
+    url: "/api/users/me",
+  });
   return res.data;
 };

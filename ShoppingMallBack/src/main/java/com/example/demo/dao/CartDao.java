@@ -67,4 +67,10 @@ public class CartDao {
     public void deleteCartItemsByEmail(String email) {
         sql.delete(NS + "deleteCartItemsByEmail", email);
     }
+
+    // 10. MyBatis 매퍼 호출
+    // email 기준으로 장바구니 총합 금액을 조회해서 반환
+    public Long getTotalAmountByEmail(String email) {
+        return sql.selectOne(NS + "getTotalAmountByEmail", email);
+    }
 }

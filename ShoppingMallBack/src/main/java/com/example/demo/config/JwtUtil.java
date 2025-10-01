@@ -11,22 +11,34 @@ import java.util.Date;
 public class JwtUtil {
 
     private static final String SECRET_KEY = "ThisIsASecretKeyForJwtTokenGenerationThisIsASecretKey"; // 256bit 이상
-    private static final long EXPIRATION_TIME = 1000 * 60 * 60; // 1시간
+    private static final long ACCESS_EXPIRATION_TIME = 1000 * 60 * 60 * 24; // 24시간
+    private static final long REFRESH_EXPIRATION_TIME = 1000L * 60 * 60 * 24 * 14; // 14일
 
     private final Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
 
-    // 토큰 생성 (이메일 + 회원등급 저장)
-    public String generateToken(String email, String m_class) {
+    // ✅ Access Token 발급
+    public String generateAccessToken(String email, String m_class) {
         return Jwts.builder()
-                .setSubject(email)             // sub = 회원 이메일
-                .claim("role", m_class)           // m_class(USER/ADMIN)
-                .setIssuedAt(new Date())       // iat
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME)) // exp
+                .setSubject(email)
+                .claim("role", m_class)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + ACCESS_EXPIRATION_TIME))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    // 토큰 유효성 검증
+    // ✅ Refresh Token 발급
+    public String generateRefreshToken(String email) {
+        return Jwts.builder()
+                .setSubject(email)
+                .claim("type", "refresh")
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + REFRESH_EXPIRATION_TIME))
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    // ✅ 유효성 검증
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
@@ -46,6 +58,7 @@ public class JwtUtil {
         return (String) getClaims(token).get("role");
     }
 
+    // ✅ Claims 추출 (공통)
     private Claims getClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
@@ -59,17 +72,8 @@ public class JwtUtil {
         if (header == null || !header.startsWith("Bearer ")) {
             throw new IllegalArgumentException("잘못된 Authorization 헤더 형식입니다.");
         }
-        String token = header.substring(7); // "Bearer " 이후 부분 추출
+        String token = header.substring(7);
         return getEmail(token);
     }
-
-    // ✅ Authorization 헤더에서 "Bearer " 제거 후 role 추출
-    public String extractRoleFromHeader(String header) {
-        if (header == null || !header.startsWith("Bearer ")) {
-            throw new IllegalArgumentException("잘못된 Authorization 헤더 형식입니다.");
-        }
-        String token = header.substring(7);
-        return getRole(token);
-    }
-
 }
+

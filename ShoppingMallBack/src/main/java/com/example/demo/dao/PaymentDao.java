@@ -22,7 +22,7 @@ public class PaymentDao {
         return sqlSession.selectOne(NS + "getById", payImpUid);
     }
 
-    public List<Payment> getAllPayments() {
+    public List<Payment> getAllPayment() {
         return sqlSession.selectList(NS + "getAllPayment");
     }
 
@@ -35,9 +35,5 @@ public class PaymentDao {
 
     public int deleteById(String payImpUid) {
         return sqlSession.delete(NS + "deleteById", payImpUid);
-    }
-
-    public List<Payment> getByEmail(String email) {
-        return sqlSession.selectList(NS + "getByEmail", email);
     }
 }

@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
@@ -30,11 +32,13 @@ public class UserMemberController {
             Member member = memberService.login(pMember.getM_email(), pMember.getM_password());
 
             // ✅ 토큰 발급
-            String token = jwtUtil.generateToken(member.getM_email(), member.getM_class());
+            String accessToken = jwtUtil.generateAccessToken(member.getM_email(), member.getM_class());
+            String refreshToken = jwtUtil.generateRefreshToken(member.getM_email());
 
             return ResponseEntity.ok(
                     java.util.Map.of(
-                            "token", token,
+                            "accessToken", accessToken,
+                            "refreshToken", refreshToken,
                             "member", member,
                             "role", member.getM_class()
                     )
@@ -82,5 +86,33 @@ public class UserMemberController {
         String email = jwtUtil.extractEmailFromHeader(authHeader);
         memberService.deleteByEmail(email);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refresh(@RequestBody Map<String, String> body){
+        String refreshToken = body.get("refreshToken");
+
+        // 1. refreshToken 유효성 검증
+        if(refreshToken == null || !jwtUtil.validateToken(refreshToken)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "Refresh Token이 유효하지 않습니다."));
+        }
+
+        // 2. refreshToken에서 이메일 추출
+        String email = jwtUtil.getEmail(refreshToken);
+
+        // 3. 회원 정보 조회
+        Member member = memberService.getByEmail(email);
+        if(member == null){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "회원이 존재하지 않습니다."));
+        }
+
+        // 4. 새 Access Token 발급
+        String newAccessToken = jwtUtil.generateAccessToken(member.getM_email(), member.getM_class());
+
+        return  ResponseEntity.ok(Map.of(
+                "accessToken", newAccessToken
+        ));
     }
 }
