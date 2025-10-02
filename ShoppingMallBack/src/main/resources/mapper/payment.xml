@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- PaymentDao와 연결되는 MyBatis 매퍼 -->
+<mapper namespace="com.example.demo.dao.PaymentMapper">
+
+    <!-- 결제정보 저장 (pending 상태) -->
+    <!-- ⚠️ imp_uid 는 pending 단계에서는 NULL 일 수 있음 -->
+    <insert id="insert" parameterType="com.example.demo.model.Payment">
+        INSERT INTO payment (
+        pay_merchant_uid, pay_pg_tid, pay_imp_uid,
+        pay_email, c_no,
+        pay_status, pay_currency, pay_amount, pay_paid_amount, pay_paid_at,
+        pay_buyer_name, pay_buyer_tel, pay_buyer_postcode, pay_address,
+        pay_receipt_url, pay_method, pg_provider, pg_type, pay_name,
+        error_msg, success, apply_num, bank_name, card_name, card_number, card_quota
+        ) VALUES (
+        #{pay_merchant_uid}, #{pay_pg_tid}, #{pay_imp_uid},
+        #{pay_email}, #{c_no},
+        #{pay_status}, #{pay_currency}, #{pay_amount}, #{pay_paid_amount}, #{pay_paid_at},
+        #{pay_buyer_name}, #{pay_buyer_tel}, #{pay_buyer_postcode}, #{pay_address},
+        #{pay_receipt_url}, #{pay_method}, #{pg_provider}, #{pg_type}, #{pay_name},
+        #{error_msg}, #{success}, #{apply_num}, #{bank_name}, #{card_name}, #{card_number}, #{card_quota}
+        )
+    </insert>
+
+    <!-- imp_uid 기준 단건 조회 -->
+    <select id="getById" parameterType="string" resultType="com.example.demo.model.Payment">
+        SELECT * FROM payment WHERE pay_imp_uid = #{payImpUid}
+    </select>
+
+    <!-- 전체 결제내역 조회 -->
+    <select id="getAllPayment" resultType="com.example.demo.model.Payment">
+        SELECT * FROM payment
+    </select>
+
+    <!-- 결제 성공 업데이트 -->
+    <!-- ✅ 반드시 merchant_uid 기준으로 업데이트 (imp_uid 없는 pending 상태 대비) -->
+    <update id="updateAfterSuccess" parameterType="com.example.demo.model.Payment">
+        UPDATE payment
+        SET
+        pay_status      = COALESCE(#{pay_status}, pay_status),
+        pay_imp_uid     = COALESCE(#{pay_imp_uid}, pay_imp_uid),   <!-- 아임포트 UID -->
+        pay_pg_tid      = COALESCE(#{pay_pg_tid}, pay_pg_tid),     <!-- PG 거래번호 -->
+        pay_receipt_url = COALESCE(#{pay_receipt_url}, pay_receipt_url), <!-- 영수증 URL -->
+        pay_paid_amount = COALESCE(#{pay_paid_amount}, pay_paid_amount),
+        pay_paid_at     = NOW(),
+        pay_method      = COALESCE(#{pay_method}, pay_method),
+        apply_num       = COALESCE(#{apply_num}, apply_num),
+        card_name       = COALESCE(#{card_name}, card_name),
+        card_number     = COALESCE(#{card_number}, card_number),
+        bank_name       = COALESCE(#{bank_name}, bank_name),
+        success         = COALESCE(#{success}, success),
+        error_msg       = COALESCE(#{error_msg}, error_msg)
+        WHERE pay_merchant_uid = #{pay_merchant_uid}
+        OR pay_imp_uid = #{pay_imp_uid}
+    </update>
+
+    <!-- 결제 취소 업데이트 -->
+    <update id="updateAfterCancel" parameterType="com.example.demo.model.Payment">
+        UPDATE payment
+        SET
+        pay_status = #{pay_status},
+        error_msg  = #{error_msg},
+        success    = #{success}
+        WHERE pay_merchant_uid = #{pay_merchant_uid}
+    </update>
+
+    <!-- 결제 삭제 -->
+    <delete id="deleteById" parameterType="string">
+        DELETE FROM payment WHERE pay_imp_uid = #{payImpUid}
+    </delete>
+
+</mapper>

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.dao.admin.AdminMemberMapper">
+
+    <!-- 조회는 공용 Member 모델 -->
+    <resultMap id="MemberMap" type="com.example.demo.model.Member">
+        <id     property="m_no"       column="m_no"/>
+        <result property="m_email"    column="m_email"/>
+        <result property="m_password" column="m_password"/>
+        <result property="m_name"     column="m_name"/>
+        <result property="m_social"   column="m_social"/>
+        <result property="m_class"    column="m_class"/>
+        <result property="m_created"  column="m_created"/>
+        <result property="m_address"  column="m_address"/>
+    </resultMap>
+
+    <!-- 정확 일치로 단건 조회 -->
+    <select id="getByEmailExact" parameterType="string" resultMap="MemberMap">
+        SELECT
+        m_no, m_email, m_password, m_name, m_social, m_class, m_created, m_address
+        FROM member
+        WHERE m_email = #{value}
+        LIMIT 1
+    </select>
+
+    <!-- 목록/검색 -->
+    <select id="adminSearch" parameterType="map" resultMap="MemberMap">
+        SELECT
+        m_no, m_email, m_password, m_name, m_social, m_class, m_created, m_address
+        FROM member
+        <where>
+            <if test="keyword != null and keyword != ''">
+                <choose>
+                    <when test="keywordType == 'name'">
+                        AND m_name  LIKE CONCAT('%', #{keyword}, '%')
+                    </when>
+                    <otherwise>
+                        AND m_email LIKE CONCAT('%', #{keyword}, '%')
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="cls != null and cls != '' and cls != 'ALL'">
+                AND m_class = #{cls}
+            </if>
+            <if test="social != null and social != '' and social != 'ALL'">
+                AND m_social = #{social}
+            </if>
+            <if test="from != null and from != ''">
+                AND m_created &gt;= CONCAT(#{from}, ' 00:00:00')
+            </if>
+            <if test="to != null and to != ''">
+                AND m_created &lt;= CONCAT(#{to}, ' 23:59:59')
+            </if>
+        </where>
+        ORDER BY m_no DESC
+        <if test="limit != null and limit &gt; 0">
+            LIMIT #{limit}
+            <if test="offset != null and offset &gt;= 0">
+                OFFSET #{offset}
+            </if>
+        </if>
+    </select>
+
+    <!-- 관리자 수정: DTO는 model.admin.AdminMember -->
+    <update id="adminUpdate" parameterType="com.example.demo.model.admin.AdminMember">
+        UPDATE member
+        SET
+        m_name    = #{m_name},
+        m_social  = #{m_social},
+        m_class   = #{m_class},
+        m_address = #{m_address}
+        WHERE m_no = #{m_no}
+    </update>
+
+    <!-- 비밀번호 변경 -->
+    <update id="adminUpdatePassword" parameterType="map">
+        UPDATE member
+        SET m_password = #{hashed}
+        WHERE m_no = #{m_no}
+    </update>
+
+    <!-- 회원 등록 -->
+    <insert id="insert" parameterType="com.example.demo.model.admin.AdminMember"
+            useGeneratedKeys="true" keyProperty="m_no">
+        INSERT INTO member (
+        m_email, m_password, m_name, m_social, m_class, m_address, m_created
+        ) VALUES (
+        #{m_email}, #{m_password}, #{m_name}, #{m_social}, #{m_class}, #{m_address}, NOW()
+        )
+    </insert>
+
+    <!-- ✅ 회원 삭제 -->
+    <delete id="delete" parameterType="long">
+        DELETE FROM member
+        WHERE m_no = #{mNo}
+    </delete>
+
+    <!-- 단일 파라미터 바인딩은 #{value}로 수정 -->
+    <select id="getByEmail" resultMap="MemberMap">
+        SELECT * FROM member WHERE m_email = #{value}
+    </select>
+
+    <select id="getById" resultMap="MemberMap">
+        SELECT * FROM member WHERE m_no = #{value}
+    </select>
+
+    <!-- DAO에서 호출하는 findAll 추가 -->
+    <select id="getAll" resultMap="MemberMap">
+        SELECT * FROM member
+        ORDER BY m_no ASC
+    </select>
+</mapper>

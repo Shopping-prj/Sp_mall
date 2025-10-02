@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.dao.PurchaseHistoryMapper">
+
+    <resultMap id="PurchaseHistoryMap" type="com.example.demo.model.PurchaseHistory">
+        <id     property="ph_no"       column="ph_no"/>
+        <result property="ph_imp_uid"  column="ph_imp_uid"/>
+        <result property="ph_email"    column="ph_email"/>
+        <result property="ph_count"    column="ph_count"/>
+        <result property="ph_date"     column="ph_date"/>
+        <result property="ph_delivery" column="ph_delivery"/>
+        <result property="ph_payment"  column="ph_payment"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.example.demo.model.PurchaseHistory" useGeneratedKeys="true" keyProperty="ph_no">
+        INSERT INTO purchaseHistory (
+        ph_imp_uid, ph_email, ph_count, ph_date, ph_delivery, ph_payment
+        ) VALUES (
+        #{ph_imp_uid}, #{ph_email}, #{ph_count}, #{ph_date}, #{ph_delivery}, #{ph_payment}
+        )
+    </insert>
+
+    <select id="getByNo" parameterType="long" resultMap="PurchaseHistoryMap">
+        SELECT * FROM purchaseHistory WHERE ph_no = #{value}
+    </select>
+
+    <select id="getAllPurchaseHistory" resultMap="PurchaseHistoryMap">
+        SELECT * FROM purchaseHistory ORDER BY ph_date DESC
+    </select>
+
+    <select id="getByEmail" parameterType="string" resultMap="PurchaseHistoryMap">
+        SELECT * FROM purchaseHistory WHERE ph_email = #{value} ORDER BY ph_date DESC
+    </select>
+
+    <update id="updateDelivery">
+        UPDATE purchaseHistory
+        SET ph_delivery = #{ph_delivery}
+        WHERE ph_no = #{ph_no}
+    </update>
+
+    <update id="updatePayment">
+        UPDATE purchaseHistory
+        SET ph_payment = #{ph_payment}
+        WHERE ph_no = #{ph_no}
+    </update>
+
+    <delete id="deleteByNo" parameterType="long">
+        DELETE FROM purchaseHistory WHERE ph_no = #{value}
+    </delete>
+
+</mapper>
