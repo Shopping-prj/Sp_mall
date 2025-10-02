@@ -26,11 +26,12 @@ public class PaymentDao {
         return sqlSession.selectList(NS + "getAllPayment");
     }
 
-    public int updateStatus(String payImpUid, String status) {
-        Payment param = new Payment();
-        param.setPay_imp_uid(payImpUid);
-        param.setPay_status(status);
-        return sqlSession.update(NS + "updateStatus", param);
+    public int updateAfterSuccess(Payment payment) {
+        return sqlSession.update(NS + "updateAfterSuccess", payment);
+    }
+
+    public int updateAfterCancel(Payment payment) {
+        return sqlSession.update(NS + "updateAfterCancel", payment);
     }
 
     public int deleteById(String payImpUid) {

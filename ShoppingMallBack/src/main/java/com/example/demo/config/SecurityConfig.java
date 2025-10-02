@@ -107,11 +107,6 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .anyRequest().authenticated()
                 )
-                .exceptionHandling(exception -> exception
-                        .accessDeniedHandler((request, response, accessDeniedException) ->
-                                response.sendError(403, "Access Denied")
-                        )
-                )
                 // ✅ UsernamePasswordAuthenticationFilter 전에 JwtAuthFilter 삽입
                 .addFilterBefore(jwtAuthFilter(), UsernamePasswordAuthenticationFilter.class);
 

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.dao.PCancelMapper">
+
+    <resultMap id="PCancelMap" type="com.example.demo.model.PurchaseCancel">
+        <id     property="pc_imp_uid"      column="pc_imp_uid"/>
+        <result property="pc_merchant_uid" column="pc_merchant_uid"/>
+        <result property="pc_pg_tid"       column="pc_pg_tid"/>
+        <result property="pc_email"        column="pc_email"/>
+        <result property="pc_fail_reason"  column="pc_fail_reason"/>
+        <result property="pc_currency"     column="pc_currency"/>
+        <result property="pc_cancel_amount" column="pc_cancel_amount"/>
+        <result property="pc_failed_at"    column="pc_failed_at"/>
+        <result property="pc_cancelled_a"  column="pc_cancelled_a"/>
+        <result property="pc_cancel_history" column="pc_cancel_history"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.example.demo.model.PurchaseCancel">
+        INSERT INTO pCancel (
+        pc_imp_uid, pc_merchant_uid, pc_pg_tid, pc_email,
+        pc_fail_reason, pc_currency, pc_cancel_amount,
+        pc_failed_at, pc_cancelled_a, pc_cancel_history
+        ) VALUES (
+        #{pc_imp_uid}, #{pc_merchant_uid}, #{pc_pg_tid}, #{pc_email},
+        #{pc_fail_reason}, #{pc_currency}, #{pc_cancel_amount},
+        #{pc_failed_at}, #{pc_cancelled_a}, #{pc_cancel_history}
+        )
+    </insert>
+
+    <select id="getByImpUid" parameterType="string" resultMap="PCancelMap">
+        SELECT * FROM pCancel WHERE pc_imp_uid = #{value}
+    </select>
+
+    <select id="getAllCancel" resultMap="PCancelMap">
+        SELECT * FROM pCancel ORDER BY pc_cancelled_a DESC
+    </select>
+
+    <delete id="deleteByImpUid" parameterType="string">
+        DELETE FROM pCancel WHERE pc_imp_uid = #{value}
+    </delete>
+</mapper>

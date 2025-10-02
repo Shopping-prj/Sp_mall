@@ -6,6 +6,11 @@ const api = axios.create({
   baseURL: "http://localhost:8080",
 });
 
+// ✅ refresh 전용 인스턴스 (인터셉터 없음)
+export const refreshApi = axios.create({
+  baseURL: "http://localhost:8080",
+});
+
 // ✅ 요청 인터셉터: 매 요청마다 accessToken 자동 첨부
 api.interceptors.request.use(
   (config) => {
@@ -25,7 +30,7 @@ api.interceptors.response.use(
     const originalRequest = error.config;
 
     // accessToken 만료 → refresh 시도
-    if ((error.response?.status === 401 || error.response?.status === 403) && !originalRequest._retry) {
+    if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
       try {
@@ -37,9 +42,9 @@ api.interceptors.response.use(
         }
 
         // ✅ refresh 요청 (refreshToken을 body에 담아 전송)
-        const res = await api.post("/api/users/refresh", { refreshToken });
+        const res = await refreshApi.post("/api/users/refresh", { refreshToken });
         const newAccessToken = res.data.accessToken; // ⚠️ 백엔드 응답 키 확인 필요
-
+        console.log(newAccessToken);
         if (!newAccessToken) {
           throw new Error("새 accessToken을 받아오지 못했습니다.");
         }

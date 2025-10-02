@@ -3,6 +3,7 @@ package com.example.demo.service;
 import com.example.demo.dao.CartDao;
 import com.example.demo.dao.PaymentDao;
 import com.example.demo.model.Payment;
+import com.example.demo.portone.PortOneClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -10,50 +11,42 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/**
+ * 결제 비즈니스 로직
+ * - 금액 검증
+ * - 결제정보 저장/조회/수정/삭제
+ * - PortOne API 연동 (상세조회 → DB 업데이트)
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class PaymentService {
 
-    private final PaymentDao paymentDao; // 결제 테이블 DAO
-    private final CartDao cartDao;       // 장바구니 테이블 DAO
+    private final PaymentDao paymentDao;
+    private final CartDao cartDao;
+    private final PortOneClient portOneClient;
 
     /**
-     * ✅ 결제 검증 로직
-     * 프론트에서 넘어온 금액(frontAmount)과
-     * DB 장바구니 총합 금액(dbTotal)을 비교한다.
-     *
-     * @param email 사용자의 이메일
-     * @param frontAmount 프론트에서 전달받은 결제 금액
-     * @return 두 금액이 같으면 true, 다르면 false
+     * 카트 금액과 프론트 결제요청 금액 비교
      */
     @Transactional(readOnly = true)
     public boolean verifyAmount(String email, Long frontAmount) {
         Long dbTotal = cartDao.getTotalAmountByEmail(email);
-        // 👇 로깅
-        log.info("결제 금액 검증: email={}, frontAmount={}, dbTotal={}",
-                email, frontAmount, dbTotal);
+        log.info("결제 검증: email={}, frontAmount={}, dbTotal={}", email, frontAmount, dbTotal);
         return frontAmount.equals(dbTotal);
     }
 
     /**
-     * ✅ 결제 정보 저장
-     * PG사 결제가 완료(status=paid)된 후 호출되는 메소드.
-     * 결제 정보를 payment 테이블에 insert 한다.
-     *
-     * @param payment PG사로부터 전달된 결제 정보
-     * @return 저장된 결제의 imp_uid (포트원 결제 고유번호)
+     * 결제정보 저장 (pending 상태)
+     * ⚠️ 이때 imp_uid 는 아직 없을 수 있음 → merchant_uid 기반으로 저장
      */
-    public String register(Payment payment) {
+    public void register(Payment payment) {
         paymentDao.insert(payment);
-        return payment.getPay_imp_uid();
     }
 
     /**
-     * 특정 결제 조회
-     * @param payImpUid imp_uid (결제 고유번호)
-     * @return Payment 객체
+     * imp_uid 기준 단건 조회
      */
     @Transactional(readOnly = true)
     public Payment getById(String payImpUid) {
@@ -61,8 +54,7 @@ public class PaymentService {
     }
 
     /**
-     * 전체 결제 내역 조회
-     * @return Payment 리스트
+     * 전체 결제내역 조회
      */
     @Transactional(readOnly = true)
     public List<Payment> getAllPayment() {
@@ -70,21 +62,49 @@ public class PaymentService {
     }
 
     /**
-     * 결제 상태 업데이트
-     * (예: cancel, refunded 등)
-     *
-     * @param payImpUid imp_uid (결제 고유번호)
-     * @param status 변경할 상태 값
+     * 결제 성공 업데이트
      */
-    public void updateStatus(String payImpUid, String status) {
-        paymentDao.updateStatus(payImpUid, status);
+    public void updateAfterSuccess(Payment payment) {
+        paymentDao.updateAfterSuccess(payment);
     }
 
     /**
-     * 특정 결제 내역 삭제
-     * @param payImpUid imp_uid (결제 고유번호)
+     * 결제 취소 업데이트
+     */
+    public void updateAfterCancel(Payment payment) {
+        paymentDao.updateAfterCancel(payment);
+    }
+
+    /**
+     * 결제 삭제
      */
     public void delete(String payImpUid) {
         paymentDao.deleteById(payImpUid);
+    }
+
+    /**
+     * PortOne REST API 호출 → DB 업데이트 → 최신 Payment 반환
+     */
+    public Payment fetchAndUpdatePaymentDetail(String impUid) {
+        // DB에 저장된 결제내역 조회
+        Payment payment = paymentDao.getById(impUid);
+        if (payment == null) return null;
+
+        try {
+            // PortOne REST API 토큰 발급
+            String token = portOneClient.getAccessToken();
+
+            // PortOne 결제 상세 조회
+            Payment updated = portOneClient.getPaymentDetail(token, impUid);
+
+            // DB 업데이트
+            paymentDao.updateAfterSuccess(updated);
+
+            // 최신값 반환
+            return paymentDao.getById(impUid);
+        } catch (Exception e) {
+            log.error("PortOne 상세조회 실패: {}", e.getMessage(), e);
+            return payment; // 실패 시 DB 값만 반환
+        }
     }
 }
