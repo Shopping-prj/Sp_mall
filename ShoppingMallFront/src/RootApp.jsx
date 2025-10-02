@@ -13,7 +13,7 @@ const RootApp = () => {
       <Route
         path="/admin/*"
         element={
-          isLoggedIn && role?.toUpperCase() === "ADMIN"
+          isLoggedIn && role?.toUpperCase() === "ROLE_ADMIN"
             ? <AdminApp />
             : <Navigate to="/" replace />
         }

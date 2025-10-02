@@ -44,10 +44,10 @@ export default function MemberDelete() {
       let url = "";
       if (searchType === "id") {
         // 회원번호(m_no)로 정확 매칭
-        url = `${API_BASE}/api/admin/members/${encodeURIComponent(q)}`;
+        url = `${API_BASE}/api/admin/members/by-id/${encodeURIComponent(q)}`;
       } else {
         // 이메일 정확 매칭 전용 엔드포인트
-        url = `${API_BASE}/api/admin/members/by-email?email=${encodeURIComponent(q)}`;
+        url = `${API_BASE}/api/admin/members/email/${encodeURIComponent(q)}`;
       }
 
       const token = localStorage.getItem("accessToken");
@@ -89,7 +89,7 @@ export default function MemberDelete() {
 
     try {
       const res = await fetch(
-        `${API_BASE}/api/admin/members/${encodeURIComponent(member.m_no)}`,
+        `${API_BASE}/api/admin/members/delete/${encodeURIComponent(member.m_email)}`,
         {
           method: "DELETE",
           headers: { "Authorization": `Bearer ${token}` },  // ✅ 추가

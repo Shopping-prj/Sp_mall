@@ -1,33 +1,25 @@
 package com.example.demo.dao;
 
-import com.example.demo.model.CartItem;
 import com.example.demo.model.Order;
-import com.example.demo.model.OrderItem;
 import lombok.RequiredArgsConstructor;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 
 @Repository
 @RequiredArgsConstructor
 public class OrderDao {
-    private static final String NS = "com.example.demo.dao.OrderMapper.";
+
     private final SqlSessionTemplate sql;
+    private static final String NS = "com.example.demo.dao.OrderMapper.";
 
-    public void insertOrder(Order order) {
-        sql.insert(NS + "insertOrder", order);
+    public List<Order> searchOrders(Map<String, Object> param) {
+        return sql.selectList(NS + "searchOrders", param);
     }
 
-    public void insertOrderItem(OrderItem item) {
-        sql.insert(NS + "insertOrderItem", item);
-    }
-
-    public List<CartItem> getCartItemsByCartNo(Long c_no) {
-        return sql.selectList(NS + "getCartItemsByCartNo", c_no);
-    }
-
-    public void clearCartByCartNo(Long c_no) {
-        sql.delete(NS + "clearCartByCartNo", c_no);
+    public List<Order> getAllOrders() {
+        return sql.selectList(NS + "getAllOrders");
     }
 }

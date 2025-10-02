@@ -83,6 +83,14 @@ public class MemberService {
     }
 
     /**
+     * 번호 기준 단건 조회
+     */
+    @Transactional(readOnly = true)
+    public Member getById(Long mNo) {
+        return memberDao.getById(mNo);
+    }
+
+    /**
      * 전체 조회
      */
     @Transactional(readOnly = true)
@@ -116,7 +124,7 @@ public class MemberService {
     }
 
     /**
-     * 주소 업데이트
+     * 주소 업데이트 (이메일 기반)
      */
     public void updateAddressByEmail(String email, String address) {
         Member member = memberDao.getByEmail(email);
@@ -125,7 +133,7 @@ public class MemberService {
     }
 
     /**
-     * 비밀번호 업데이트
+     * 비밀번호 업데이트 (이메일 기반)
      */
     public void updatePasswordByEmail(String email, String rawPw) {
         Member member = memberDao.getByEmail(email);
@@ -141,4 +149,26 @@ public class MemberService {
         if (member == null) throw new IllegalArgumentException("존재하지 않는 회원입니다.");
         memberDao.deleteById(member.getM_no());
     }
+
+    /**
+     * ✅ 번호 기반 회원 수정 (번호, 이메일, 가입일자 제외)
+     */
+    public void updateMemberInfo(Long mNo, Member updated) {
+        Member origin = memberDao.getById(mNo);
+        if (origin == null) throw new IllegalArgumentException("존재하지 않는 회원입니다. id=" + mNo);
+
+        // 수정 가능한 항목만 반영
+        origin.setM_name(updated.getM_name());
+        origin.setM_social(updated.getM_social());
+        origin.setM_class(updated.getM_class());
+        origin.setM_address(updated.getM_address());
+
+        // 비밀번호는 입력했을 때만 반영
+        if (updated.getM_password() != null && !updated.getM_password().isBlank()) {
+            origin.setM_password(passwordEncoder.encode(updated.getM_password()));
+        }
+
+        memberDao.update(origin);
+    }
 }
+

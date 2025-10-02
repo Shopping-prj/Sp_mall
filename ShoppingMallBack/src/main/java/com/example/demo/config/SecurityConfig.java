@@ -102,8 +102,8 @@ public class SecurityConfig {
                         ).authenticated()
 
                         // 관리자 전용
+                        .requestMatchers("/api/admin/orders/**").permitAll()
                         .requestMatchers("/api/admin/products", "/api/admin/**").hasRole("ADMIN")
-
                         // 기타
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .anyRequest().authenticated()

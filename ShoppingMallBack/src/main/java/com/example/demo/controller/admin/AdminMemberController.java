@@ -46,24 +46,28 @@ public class AdminMemberController {
     /**
      * 특정 회원 단건 조회 (email 기반)
      */
-    @GetMapping("/{email}")
-    public ResponseEntity<Member> getMemberByEmail(@PathVariable String email) {
+    @GetMapping("/email/{email:.+}")
+    public ResponseEntity<Member> getByEmail(@PathVariable String email) {
         return ResponseEntity.ok(memberService.getByEmail(email));
     }
-
+    /** ✅ 회원번호로 조회 */
+    @GetMapping("/by-id/{mNo}")
+    public ResponseEntity<Member> getById(@PathVariable Long mNo) {
+        return ResponseEntity.ok(memberService.getById(mNo));
+    }
     /**
      * 주소 수정
      */
-    @PatchMapping("/{email}")
-    public ResponseEntity<Void> updateMember(@PathVariable String email, @RequestBody Member updated) {
-        memberService.updateAddressByEmail(email, updated.getM_address());
+    @PutMapping("/{mNo}")
+    public ResponseEntity<Void> updateMember(@PathVariable Long mNo, @RequestBody Member updated) {
+        memberService.updateMemberInfo(mNo, updated);
         return ResponseEntity.noContent().build();
     }
 
     /**
      * 삭제
      */
-    @DeleteMapping("/{email}")
+    @DeleteMapping("/delete/{email}")
     public ResponseEntity<Void> delete(@PathVariable String email) {
         memberService.deleteByEmail(email);
         return ResponseEntity.noContent().build();

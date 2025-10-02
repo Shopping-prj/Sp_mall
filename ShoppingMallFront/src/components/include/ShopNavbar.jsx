@@ -86,7 +86,7 @@ const ShopNavbar = ({ isNarrow }) => {
                     <Dropdown.Item as={Link} to="mypage/address">배송지 관리</Dropdown.Item>
 
                     {/* ✅ role이 ADMIN일 때만 관리자 버튼 표시 */}
-                    {role?.toUpperCase() === "ADMIN" && (
+                    {role?.toUpperCase() === "ROLE_ADMIN" && (
                       <>
                         <Dropdown.Divider />
                         <Dropdown.Item as={Link} to="/admin">관리자 페이지</Dropdown.Item>

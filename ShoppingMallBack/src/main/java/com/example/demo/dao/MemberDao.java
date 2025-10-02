@@ -20,8 +20,8 @@ public class MemberDao {
         return sqlSession.insert(NS + "insert", member);
     }
 
-    public Member getById(Long id) {
-        return sqlSession.selectOne(NS + "getById", id);
+    public Member getById(Long mNo) {
+        return sqlSession.selectOne(NS + "getById", mNo);
     }
 
     public Member getByEmail(String email) {
@@ -62,5 +62,10 @@ public class MemberDao {
 
     public int deleteById(Long id) {
         return sqlSession.delete(NS + "deleteById", id);
+    }
+
+    /** ✅ 전체 회원정보 수정 (번호 기준) */
+    public int update(Member member) {
+        return sqlSession.update(NS + "update", member);
     }
 }

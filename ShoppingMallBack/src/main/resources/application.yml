@@ -31,4 +31,8 @@ naver:
     client-id: YzotomfXq0ji6AFhSloY
     client-secret: qteSvrfjSh
     url: https://openapi.naver.com/v1/search/shop.json
+portone:
+  api:
+    key: 8412280382684080
+    secret: uhvjY49DJl49KgpJOWFEqjF2nR91AOmvlWTupaIhVNJAs3X8rXIz725SRVRZ6eOrReKIQRQaS3icFE0F
 

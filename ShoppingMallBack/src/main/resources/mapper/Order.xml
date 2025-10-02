@@ -5,67 +5,89 @@
 
 <mapper namespace="com.example.demo.dao.OrderMapper">
 
-    <!-- ==================== 주문 ==================== -->
+    <resultMap id="OrderMap" type="com.example.demo.model.Order">
+        <id     property="o_no"           column="o_no"/>
+        <result property="o_email"        column="o_email"/>
+        <result property="o_merchant_uid" column="o_merchant_uid"/>
+        <result property="o_created_at"   column="o_created_at"/>
+        <result property="o_amount"       column="o_amount"/>
+        <result property="o_address"      column="o_address"/>
+        <result property="o_status"       column="o_status"/>
+        <result property="pay_status"     column="pay_status"/>
+        <result property="productTitle"   column="p_title"/>
+        <result property="productImage"   column="p_image"/>
+    </resultMap>
 
-    <!-- 주문 등록 -->
-    <insert id="insertOrder"
-            parameterType="com.example.demo.model.Order"
-            useGeneratedKeys="true"
-            keyProperty="o_no">
-        INSERT INTO `order` (
-        o_email,
-        o_merchant_uid,
-        o_created_at,
-        o_amount,
-        o_address,
-        o_status
-        )
-        VALUES (
-        #{o_email},
-        #{o_merchant_uid},
-        NOW(),
-        #{o_amount},
-        #{o_address},
-        #{o_status}
-        )
-    </insert>
-
-    <!-- ==================== 주문 아이템 ==================== -->
-
-    <!-- 주문 아이템 등록 -->
-    <insert id="insertOrderItem"
-            parameterType="com.example.demo.model.OrderItem">
-        INSERT INTO order_item (
-        o_no,
-        oi_productId,
-        oi_count
-        )
-        VALUES (
-        #{o_no},
-        #{oi_productId},
-        #{oi_count}
-        )
-    </insert>
-
-    <!-- ==================== 장바구니 ==================== -->
-
-    <!-- 특정 장바구니 번호로 아이템 전체 조회 -->
-    <select id="getCartItemsByCartNo"
-            parameterType="long"
-            resultType="com.example.demo.model.CartItem">
+    <!-- 검색 -->
+    <select id="searchOrders" parameterType="map" resultMap="OrderMap">
         SELECT
-        ci.ci_no,
-        ci.c_no,
-        ci.c_productId,
-        ci.c_count
-        FROM cart_item ci
-        WHERE ci.c_no = #{c_no}
+        o.o_no,
+        o.o_email,
+        o.o_merchant_uid,
+        o.o_created_at,
+        o.o_amount,
+        o.o_address,
+        o.o_status,
+        pay.pay_status,
+        p.p_title,
+        p.p_image
+        FROM `order` o
+        LEFT JOIN payment pay ON o.o_merchant_uid = pay.pay_merchant_uid
+        LEFT JOIN order_item oi ON o.o_no = oi.oi_order_no
+        LEFT JOIN product p ON oi.oi_product_id = p.p_productid
+        WHERE 1=1
+        AND pay.pay_status IN ('READY','PAID')  <!-- ✅ 입금대기/입금완료만 -->
+        <if test="kwType != null and kw != null and kw != ''">
+            <choose>
+                <when test="kwType == 'o_email'">
+                    AND o.o_email LIKE CONCAT('%', #{kw}, '%')
+                </when>
+                <when test="kwType == 'o_no'">
+                    AND o.o_no = #{kw}
+                </when>
+                <when test="kwType == 'p_title'">
+                    AND p.p_title LIKE CONCAT('%', #{kw}, '%')
+                </when>
+                <when test="kwType == 'oi_productId'">
+                    AND oi.oi_product_id LIKE CONCAT('%', #{kw}, '%')
+                </when>
+            </choose>
+        </if>
+
+        <if test="from != null and from != ''">
+            AND DATE(o.o_created_at) &gt;= #{from}
+        </if>
+        <if test="to != null and to != ''">
+            AND DATE(o.o_created_at) &lt;= #{to}
+        </if>
+
+        <if test="status != null and status != '' and status != '전체'">
+            <!-- status를 pay_status랑 매칭 -->
+            AND pay.pay_status = #{status}
+        </if>
+
+        ORDER BY o.o_created_at DESC
     </select>
 
-    <!-- 장바구니 비우기 -->
-    <delete id="clearCartByCartNo" parameterType="long">
-        DELETE FROM cart_item
-        WHERE c_no = #{c_no}
-    </delete>
+    <!-- 전체 조회 -->
+    <select id="getAllOrders" resultMap="OrderMap">
+        SELECT
+        o.o_no,
+        o.o_email,
+        o.o_merchant_uid,
+        o.o_created_at,
+        o.o_amount,
+        o.o_address,
+        o.o_status,
+        pay.pay_status,
+        p.p_title,
+        p.p_image
+        FROM `order` o
+        LEFT JOIN payment pay ON o.o_merchant_uid = pay.pay_merchant_uid
+        LEFT JOIN order_item oi ON o.o_no = oi.oi_order_no
+        LEFT JOIN product p ON oi.oi_product_id = p.p_productid
+        WHERE pay.pay_status IN ('READY','PAID')
+        ORDER BY o.o_created_at DESC
+    </select>
 
 </mapper>

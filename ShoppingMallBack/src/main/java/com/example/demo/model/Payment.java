@@ -1,78 +1,42 @@
 package com.example.demo.model;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
-import lombok.*;
+import lombok.Data;
 import java.time.LocalDateTime;
 
+/**
+ * payment 테이블과 매핑되는 모델 클래스
+ * DDL과 정확히 맞춤 (pay_buyer_email 없음 주의)
+ */
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class Payment {
-    // 포트원 결제 고유 ID
-    @JsonAlias("imp_uid")
-    private String pay_imp_uid;
+    private String pay_merchant_uid;   // 가맹점에서 만든 고유 주문번호 (PK)
+    private String pay_pg_tid;         // PG사 거래번호
+    private String pay_imp_uid;        // 아임포트 고유 ID (UNIQUE)
+    private String pay_email;          // 결제자 이메일 (회원 외래키 FK: member.m_email)
+    private Long c_no;                 // 장바구니 번호 (FK)
 
-    // 가맹점 주문번호
-    @JsonAlias("merchant_uid")
-    private String pay_merchant_uid;
+    private String pay_status;         // 결제 상태 (ready/paid/cancel 등)
+    private String pay_currency;       // 통화 (KRW)
+    private Long pay_amount;           // 결제 요청 금액
+    private Long pay_paid_amount;      // 실제 결제 완료 금액
+    private LocalDateTime pay_paid_at; // 결제 완료 시각
 
-    // PG사 거래번호
-    @JsonAlias("pg_tid")
-    private String pay_pg_tid;
+    private String pay_buyer_name;     // 구매자 이름
+    private String pay_buyer_tel;      // 구매자 전화번호
+    private String pay_buyer_postcode; // 구매자 우편번호
+    private String pay_address;        // 구매자 주소
 
-    // 회원 이메일
-    @JsonAlias({"buyer_email", "m_email"})
-    private String pay_email;
+    private String pay_receipt_url;    // 영수증 URL
+    private String pay_method;         // 결제수단 (카드/카카오페이 등)
+    private String pg_provider;        // PG사명
+    private String pg_type;            // 결제 타입 (payment 등)
+    private String pay_name;           // 결제명 (ex. 장바구니 결제)
 
-    // 장바구니 번호 (프론트에서 콜백 시 포함시켜야 함)
-    private Long c_no;
-
-    // 결제 상태 (paid, cancelled 등)
-    @JsonAlias("status")
-    private String pay_status;
-
-    // 통화
-    private String pay_currency;
-
-    // 요청 금액
-    @JsonAlias({"amount","m_amount"})
-    private Long pay_amount;
-
-    // 실제 결제 금액
-    @JsonAlias("paid_amount")
-    private Long pay_paid_amount;
-
-    // 결제 시간 (Unix timestamp → Service에서 LocalDateTime으로 변환)
-    @JsonAlias("paid_at")
-    private Long paid_at_unix; // JSON 그대로 받고 변환은 Service에서
-
-    private LocalDateTime pay_paid_at; // 변환 결과 저장
-
-    // 구매자 정보
-    private String pay_buyer_email;
-    @JsonAlias("buyer_name")
-    private String pay_buyer_name;
-    @JsonAlias("buyer_tel")
-    private String pay_buyer_tel;
-    @JsonAlias("buyer_postcode")
-    private String pay_buyer_postcode;
-    @JsonAlias("buyer_addr")
-    private String pay_address;
-
-    // 기타 정보
-    @JsonAlias("receipt_url")
-    private String pay_receipt_url;
-
-    private String pay_method;
-    private String pg_provider;
-    private String pg_type;
-    private String pay_name;
-    private String error_msg;
-    private Boolean success;
-    private String apply_num;
-    private String bank_name;
-    private String card_name;
-    private String card_number;
-    private Integer card_quota;
+    private String error_msg;          // 에러 메시지
+    private Boolean success;           // 성공 여부
+    private String apply_num;          // 승인번호
+    private String bank_name;          // 은행명
+    private String card_name;          // 카드사명
+    private String card_number;        // 카드번호
+    private Integer card_quota;        // 할부 개월 수
 }
