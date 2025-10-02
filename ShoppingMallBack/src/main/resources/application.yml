@@ -17,6 +17,7 @@ mybatis:
   configuration:
     map-underscore-to-camel-case: true  # DB 컬럼명(snake_case) → Java 필드(camelCase) 자동 매핑
 server:
+  port: 8080
   error:
     include-message: always
     include-binding-errors: always
@@ -30,4 +31,8 @@ naver:
     client-id: YzotomfXq0ji6AFhSloY
     client-secret: qteSvrfjSh
     url: https://openapi.naver.com/v1/search/shop.json
+portone:
+  api:
+    key: 8412280382684080
+    secret: uhvjY49DJl49KgpJOWFEqjF2nR91AOmvlWTupaIhVNJAs3X8rXIz725SRVRZ6eOrReKIQRQaS3icFE0F
 

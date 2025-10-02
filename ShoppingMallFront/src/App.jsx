@@ -1,43 +1,75 @@
-// src/App.jsx
 import { Routes, Route, Navigate } from "react-router-dom";
 import ShopLayout from "./layouts/ShopLayout";
 
 // 페이지들
 import HomePage from "./pages/HomePage";
 import Categories from "pages/Categories";
-import SearchPage from "pages/Searchpage";
 import MyPage from "auth/account/MyPage";
 import OrderList from "auth/account/OrderList";
-import LoginPage from "auth/LoginPage";
 import JoinPage from "auth/JoinPage";
 import Member from "auth/account/Member";
-import { useState } from "react";
 import CartPage from "pages/CartPage";
+import { useAuth } from "context/AuthContext";
+import SearchPage from "pages/SearchPage";
+import LoginPage from "auth/LoginPage";
+import PaymentPage from "pages/PaymentPage";
 
 const App = () => {
+  const { ProtectedRoute, PublicRoute } = useAuth();
+
   return (
     <Routes>
-      {/* 공통 레이아웃 */}
+      {/* 공통 레이아웃 (헤더/푸터 포함) */}
       <Route path="shop" element={<ShopLayout />}>
-          <Route index element={<HomePage />} /> 
-          <Route path="category" element={<Categories />} />
-          <Route path="search" element={<SearchPage />} />
-      {/* 로그인시 진입 가능한 페이지 */}
-          <Route path="mypage" element={<MyPage />} />
-          <Route path="mypage/member" element={<Member />} />
-          <Route path="mypage/orders" element={<OrderList />} />
-      </Route>
-          <Route path="cart" element={<CartPage />} />
-      
-          <Route path="login" element={<LoginPage />} />
-          <Route path="join" element={<JoinPage />} />
+        {/* 누구나 접근 가능 */}
+        <Route index element={<HomePage />} />
+        <Route path="category" element={<Categories />} />
+        <Route path="search" element={<SearchPage />} />
+        <Route path="cart" element={<CartPage />} />
+        <Route path="payment" element={<PaymentPage />} />
 
-      {/* 루트 접근 시 /shop으로 이동 */}
+        {/* 로그인 필요 */}
+        <Route
+          path="mypage"
+          element={
+            <ProtectedRoute>
+              <MyPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="mypage/member"
+          element={
+            <ProtectedRoute>
+              <Member />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="mypage/orders"
+          element={
+            <ProtectedRoute>
+              <OrderList />
+            </ProtectedRoute>
+          }
+        />
+      </Route>
+
+      {/* 로그인/회원가입 */}
+      <Route
+        path="login"
+        element={
+          <PublicRoute>
+            <LoginPage />
+          </PublicRoute>
+        }
+      />
+      <Route path="join" element={<JoinPage />} />
+
+      {/* 루트 접근 시 /shop으로 */}
       <Route path="/" element={<Navigate to="/shop" replace />} />
     </Routes>
-
-    
   );
-}
+};
 
-export default App
+export default App;

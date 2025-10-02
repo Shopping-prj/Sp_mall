@@ -1,10 +1,16 @@
-import { Card, Button } from "react-bootstrap";
+// src/components/cart/CartItemCard.jsx
+import { Card, Button, FormControl } from "react-bootstrap";
+import RemoveIcon from "@mui/icons-material/Remove";
+import AddIcon from "@mui/icons-material/Add";
+import { useCart } from "context/CartContext";
 
-const CartItemCard = ({ item, onIncrease, onDecrease, onRemove }) => {
+const CartItemCard = ({ item }) => {
+const { handleChangeCount, handleRemoveItem } = useCart();
+
   return (
     <Card
       style={{
-        width: "100%",
+        width: "740px",
         border: "none",
         borderRadius: "12px",
         boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
@@ -38,7 +44,6 @@ const CartItemCard = ({ item, onIncrease, onDecrease, onRemove }) => {
 
         {/* 본문 */}
         <Card.Body className="d-flex flex-column justify-content-between">
-          {/* 상품명 + 가격 */}
           <div>
             <Card.Title
               style={{
@@ -65,27 +70,78 @@ const CartItemCard = ({ item, onIncrease, onDecrease, onRemove }) => {
 
           {/* 수량 조절 + 삭제 */}
           <div className="d-flex justify-content-between align-items-center mt-2">
-            <div className="d-flex align-items-center gap-2">
+            <div className="d-flex align-items-center" style={{ gap: "12px" }}>
+              {/* - 버튼 */}
               <Button
-                variant="outline-secondary"
-                size="sm"
-                onClick={() => onDecrease(item)}
+                style={{
+                  border: "1px solid #ddd",
+                  backgroundColor: "#f8f9fa",
+                  width: "36px",
+                  height: "36px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderRadius: "8px",
+                }}
+                onClick={() => handleChangeCount(item, -1)} // ✅ delta = -1
+                disabled={item.c_count <= 1}
               >
-                -
+                <RemoveIcon fontSize="small" />
               </Button>
-              <span>{item.c_count}</span>
+
+              {/* 직접 입력 */}
+              <FormControl
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                value={item.c_count}
+                onChange={(e) => {
+                  const onlyNum = e.target.value.replace(/[^0-9]/g, "");
+                  if (onlyNum === "") return;
+                  const parsed = parseInt(onlyNum, 10);
+                  if (!isNaN(parsed) && parsed > 0) {
+                    // 직접 입력일 땐 delta가 아니라 target count 전달
+                    handleChangeCount(item, parsed - item.c_count);
+                  }
+                }}
+                style={{
+                  width: "60px",
+                  textAlign: "center",
+                  fontSize: "1.1rem",
+                  fontWeight: "600",
+                }}
+              />
+
+              {/* + 버튼 */}
               <Button
-                variant="outline-secondary"
-                size="sm"
-                onClick={() => onIncrease(item)}
+                style={{
+                  border: "1px solid #ddd",
+                  backgroundColor: "#f8f9fa",
+                  width: "36px",
+                  height: "36px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderRadius: "8px",
+                }}
+                  onClick={() => handleChangeCount(item, +1)} // ✅ delta = +1
               >
-                +
+                <AddIcon fontSize="small" />
               </Button>
             </div>
+
+            {/* 삭제 버튼 */}
             <Button
+              style={{
+                borderRadius: "10px",
+                color: "#ec5a5aff",
+                fontSize: "1rem",
+                borderColor: "#ec5a5aff",
+                fontWeight: "bold",
+              }}
               variant="outline-danger"
               size="sm"
-              onClick={() => onRemove(item)}
+              onClick={() => handleRemoveItem(item.ci_no, item.p_productId)}
             >
               삭제
             </Button>

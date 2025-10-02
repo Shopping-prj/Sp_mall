@@ -1,8 +1,8 @@
 import { useCart } from "context/CartContext";
 import { Card, Button } from "react-bootstrap";
 
-const ProductCard = ({ product, onBuy, onAddToCart }) => {
-  const { addItem } = useCart();
+const ProductCard = ({ product }) => {
+  const { handleAddToCart, handleOrder } = useCart();
   return (
     <Card
       style={{
@@ -76,9 +76,9 @@ const ProductCard = ({ product, onBuy, onAddToCart }) => {
               padding: 0,
               fontSize: "15px",
             }}
-            onClick={() => onBuy(product)} // 부모에서 받은 함수 호출
+            onClick={handleOrder} // 부모에서 받은 함수 호출
           >
-            주문
+            주문하기
           </Button>
           {/* 장바구니 버튼 (아이콘만) */}
           <Button
@@ -93,9 +93,12 @@ const ProductCard = ({ product, onBuy, onAddToCart }) => {
               color: "skyblue",
               borderColor: "skyblue"
             }}
-            onClick={() => addItem(product)} // 부모에서 받은 함수 호출
-            >
-              <i className="fas fa-shopping-cart" style={{ fontSize: "18px" }} />
+            onClick={() => {
+            console.log("장바구니 추가 클릭됨:", product.p_productId);
+            handleAddToCart(product, 1);
+            }} // 부모에서 받은 함수 호출
+          >
+            <i className="fas fa-shopping-cart" style={{ fontSize: "18px" }} />
           </Button>
         </div>
       </Card.Body>

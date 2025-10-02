@@ -1,0 +1,85 @@
+{
+  "name": "material-kit-2-react",
+  "version": "2.1.0",
+  "private": true,
+  "author": "Creative Tim",
+  "license": "See license in https://www.creative-tim.com/license",
+  "description": "React version of Material Kit 2 with Light Bootstrap Dashboard combined",
+  "dependencies": {
+    "@emotion/cache": "11.10.7",
+    "@emotion/react": "11.11.1",
+    "@emotion/styled": "11.11.0",
+    "@fortawesome/fontawesome-free": "5.15.2",
+    "@mui/icons-material": "5.15.0",
+    "@mui/material": "5.15.0",
+    "@mui/styled-engine": "5.15.0",
+    "@testing-library/jest-dom": "5.16.5",
+    "@testing-library/react": "14.0.0",
+    "@testing-library/user-event": "14.4.3",
+    "axios": "^1.12.2",
+    "bootstrap": "4.6.0",
+    "chart.js": "^4.4.0",
+    "chroma-js": "2.4.2",
+    "dotenv": "^17.2.2",
+    "flatpickr": "4.6.13",
+    "gulp": "4.0.2",
+    "gulp-append-prepend": "1.0.9",
+    "prop-types": "15.8.1",
+    "react": "18.2.0",
+    "react-bootstrap": "2.10.0",
+    "react-chartjs-2": "^5.2.0",
+    "react-copy-to-clipboard": "5.1.0",
+    "react-countup": "6.4.2",
+    "react-dom": "18.2.0",
+    "react-flatpickr": "3.10.13",
+    "react-icons": "^5.5.0",
+    "react-router-dom": "6.10.0",
+    "react-scripts": "5.0.1",
+    "react-syntax-highlighter": "15.5.0",
+    "react-toastify": "^10.0.0",
+    "reactstrap": "9.2.0",
+    "sass": "1.53.0",
+    "web-vitals": "3.3.1"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "lint": "eslint ./src",
+    "prettify": "prettier --write .",
+    "compile:scss": "sass src/assets/scss/light-bootstrap-dashboard-pro-react.scss src/assets/css/light-bootstrap-dashboard-pro-react.css",
+    "minify:scss": "sass src/assets/scss/light-bootstrap-dashboard-pro-react.scss src/assets/css/light-bootstrap-dashboard-pro-react.min.css --style compressed",
+    "build:scss": "npm run compile:scss && npm run minify:scss"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "ajv": "^8.16.0",
+    "cross-env": "^7.0.3",
+    "eslint": "8.38.0",
+    "eslint-config-prettier": "8.8.0",
+    "eslint-plugin-import": "2.27.5",
+    "eslint-plugin-jsx-a11y": "6.7.1",
+    "eslint-plugin-prettier": "4.2.1",
+    "eslint-plugin-react": "7.32.2",
+    "eslint-plugin-react-hooks": "4.6.0",
+    "prettier": "2.8.7"
+  }
+}

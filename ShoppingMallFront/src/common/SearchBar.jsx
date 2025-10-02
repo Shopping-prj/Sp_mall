@@ -26,12 +26,12 @@ const SearchBar = () => {
             placeholder="상품명을 입력하세요"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            style={{ height: "46px" }}   // 높이 통일
+            style={{ height: "50px" }}   // 높이 통일
           />
           <Button 
             type="submit" 
             variant="primary"
-            style={{ height: "46px" }}   // 버튼도 같은 높이
+            style={{ height: "50px" }}   // 버튼도 같은 높이
           >
             <i className="fas fa-search" />
           </Button>
