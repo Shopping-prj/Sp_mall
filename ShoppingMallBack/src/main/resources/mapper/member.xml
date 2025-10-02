@@ -3,7 +3,6 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.demo.dao.MemberMapper">
 
-    <!-- resultMap 아이디를 'MemberMap'으로 변경하여 쿼리 참조와 일치 -->
     <resultMap id="MemberMap" type="com.example.demo.model.Member">
         <id     property="m_no"       column="m_no"/>
         <result property="m_email"    column="m_email"/>
@@ -36,7 +35,6 @@
         </trim>
     </insert>
 
-    <!-- 단일 파라미터 바인딩은 #{value}로 수정 -->
     <select id="getByEmail" resultMap="MemberMap">
         SELECT * FROM member WHERE m_email = #{value}
     </select>
@@ -45,9 +43,34 @@
         SELECT * FROM member WHERE m_no = #{value}
     </select>
 
-    <!-- DAO에서 호출하는 findAll 추가 -->
     <select id="getAll" resultMap="MemberMap">
         SELECT * FROM member
+        ORDER BY m_no ASC
+    </select>
+
+    <!-- ✅ 동적 검색 -->
+    <select id="search" parameterType="map" resultMap="MemberMap">
+        SELECT *
+        FROM member
+        WHERE 1=1
+        <if test="cls != null and cls != '' and cls != 'ALL'">
+            AND m_class = #{cls}
+        </if>
+        <if test="social != null and social != '' and social != 'ALL'">
+            AND m_social = #{social}
+        </if>
+        <if test="keywordType == 'email' and keyword != null and keyword != ''">
+            AND m_email LIKE CONCAT('%', #{keyword}, '%')
+        </if>
+        <if test="keywordType == 'name' and keyword != null and keyword != ''">
+            AND m_name LIKE CONCAT('%', #{keyword}, '%')
+        </if>
+        <if test="from != null and from != ''">
+            AND DATE(m_created) &gt;= #{from}
+        </if>
+        <if test="to != null and to != ''">
+            AND DATE(m_created) &lt;= #{to}
+        </if>
         ORDER BY m_no ASC
     </select>
 
@@ -59,8 +82,6 @@
         UPDATE member SET m_password = #{password} WHERE m_no = #{id}
     </update>
 
-
-    <!-- 단일 파라미터 바인딩은 #{value}로 수정 -->
     <delete id="deleteById">
         DELETE FROM member WHERE m_no = #{value}
     </delete>

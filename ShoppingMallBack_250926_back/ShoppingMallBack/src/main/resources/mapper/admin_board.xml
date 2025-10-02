@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.dao.admin.AdminBoardMapper">
+
+    <resultMap id="AdminBoardMap" type="com.example.demo.model.admin.AdminBoard">
+        <id     property="b_no"     column="b_no"/>
+        <result property="b_email"  column="b_email"/>
+        <result property="b_title"  column="b_title"/>
+        <result property="b_content" column="b_content"/>
+        <result property="b_date"   column="b_date"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.example.demo.model.admin.AdminBoard" useGeneratedKeys="true" keyProperty="b_no" keyColumn="b_no">
+        INSERT INTO board (b_email, b_title, b_content, b_date)
+        VALUES (#{b_email}, #{b_title}, #{b_content}, NOW())
+    </insert>
+
+    <update id="update" parameterType="com.example.demo.model.admin.AdminBoard">
+        UPDATE board
+        SET b_email = #{b_email},
+        b_title = #{b_title},
+        b_content = #{b_content}
+        WHERE b_no = #{b_no}
+    </update>
+
+    <delete id="delete" parameterType="long">
+        DELETE FROM board WHERE b_no = #{b_no}
+    </delete>
+
+    <select id="findById" parameterType="long" resultMap="AdminBoardMap">
+        SELECT * FROM board WHERE b_no = #{b_no}
+    </select>
+
+    <select id="findAll" resultMap="AdminBoardMap">
+        SELECT * FROM board ORDER BY b_no DESC
+    </select>
+
+</mapper>

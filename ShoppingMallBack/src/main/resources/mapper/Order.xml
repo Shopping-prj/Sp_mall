@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.demo.dao.OrderMapper">
+
+    <!-- ==================== 주문 ==================== -->
+
+    <!-- 주문 등록 -->
+    <insert id="insertOrder"
+            parameterType="com.example.demo.model.Order"
+            useGeneratedKeys="true"
+            keyProperty="o_no">
+        INSERT INTO `order` (
+        o_email,
+        o_merchant_uid,
+        o_created_at,
+        o_amount,
+        o_address,
+        o_status
+        )
+        VALUES (
+        #{o_email},
+        #{o_merchant_uid},
+        NOW(),
+        #{o_amount},
+        #{o_address},
+        #{o_status}
+        )
+    </insert>
+
+    <!-- ==================== 주문 아이템 ==================== -->
+
+    <!-- 주문 아이템 등록 -->
+    <insert id="insertOrderItem"
+            parameterType="com.example.demo.model.OrderItem">
+        INSERT INTO order_item (
+        o_no,
+        oi_productId,
+        oi_count
+        )
+        VALUES (
+        #{o_no},
+        #{oi_productId},
+        #{oi_count}
+        )
+    </insert>
+
+    <!-- ==================== 장바구니 ==================== -->
+
+    <!-- 특정 장바구니 번호로 아이템 전체 조회 -->
+    <select id="getCartItemsByCartNo"
+            parameterType="long"
+            resultType="com.example.demo.model.CartItem">
+        SELECT
+        ci.ci_no,
+        ci.c_no,
+        ci.c_productId,
+        ci.c_count
+        FROM cart_item ci
+        WHERE ci.c_no = #{c_no}
+    </select>
+
+    <!-- 장바구니 비우기 -->
+    <delete id="clearCartByCartNo" parameterType="long">
+        DELETE FROM cart_item
+        WHERE c_no = #{c_no}
+    </delete>
+
+</mapper>

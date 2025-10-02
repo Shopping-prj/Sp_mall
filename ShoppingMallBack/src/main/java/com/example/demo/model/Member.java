@@ -1,9 +1,8 @@
 package com.example.demo.model;
 
 import lombok.*;
-
 import java.time.Instant;
-
+import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor

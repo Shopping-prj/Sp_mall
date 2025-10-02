@@ -15,30 +15,35 @@ public class ProductService {
 
     private final ProductDao productDao;
 
-    /** 등록 */
-    public void insert(Product product) {
-        productDao.insert(product);          // mapper: insert
+    public String addProduct(Product product) {
+        productDao.addProduct(product);
+        return product.getP_productId();
     }
 
-    /** 단건 조회 */
     @Transactional(readOnly = true)
     public Product getById(String id) {
         return productDao.getById(id);
     }
 
-    /** 목록 조회 */
     @Transactional(readOnly = true)
     public List<Product> getAll() {
         return productDao.getAll();
     }
 
-    /** 수정 */
     public void update(Product product) {
         productDao.update(product);
     }
 
-    /** 삭제 */
     public void delete(String id) {
         productDao.deleteById(id);
     }
+
+    public List<Product> getByCategories(String category) {
+        return productDao.getByCategory(category);
+    }
+
+    public List<Product> search(String keyword) {
+        return productDao.search("%" + keyword + "%");
+    }
+
 }

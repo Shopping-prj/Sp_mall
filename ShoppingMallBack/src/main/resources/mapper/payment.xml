@@ -1,57 +1,78 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
 <mapper namespace="com.example.demo.dao.PaymentMapper">
 
+    <!-- ===== ResultMap ===== -->
     <resultMap id="PaymentMap" type="com.example.demo.model.Payment">
-        <id     property="pay_imp_uid"      column="pay_imp_uid"/>
-        <result property="pay_merchant_uid" column="pay_merchant_uid"/>
-        <result property="pay_pg_tid"       column="pay_pg_tid"/>
-        <result property="pay_email"        column="pay_email"/>
-        <result property="c_no"             column="c_no"/>
-        <result property="pay_status"       column="pay_status"/>
-        <result property="pay_currency"     column="pay_currency"/>
-        <result property="pay_amount"       column="pay_amount"/>
-        <result property="pay_paid_amount"  column="pay_paid_amount"/>
-        <result property="pay_paid_at"      column="pay_paid_at"/>
-        <result property="pay_buyer_email"  column="pay_buyer_email"/>
-        <result property="pay_buyer_name"   column="pay_buyer_name"/>
-        <result property="pay_buyer_tel"    column="pay_buyer_tel"/>
+        <id     property="pay_imp_uid"        column="pay_imp_uid"/>
+        <result property="pay_merchant_uid"   column="pay_merchant_uid"/>
+        <result property="pay_pg_tid"         column="pay_pg_tid"/>
+        <result property="pay_email"          column="pay_email"/>
+        <result property="c_no"               column="c_no"/>
+        <result property="pay_status"         column="pay_status"/>
+        <result property="pay_currency"       column="pay_currency"/>
+        <result property="pay_amount"         column="pay_amount"/>
+        <result property="pay_paid_amount"    column="pay_paid_amount"/>
+        <result property="pay_paid_at"        column="pay_paid_at" jdbcType="TIMESTAMP"/>
+        <result property="pay_buyer_email"    column="pay_buyer_email"/>
+        <result property="pay_buyer_name"     column="pay_buyer_name"/>
+        <result property="pay_buyer_tel"      column="pay_buyer_tel"/>
         <result property="pay_buyer_postcode" column="pay_buyer_postcode"/>
-        <result property="pay_receipt_url"  column="pay_receipt_url"/>
-        <result property="pay_address"      column="pay_address"/>
+        <result property="pay_receipt_url"    column="pay_receipt_url"/>
+        <result property="pay_address"        column="pay_address"/>
+        <result property="pay_method"         column="pay_method"/>
+        <result property="pg_provider"        column="pg_provider"/>
+        <result property="pg_type"            column="pg_type"/>
+        <result property="pay_name"           column="pay_name"/>
+        <result property="error_msg"          column="error_msg"/>
+        <result property="success"            column="success"/>
+        <result property="apply_num"          column="apply_num"/>
+        <result property="bank_name"          column="bank_name"/>
+        <result property="card_name"          column="card_name"/>
+        <result property="card_number"        column="card_number"/>
+        <result property="card_quota"         column="card_quota"/>
     </resultMap>
 
+    <!-- ===== INSERT ===== -->
     <insert id="insert" parameterType="com.example.demo.model.Payment">
         INSERT INTO payment (
         pay_imp_uid, pay_merchant_uid, pay_pg_tid,
         pay_email, c_no,
         pay_status, pay_currency, pay_amount, pay_paid_amount, pay_paid_at,
-        pay_buyer_email, pay_buyer_name, pay_buyer_tel,
-        pay_buyer_postcode, pay_receipt_url, pay_address
+        pay_receipt_url, pay_address,
+        pay_method, pg_provider, pg_type, pay_name,
+        error_msg, success, apply_num, bank_name, card_name, card_number, card_quota
         ) VALUES (
         #{pay_imp_uid}, #{pay_merchant_uid}, #{pay_pg_tid},
         #{pay_email}, #{c_no},
-        #{pay_status}, #{pay_currency}, #{pay_amount}, #{pay_paid_amount}, #{pay_paid_at},
-        #{pay_buyer_email}, #{pay_buyer_name}, #{pay_buyer_tel},
-        #{pay_buyer_postcode}, #{pay_receipt_url}, #{pay_address}
+        #{pay_status}, #{pay_currency}, #{pay_amount}, #{pay_paid_amount}, #{pay_paid_at, jdbcType=TIMESTAMP},
+        #{pay_receipt_url}, #{pay_address},
+        #{pay_method}, #{pg_provider}, #{pg_type}, #{pay_name},
+        #{error_msg}, #{success}, #{apply_num}, #{bank_name}, #{card_name}, #{card_number}, #{card_quota}
         )
     </insert>
 
+
+    <!-- ===== SELECT 단건 ===== -->
     <select id="getById" parameterType="string" resultMap="PaymentMap">
         SELECT * FROM payment WHERE pay_imp_uid = #{value}
     </select>
 
+    <!-- ===== SELECT 전체 ===== -->
     <select id="getAllPayment" resultMap="PaymentMap">
         SELECT * FROM payment ORDER BY pay_paid_at DESC
     </select>
 
-    <update id="updateStatus">
+    <!-- ===== UPDATE 상태 ===== -->
+    <update id="updateStatus" parameterType="map">
         UPDATE payment
-        SET pay_status = #{pay_status}
-        WHERE pay_imp_uid = #{pay_imp_uid}
+        SET pay_status = #{status}
+        WHERE pay_imp_uid = #{impUid}
     </update>
 
+    <!-- ===== DELETE ===== -->
     <delete id="deleteById" parameterType="string">
         DELETE FROM payment WHERE pay_imp_uid = #{value}
     </delete>

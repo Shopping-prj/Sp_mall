@@ -13,8 +13,8 @@ public class ProductDao {
     private final SqlSessionTemplate sqlSession;
     private static final String NS = "com.example.demo.dao.ProductMapper.";
 
-    public int insert(Product product) {
-        return sqlSession.insert(NS + "insert", product);
+    public int addProduct(Product product) {
+        return sqlSession.insert(NS + "addProduct", product);
     }
 
     public Product getById(String id) {
@@ -32,4 +32,14 @@ public class ProductDao {
     public int deleteById(String id) {
         return sqlSession.delete(NS + "deleteById", id);
     }
+
+    public List<Product> getByCategory(String category) {
+        return sqlSession.selectList(NS + "getByCategory", category);
+    }
+
+    public List<Product> search(String keyword) {
+        return sqlSession.selectList(NS + "search", keyword);
+    }
+
 }
+

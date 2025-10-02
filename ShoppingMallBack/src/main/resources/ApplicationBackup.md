@@ -2,9 +2,9 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://<RDS-엔드포인트>:PORT/<DB이름>?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-    username: <DB-유저>
-    password: <DB-비밀번호>
+    url: jdbc:mysql://project-mall-db.cpocwiywq77l.ap-southeast-2.rds.amazonaws.com:3306/test_mall?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: admin
+    password: abcd1234
     hikari:
       maximum-pool-size: 10      # 커넥션 풀 크기
       minimum-idle: 5            # 최소 유휴 커넥션

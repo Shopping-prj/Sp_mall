@@ -14,7 +14,6 @@ import java.util.Map;
 public class MemberDao {
 
     private final SqlSessionTemplate sqlSession;
-
     private static final String NS = "com.example.demo.dao.MemberMapper.";
 
     public int insert(Member member) {
@@ -22,36 +21,46 @@ public class MemberDao {
     }
 
     public Member getById(Long id) {
-        return sqlSession.selectOne(NS + "findById", id);
+        return sqlSession.selectOne(NS + "getById", id);
     }
 
     public Member getByEmail(String email) {
-        return sqlSession.selectOne(NS + "findByEmail", email);
+        return sqlSession.selectOne(NS + "getByEmail", email);
     }
 
     public List<Member> getAll() {
-        return sqlSession.selectList(NS + "findAll");
+        return sqlSession.selectList(NS + "getAll");
+    }
+
+    /** ✅ 검색 메서드 */
+    public List<Member> search(String keywordType, String keyword,
+                               String cls, String social,
+                               String from, String to) {
+        Map<String, Object> param = new HashMap<>();
+        param.put("keywordType", keywordType);
+        param.put("keyword", keyword);
+        param.put("cls", cls);
+        param.put("social", social);
+        param.put("from", from);
+        param.put("to", to);
+        return sqlSession.selectList(NS + "search", param);
     }
 
     public int updateAddress(Long id, String address) {
-        return sqlSession.update(NS + "updateAddress",
-                new java.util.HashMap<>() {{
-                    put("id", id);
-                    put("address", address);
-                }});
+        Map<String, Object> param = new HashMap<>();
+        param.put("id", id);
+        param.put("address", address);
+        return sqlSession.update(NS + "updateAddress", param);
     }
 
     public int updatePassword(Long id, String password) {
-        return sqlSession.update(NS + "updatePassword",
-                new java.util.HashMap<>() {{
-                    put("id", id);
-                    put("password", password);
-                }});
+        Map<String, Object> param = new HashMap<>();
+        param.put("id", id);
+        param.put("password", password);
+        return sqlSession.update(NS + "updatePassword", param);
     }
 
     public int deleteById(Long id) {
         return sqlSession.delete(NS + "deleteById", id);
     }
-
-
 }

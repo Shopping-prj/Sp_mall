@@ -1,46 +1,87 @@
 package com.example.demo.dao;
 
+import com.example.demo.dto.CartDTO;
 import com.example.demo.model.Cart;
+import com.example.demo.model.CartItem;
 import lombok.RequiredArgsConstructor;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 @RequiredArgsConstructor
 public class CartDao {
-    private final SqlSessionTemplate sqlSession;
     private static final String NS = "com.example.demo.dao.CartMapper.";
+    private final SqlSessionTemplate sql;
 
-    public int insert(Cart cart) {
-        return sqlSession.insert(NS + "insert", cart);
+    // 1. 이메일로 CartDTO 조회 (Cart + Items)
+    public CartDTO getCartByEmail(String email) {
+        return sql.selectOne(NS + "getCartByEmail", email);
     }
 
-    public Cart getByNo(Long no) {
-        return sqlSession.selectOne(NS + "getByNo", no);
+    // 2. CartEntity 조회 (Cart row만)
+    public Cart findCartEntityByEmail(String email) {
+        return sql.selectOne(NS + "findCartEntityByEmail", email);
     }
 
-    public List<Cart> getByEmail(String email) {
-        return sqlSession.selectList(NS + "getByEmail", email);
+    // 3. Cart 생성
+    public void insertCart(Cart cart) {
+        sql.insert(NS + "insertCart", cart);
     }
 
-    public List<Cart> getAllCart() {
-        return sqlSession.selectList(NS + "getAllCart");
+    // 4. c_no → email 조회
+    public String findEmailByCart(Long c_no) {
+        return sql.selectOne(NS + "findEmailByCart", c_no);
     }
 
-    public int updateCount(Long no, int count) {
-        Cart param = new Cart();
-        param.setC_no(no);
-        param.setC_count(count);
-        return sqlSession.update(NS + "updateCount", param);
+    // 5. CartItem 조회 (특정 상품)
+    public CartItem findCartItem(Long c_no, String productId) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("c_no", c_no);
+        params.put("c_productId", productId);
+        return sql.selectOne(NS + "findCartItem", params);
     }
 
-    public int deleteByNo(Long no) {
-        return sqlSession.delete(NS + "deleteByNo", no);
+    // 6. CartItem 추가
+    public void insertCartItem(CartItem item) {
+        sql.insert(NS + "insertCartItem", item);
     }
 
-    public int deleteByEmail(String email) {
-        return sqlSession.delete(NS + "deleteByEmail", email);
+    // 7. CartItem 수량 업데이트
+    public int updateCartItemCount(Long c_no, String productId, int addCount) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("c_no", c_no);
+        params.put("c_productId", productId);
+        params.put("addCount", addCount);
+        return sql.update(NS + "updateCartItemCount", params);
+    }
+
+    // 8. CartItem 단일 삭제
+    public void deleteCartItem(Long ci_no) {
+        sql.delete(NS + "deleteCartItem", ci_no);
+    }
+
+    // 9. 특정 회원 전체 아이템 삭제
+    public void deleteCartItemsByEmail(String email) {
+        sql.delete(NS + "deleteCartItemsByEmail", email);
+    }
+
+    // 10. MyBatis 매퍼 호출
+    // email 기준으로 장바구니 총합 금액을 조회해서 반환
+    public Long getTotalAmountByEmail(String email) {
+        return sql.selectOne(NS + "getTotalAmountByEmail", email);
+    }
+
+    // 11. c_no 기준으로 장바구니 비우기
+    public void clearByCartNo(Long c_no) {
+        sql.delete(NS + "clearByCartNo", c_no);
+    }
+
+    // 12. c_no 기준으로 장바구니 아이템 전체 조회
+    public List<CartItem> getItemsByCartNo(Long c_no) {
+        return sql.selectList(NS + "getItemsByCartNo", c_no);
     }
 }
