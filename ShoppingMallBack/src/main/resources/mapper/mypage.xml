@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.dao.MyPageMapper">
+
+    <!-- resultMap 아이디를 'MemberMap'으로 변경하여 쿼리 참조와 일치 -->
+    <resultMap id="MemberMap" type="com.example.demo.model.Member">
+        <id     property="m_no"       column="m_no"/>
+        <result property="m_email"    column="m_email"/>
+        <result property="m_password" column="m_password"/>
+        <result property="m_name"     column="m_name"/>
+        <result property="m_social"   column="m_social"/>
+        <result property="m_class"    column="m_class"/>
+        <result property="m_created"  column="m_created"/>
+        <result property="m_address"  column="m_address"/>
+    </resultMap>
+
+    <!-- 1. 회원 이메일로 회원 정보 조회 -->
+    <select id="getByEmail" parameterType="string" resultMap="MemberMap">
+        SELECT
+            m_no, m_email, m_password, m_name, m_social, m_class, m_created, m_address
+        FROM member
+        where m_email = #{value}
+    </select>
+    <!-- 2. 회원정보 수정 -->
+    <update id="updateByUser" parameterType="map">
+        UPDATE member
+        <set>
+            <if test="m_name != null">
+                m_name = #{m_name},
+            </if>
+            <if test="m_address != null">
+                m_address = #{m_address},
+            </if>
+            <if test="m_password != null">
+                m_password = #{m_password},
+            </if>
+        </set>
+        where m_email=#{m_email}
+    </update>
+    <!-- 3. 회원탈퇴 -->
+    <delete id="deleteByEmail" parameterType="string">
+        DELETE FROM member WHERE m_email = #{value}
+    </delete>
+
+</mapper>

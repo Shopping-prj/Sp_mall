@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.dao.OrderMapper">
+
+    <!-- ==================== ResultMap ==================== -->
+
+    <!-- OrderItemDTO: order + orderItem + product 조인 -->
+    <resultMap id="OrderItemDTO" type="com.example.demo.dto.OrderItemDTO">
+        <id     property="o_no"       column="o_no"/>
+        <result property="o_email"        column="o_email"/>
+        <result property="o_merchant_uid" column="o_merchant_uid"/>
+        <result property="o_created_at"     column="o_created_at"/>
+        <result property="o_amount"     column="o_amount"/>
+        <result property="o_address"     column="o_address"/>
+        <result property="o_status"     column="o_status"/>
+        <!-- orderItem 정보 -->
+        <result property="oi_no"     column="oi_no"/>
+        <result property="oi_productId"    column="oi_productId"/>
+        <result property="oi_count"     column="oi_count"/>
+        <!-- 상품 정보 -->
+        <result property="o_title"     column="o_title"/>
+        <result property="o_lprice"    column="o_lprice"/>
+        <result property="o_image"     column="o_image"/>
+        <result property="mp_order"     column="mp_order"/>
+    </resultMap>
+
+    <!-- 1. 회원 이메일로 OrderItemDTO 조회 -->
+    <select id="getByEmail" parameterType="string" resultMap="OrderItemDTO">
+        SELECT
+            o.o_no, o.o_email, o.o_created_at,  o.o_amount, o.o_address, o.o_status, oi.oi_count,
+            p.p_title as o_title, p.p_lprice as o_lprice, p.p_image as o_image, m.mp_order
+        FROM `order` o
+                 LEFT JOIN order_item oi ON o.o_no = oi.o_no
+                 LEFT JOIN product p ON oi.oi_productId = p.p_productId
+                 LEFT JOIN myPage m On o.o_no = m.o_no
+             WHERE o.o_email = #{value}
+    </select>
+    <!-- 1. 회원 이메일과 상품이름으로 OrderItemDTO 조회 -->
+    <select id="searchToOrder" parameterType="map" resultMap="OrderItemDTO">
+        SELECT
+            o.o_no, o.o_email, o.o_created_at,  o.o_amount, o.o_address, o.o_status, oi.oi_count,
+            p.p_title as o_title, p.p_lprice as o_lprice, p.p_image as o_image, mp_order
+        FROM `order` o
+                 LEFT JOIN order_item oi ON o.o_no = oi.o_no
+                 LEFT JOIN product p ON oi.oi_productId = p.p_productId
+        WHERE o.o_email = #{o_email} and
+              p.p_title LIKE CONCAT('%', LOWER(#{o_title}), '%')
+    </select>
+
+</mapper>
