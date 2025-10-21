@@ -22,4 +22,11 @@ public class OrderService {
     public List<Order> getAllOrders() {
         return orderDao.getAllOrders();
     }
+
+    public Map<String, Object> getOrderSummary() {
+        return orderDao.getOrderSummary();
+    }
+    public List<Order> getRecentOrders() {
+        return orderDao.getRecentOrders();
+    }
 }

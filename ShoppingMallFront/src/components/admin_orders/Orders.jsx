@@ -11,14 +11,15 @@ const KW_TYPES = [
 // 주문 상태 옵션
 const STATUSES = [
   { value: "전체", label: "전체" },
-  { value: "입금대기", label: "입금대기" },
-  { value: "결제완료", label: "결제완료" },
-  { value: "배송준비", label: "배송준비" },
-  { value: "배송중", label: "배송중" },
-  { value: "배송완료", label: "배송완료" },
-  { value: "취소", label: "취소" },
-  { value: "반품", label: "반품" },
-  { value: "교환", label: "교환" },
+  // { value: "입금대기", label: "입금대기" },
+  // { value: "결제완료", label: "결제완료" },
+  // { value: "배송준비", label: "배송준비" },
+  // { value: "배송중", label: "배송중" },
+  // { value: "배송완료", label: "배송완료" },
+  // { value: "취소", label: "취소" },
+  // { value: "반품", label: "반품" },
+  // { value: "교환", label: "교환" },
+  // { value: "CANCELLED", label: "결제취소" }, // ✅ 추가
 ];
 
 const API_BASE = (process.env.REACT_APP_SPRING_IP || "http://localhost:8080").replace(/\/$/, "");
@@ -94,6 +95,7 @@ export default function OrdersPage() {
           productTitle: d.productTitle,
           oAmount: d.o_amount,
           oStatus: d.o_status,
+          payStatus: d.pay_status, // ✅ 결제상태 추가
         }));
 
       setRows(mapped);
@@ -256,9 +258,22 @@ export default function OrdersPage() {
                     <td className="text-center">{dateStr}</td>
                     <td className="text-primary fw-semibold">{r.oNo}</td>
                     <td className="text-center">{r.oEmail}</td>
-                    <td>{r.productTitle}</td>
+                    <td title={r.productTitle}>
+                      {(() => {
+                        if (!r.productTitle) return "";
+                        const titles = String(r.productTitle)
+                          .split(/,\s*/g)
+                          .map((t) => t.trim())
+                          .filter(Boolean);
+                        const first = titles[0] || "";
+                        const extraCount = titles.length - 1;
+                        return extraCount > 0 ? `${first} (외 ${extraCount}건)` : first;
+                      })()}
+                    </td>
                     <td className="text-end">{Number(r.oAmount || 0).toLocaleString()}</td>
-                    <td className="text-center">{r.oStatus}</td>
+                    <td className="text-center">
+                      {r.payStatus === "CANCELLED" ? "결제취소" : r.oStatus || "-"}
+                    </td>
                   </tr>
                 );
               })

@@ -170,5 +170,10 @@ public class MemberService {
 
         memberDao.update(origin);
     }
+
+    @Transactional(readOnly = true)
+    public List<Member> getRecentMembers() {
+        return memberDao.getRecentMembers();
+    }
 }
 

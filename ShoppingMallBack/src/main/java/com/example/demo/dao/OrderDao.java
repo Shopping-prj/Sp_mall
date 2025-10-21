@@ -22,4 +22,26 @@ public class OrderDao {
     public List<Order> getAllOrders() {
         return sql.selectList(NS + "getAllOrders");
     }
+
+    public Map<String, Object> getOrderSummary() {
+        return sql.selectOne(NS + "getOrderSummary");
+    }
+
+    public List<Order> getRecentOrders() {
+        return sql.selectList(NS + "getRecentOrders");
+    }
+
+    // ✅ 주문 생성 (결제 완료 시)
+    public int insertOrder(Order order) {
+        return sql.insert(NS + "insertOrder", order);
+    }
+
+    // ✅ 주문 상태 변경 (결제 취소 시)
+    public int updateStatusByMerchantUid(String merchantUid, String status) {
+        Map<String, Object> param = Map.of(
+                "merchantUid", merchantUid,
+                "status", status
+        );
+        return sql.update(NS + "updateStatusByMerchantUid", param);
+    }
 }

@@ -81,4 +81,9 @@ public class AdminMemberController {
         Long id = memberService.register(req);
         return ResponseEntity.ok(id);
     }
+
+    @GetMapping("/recent")
+    public ResponseEntity<List<Member>> getRecentMembers() {
+        return ResponseEntity.ok(memberService.getRecentMembers());
+    }
 }

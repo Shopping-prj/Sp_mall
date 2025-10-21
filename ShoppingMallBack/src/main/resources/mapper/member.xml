@@ -99,4 +99,13 @@
         WHERE m_no = #{m_no}
     </update>
 
+    <!-- ✅ 최근 가입 회원 5명 -->
+    <select id="getRecentMembers" resultMap="MemberMap">
+        SELECT
+        m_no, m_email, m_name, m_social, m_class, m_created, m_address
+        FROM member
+        ORDER BY m_created DESC
+        LIMIT 5
+    </select>
+
 </mapper>

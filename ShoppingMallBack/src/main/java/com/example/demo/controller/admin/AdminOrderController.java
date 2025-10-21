@@ -35,6 +35,16 @@ public class AdminOrderController {
         return ResponseEntity.ok(orderService.searchOrders(param));
     }
 
+    @GetMapping("/summary")
+    public ResponseEntity<Map<String, Object>> getOrderSummary() {
+        return ResponseEntity.ok(orderService.getOrderSummary());
+    }
+
+    @GetMapping("/recent")
+    public ResponseEntity<List<Order>> getRecentOrders() {
+        return ResponseEntity.ok(orderService.getRecentOrders());
+    }
+
     @GetMapping("/all")
     public ResponseEntity<List<Order>> getAllOrders() {
         return ResponseEntity.ok(orderService.getAllOrders());

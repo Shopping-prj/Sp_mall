@@ -18,11 +18,20 @@ public class JwtUtil {
 
     // ✅ Access Token 발급
     public String generateAccessToken(String email, String m_class) {
+        long expirationTime;
+
+        // ✅ 관리자 토큰은 12시간 유지, 일반 회원은 2분
+        if ("ADMIN".equalsIgnoreCase(m_class)) {
+            expirationTime = 1000L * 60 * 60 * 12; // 12시간
+        } else {
+            expirationTime = 1000L * 60 * 2; // 기존 2분
+        }
+
         return Jwts.builder()
-                .setSubject(email)                     // sub → 이메일
-                .claim("role", "ROLE_" + m_class)      // role claim
-                .setIssuedAt(new Date())               // 발급 시각
-                .setExpiration(new Date(System.currentTimeMillis() + ACCESS_EXPIRATION_TIME)) // 만료 시각
+                .setSubject(email)
+                .claim("role", "ROLE_" + m_class)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }

@@ -33,7 +33,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         String path = request.getRequestURI();
 
-        // ✅ 토큰 검사에서 제외할 경로들
+        // ✅ 토큰 검사에서 제외할 경로
         if (path.startsWith("/api/users/login") ||
                 path.startsWith("/api/users/join") ||
                 path.startsWith("/api/users/refresh") ||
@@ -58,6 +58,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 Member member = memberService.getByEmail(email);
 
                 if (member != null && ("ROLE_" + member.getM_class()).equals(role)) {
+                    // ✅ 인증 객체 생성 및 SecurityContext 등록
                     PrincipalDetails principalDetails = new PrincipalDetails(member);
 
                     UsernamePasswordAuthenticationToken authentication =
@@ -72,11 +73,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
                     SecurityContextHolder.getContext().setAuthentication(authentication);
 
-                    // ✅ (추가) 만료 임박하면 AccessToken 재발급
+                    // ✅ (추가) 만료 임박 시 AccessToken 재발급 — 단, 관리자 제외
                     if (jwtUtil.isTokenExpiringSoon(token)) {
-                        String newAccessToken = jwtUtil.refreshAccessToken(email, member.getM_class());
-                        // 응답 헤더에 새 토큰 담아 프론트로 전달
-                        response.setHeader("X-New-Access-Token", newAccessToken);
+                        if (!"ROLE_ADMIN".equals(role)) {   // 관리자 제외
+                            String newAccessToken = jwtUtil.refreshAccessToken(email, member.getM_class());
+                            response.setHeader("X-New-Access-Token", newAccessToken);
+                        }
                     }
 
                 } else {
@@ -88,6 +90,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 return;
             }
 
+            // 다음 필터로 진행
             filterChain.doFilter(request, response);
 
         } catch (ExpiredJwtException e) {

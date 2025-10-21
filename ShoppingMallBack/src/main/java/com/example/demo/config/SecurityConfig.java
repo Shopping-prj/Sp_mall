@@ -2,7 +2,6 @@ package com.example.demo.config;
 
 import com.example.demo.config.auth.PrincipalDetailsService;
 import com.example.demo.service.MemberService;
-import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,7 +25,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.List;
 
 @EnableWebSecurity
-@EnableMethodSecurity(prePostEnabled = true) // @Secured, @PreAuthorize 사용
+@EnableMethodSecurity(prePostEnabled = true)
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
@@ -36,12 +35,11 @@ public class SecurityConfig {
     private final MemberService memberService;
     private final BCryptPasswordEncoder passwordEncoder;
 
+    // ✅ 권한 계층 (ADMIN > USER)
     @Bean
     public RoleHierarchy roleHierarchy() {
         RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
-        roleHierarchy.setHierarchy("""
-            ROLE_ADMIN > ROLE_USER
-        """);
+        roleHierarchy.setHierarchy("ROLE_ADMIN > ROLE_USER");
         return roleHierarchy;
     }
 
@@ -58,17 +56,16 @@ public class SecurityConfig {
         return provider;
     }
 
-    // ✅ JwtAuthFilter Bean 등록
     @Bean
     public JwtAuthFilter jwtAuthFilter() {
         return new JwtAuthFilter(jwtUtil, memberService);
     }
 
-    // ✅ CORS 전역 설정
+    // ✅ CORS 설정
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(List.of("http://localhost:3000"));
+        configuration.setAllowedOriginPatterns(List.of("http://localhost:3000", "https://your-domain.com"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
@@ -79,6 +76,7 @@ public class SecurityConfig {
         return source;
     }
 
+    // ✅ 운영용 보안 정책
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -86,7 +84,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authenticationProvider(authenticationProvider())
                 .authorizeHttpRequests(auth -> auth
-                        // 공개 접근
+                        // 🔓 공개 API (누구나 접근 가능)
                         .requestMatchers(
                                 "/api/users/login",
                                 "/api/users/join",
@@ -95,25 +93,28 @@ public class SecurityConfig {
                                 "/api/payments/**"
                         ).permitAll()
 
-                        // 로그인 필요
+                        // 🧑‍💼 일반 로그인 필요 (회원/장바구니/주문 등)
                         .requestMatchers(
-                        "/api/carts/**"
+                                "/api/carts/**",
+                                "/api/orders/**",
+                                "/api/mypage/**"
+                        ).hasAnyRole("USER", "ADMIN")
 
-                        ).authenticated()
+                        // 🛡 관리자 전용 (대시보드, 상품관리, 회원관리 등)
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
-                        // 관리자 전용
-                        .requestMatchers("/api/admin/orders/**").permitAll()
-                        .requestMatchers("/api/admin/products", "/api/admin/**").hasRole("ADMIN")
-                        // 기타
+                        // ✅ CORS 프리플라이트 요청 허용
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                        // 🔒 그 외는 인증 필요
                         .anyRequest().authenticated()
                 )
+                // 🔐 403 응답 처리
                 .exceptionHandling(exception -> exception
                         .accessDeniedHandler((request, response, accessDeniedException) ->
-                                response.sendError(403, "Access Denied")
-                        )
+                                response.sendError(403, "Access Denied"))
                 )
-                // ✅ UsernamePasswordAuthenticationFilter 전에 JwtAuthFilter 삽입
+                // ✅ JWT 필터 추가 (기존 UsernamePasswordAuthenticationFilter 앞에)
                 .addFilterBefore(jwtAuthFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

@@ -1,14 +1,67 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { FaShoppingCart, FaMoneyBillWave, FaTruck, FaBan } from "react-icons/fa";
+import { useLocation } from "react-router-dom";
+
+const API_BASE = (process.env.REACT_APP_SPRING_IP || "/proxy").replace(/\/$/, "");
+const token = localStorage.getItem("accessToken");
 
 export default function Dashboard() {
-  // 실제 데이터는 props 또는 API 연동으로 받아올 수 있음
-  const stats = {
-    totalOrders: 8,
-    totalPayment: 1568200,
-    completed: 1,
-    cancelled: 7,
-  };
+  const [summary, setSummary] = useState({
+    totalOrders: 0,
+    totalPayment: 0,
+    completed: 0,
+    cancelled: 0,
+  });
+  const [recentOrders, setRecentOrders] = useState([]);
+  const [recentMembers, setRecentMembers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const location = useLocation();
+
+  // 📦 데이터 불러오기
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+
+        // 1️⃣ 요약 통계
+        const res1 = await fetch(`${API_BASE}/api/admin/orders/summary`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const summaryData = res1.ok ? await res1.json() : {};
+
+        // 2️⃣ 최근 주문 5건
+        const res2 = await fetch(`${API_BASE}/api/admin/orders/recent`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const orderData = res2.ok ? await res2.json() : [];
+
+        // 3️⃣ 최근 회원가입 5명
+        const res3 = await fetch(`${API_BASE}/api/admin/members/recent`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const memberData = res3.ok ? await res3.json() : [];
+
+        setSummary(summaryData);
+        setRecentOrders(orderData);
+        setRecentMembers(memberData);
+      } catch (e) {
+        console.error("📛 대시보드 데이터 로드 실패:", e);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [location.pathname]);
+
+  if (loading) {
+    return (
+      <div className="text-center py-5">
+        <div className="spinner-border text-primary" role="status"></div>
+        <div className="mt-3">대시보드 데이터를 불러오는 중...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="container-fluid py-3">
@@ -16,75 +69,30 @@ export default function Dashboard() {
 
       {/* 📊 KPI 카드 */}
       <div className="row g-3 mb-4">
-        <div className="col-md-3">
-          <div className="card shadow-sm border-0">
-            <div className="d-flex align-items-center p-3">
-              <div
-                className="rounded-circle d-flex align-items-center justify-content-center"
-                style={{ width: 60, height: 60, backgroundColor: "#eaf3ff" }}
-              >
-                <FaShoppingCart size={28} className="text-primary" />
-              </div>
-              <div className="ms-3">
-                <h4 className="mb-0 fw-bold">{stats.totalOrders}</h4>
-                <small className="text-muted">총 주문건수</small>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="col-md-3">
-          <div className="card shadow-sm border-0">
-            <div className="d-flex align-items-center p-3">
-              <div
-                className="rounded-circle d-flex align-items-center justify-content-center"
-                style={{ width: 60, height: 60, backgroundColor: "#e6f7ef" }}
-              >
-                <FaMoneyBillWave size={28} className="text-success" />
-              </div>
-              <div className="ms-3">
-                <h4 className="mb-0 fw-bold">
-                  {stats.totalPayment.toLocaleString()}원
-                </h4>
-                <small className="text-muted">총 주문액</small>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="col-md-3">
-          <div className="card shadow-sm border-0">
-            <div className="d-flex align-items-center p-3">
-              <div
-                className="rounded-circle d-flex align-items-center justify-content-center"
-                style={{ width: 60, height: 60, backgroundColor: "#e8f5ff" }}
-              >
-                <FaTruck size={28} className="text-info" />
-              </div>
-              <div className="ms-3">
-                <h4 className="mb-0 fw-bold">{stats.completed}</h4>
-                <small className="text-muted">배송완료</small>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="col-md-3">
-          <div className="card shadow-sm border-0">
-            <div className="d-flex align-items-center p-3">
-              <div
-                className="rounded-circle d-flex align-items-center justify-content-center"
-                style={{ width: 60, height: 60, backgroundColor: "#ffeaea" }}
-              >
-                <FaBan size={28} className="text-danger" />
-              </div>
-              <div className="ms-3">
-                <h4 className="mb-0 fw-bold">{stats.cancelled}</h4>
-                <small className="text-muted">취소</small>
-              </div>
-            </div>
-          </div>
-        </div>
+        <KpiCard
+          icon={<FaShoppingCart size={28} className="text-primary" />}
+          label="총 주문건수"
+          value={summary.totalOrders}
+          bg="#eaf3ff"
+        />
+        <KpiCard
+          icon={<FaMoneyBillWave size={28} className="text-success" />}
+          label="총 주문액"
+          value={`${summary.totalPayment?.toLocaleString() || 0}원`}
+          bg="#e6f7ef"
+        />
+        <KpiCard
+          icon={<FaTruck size={28} className="text-info" />}
+          label="배송완료"
+          value={summary.completed}
+          bg="#e8f5ff"
+        />
+        <KpiCard
+          icon={<FaBan size={28} className="text-danger" />}
+          label="취소"
+          value={summary.cancelled}
+          bg="#ffeaea"
+        />
       </div>
 
       {/* 📦 최근 주문내역 */}
@@ -95,30 +103,38 @@ export default function Dashboard() {
             <thead className="table-light">
               <tr>
                 <th>주문번호</th>
-                <th>주문자명</th>
-                <th>전화번호</th>
-                <th>결제방법</th>
+                <th>주문자 이메일</th>
+                <th>상품명</th>
                 <th>총주문액</th>
                 <th>주문일시</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td className="text-primary fw-semibold">25090411260805</td>
-                <td>관리자</td>
-                <td>010-0000-0000</td>
-                <td>포인트</td>
-                <td>0</td>
-                <td>2025-09-04 11:26</td>
-              </tr>
-              <tr>
-                <td className="text-primary fw-semibold">25072214510065</td>
-                <td>관리자</td>
-                <td>010-0000-0000</td>
-                <td>무통장</td>
-                <td>35,000</td>
-                <td>2025-07-22 14:52</td>
-              </tr>
+              {recentOrders.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="text-muted py-3">
+                    최근 주문이 없습니다.
+                  </td>
+                </tr>
+              ) : (
+                recentOrders.map((o) => (
+                  <tr key={o.o_no}>
+                    <td className="text-primary fw-semibold">{o.o_no}</td>
+                    <td>{o.o_email}</td>
+                    <td title={o.productTitle}>{o.productTitle || "-"}</td>
+                    <td>{Number(o.o_amount || 0).toLocaleString()}</td>
+                    <td>
+                      {new Date(o.o_created_at).toLocaleString("ko-KR", {
+                        year: "numeric",
+                        month: "2-digit",
+                        day: "2-digit",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -132,29 +148,56 @@ export default function Dashboard() {
             <thead className="table-light">
               <tr>
                 <th>이름</th>
-                <th>아이디</th>
                 <th>이메일</th>
+                <th>가입방식</th>
                 <th>등급</th>
                 <th>가입일</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>가명철물</td>
-                <td>submall</td>
-                <td>spmallnara@naver.com</td>
-                <td>가맹점</td>
-                <td>2024-12-16</td>
-              </tr>
-              <tr>
-                <td>세글관</td>
-                <td>test3</td>
-                <td>test3@gmail.com</td>
-                <td>일반회원</td>
-                <td>2020-10-04</td>
-              </tr>
+              {recentMembers.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="text-muted py-3">
+                    최근 가입한 회원이 없습니다.
+                  </td>
+                </tr>
+              ) : (
+                recentMembers.map((m) => (
+                  <tr key={m.m_no}>
+                    <td>{m.m_name || "-"}</td>
+                    <td>{m.m_email}</td>
+                    <td>{m.m_social || "-"}</td>
+                    <td>{m.m_class}</td>
+                    <td>
+                      {new Date(m.m_created).toLocaleDateString("ko-KR")}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// 🔹 KPI 카드 컴포넌트
+function KpiCard({ icon, label, value, bg }) {
+  return (
+    <div className="col-md-3">
+      <div className="card shadow-sm border-0">
+        <div className="d-flex align-items-center p-3">
+          <div
+            className="rounded-circle d-flex align-items-center justify-content-center"
+            style={{ width: 60, height: 60, backgroundColor: bg }}
+          >
+            {icon}
+          </div>
+          <div className="ms-3">
+            <h4 className="mb-0 fw-bold">{value}</h4>
+            <small className="text-muted">{label}</small>
+          </div>
         </div>
       </div>
     </div>

@@ -60,6 +60,10 @@ public class MemberDao {
         return sqlSession.update(NS + "updatePassword", param);
     }
 
+    public List<Member> getRecentMembers() {
+        return sqlSession.selectList(NS + "getRecentMembers");
+    }
+
     public int deleteById(Long id) {
         return sqlSession.delete(NS + "deleteById", id);
     }
