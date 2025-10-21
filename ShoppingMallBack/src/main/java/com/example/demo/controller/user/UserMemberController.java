@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.Map;
 
 @RestController
@@ -115,4 +116,21 @@ public class UserMemberController {
                 "accessToken", newAccessToken
         ));
     }
+
+    @PostMapping("/verify-password")
+    public ResponseEntity<Void> verifyPassword(
+            @RequestBody Map<String, String> req,
+            Principal principal) {
+
+        String email = principal.getName();
+        String inputPw = req.get("password");
+
+        boolean isValid = memberService.checkPassword(email, inputPw);
+        if (isValid) {
+            return ResponseEntity.ok().build(); // ✅ 200 OK (비밀번호 일치)
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(); // ❌ 401 Unauthorized
+        }
+    }
+
 }

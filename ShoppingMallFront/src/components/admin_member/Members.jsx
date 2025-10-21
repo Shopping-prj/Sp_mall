@@ -189,7 +189,7 @@ export default function Members() {
               className="col-12 col-md-10" 
               style={{ display: "flex", flexWrap: "wrap", gap: "20px" }}
             >
-              {["ALL", "LOCAL", "KAKAO", "NAVER", "GOOGLE"].map((v) => (
+              {["ALL", "LOCAL"].map((v) => (
                 <label 
                   key={v}
                   style={{ display: "inline-flex", alignItems: "center", gap: "4px", cursor: "pointer" }}

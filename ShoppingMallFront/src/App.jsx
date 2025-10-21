@@ -5,15 +5,13 @@ import ShopLayout from "./layouts/ShopLayout";
 import HomePage from "./pages/HomePage";
 import Categories from "pages/Categories";
 import MyPage from "auth/account/MyPage";
-import OrderList from "auth/account/OrderList";
 import JoinPage from "auth/JoinPage";
 import Member from "auth/account/Member";
 import CartPage from "pages/CartPage";
 import { useAuth } from "context/AuthContext";
-
+import SearchPage from "pages/Searchpage";
 import LoginPage from "auth/LoginPage";
 import PaymentPage from "pages/PaymentPage";
-import SearchPage from "pages/Searchpage";
 
 const App = () => {
   const { ProtectedRoute, PublicRoute } = useAuth();
@@ -43,14 +41,6 @@ const App = () => {
           element={
             <ProtectedRoute>
               <Member />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="mypage/orders"
-          element={
-            <ProtectedRoute>
-              <OrderList />
             </ProtectedRoute>
           }
         />

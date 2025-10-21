@@ -117,14 +117,25 @@ export default function Dashboard() {
                   </td>
                 </tr>
               ) : (
-                recentOrders.map((o) => (
-                  <tr key={o.o_no}>
-                    <td className="text-primary fw-semibold">{o.o_no}</td>
-                    <td>{o.o_email}</td>
-                    <td title={o.productTitle}>{o.productTitle || "-"}</td>
-                    <td>{Number(o.o_amount || 0).toLocaleString()}</td>
+                recentOrders.map((r) => (
+                  <tr key={r.o_no}>
+                    <td className="text-primary fw-semibold">{r.o_no}</td>
+                    <td>{r.o_email}</td>
+                    <td title={r.productTitle}>
+                      {(() => {
+                        if (!r.productTitle) return "";
+                        const titles = String(r.productTitle)
+                          .split(/,\s*/g)
+                          .map((t) => t.trim())
+                          .filter(Boolean);
+                        const first = titles[0] || "";
+                        const extraCount = titles.length - 1;
+                        return extraCount > 0 ? `${first} (외 ${extraCount}건)` : first;
+                      })()}
+                    </td>
+                    <td>{Number(r.o_amount || 0).toLocaleString()}</td>
                     <td>
-                      {new Date(o.o_created_at).toLocaleString("ko-KR", {
+                      {new Date(r.o_created_at).toLocaleString("ko-KR", {
                         year: "numeric",
                         month: "2-digit",
                         day: "2-digit",

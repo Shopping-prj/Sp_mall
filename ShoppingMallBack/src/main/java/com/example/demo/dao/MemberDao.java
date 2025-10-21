@@ -20,8 +20,8 @@ public class MemberDao {
         return sqlSession.insert(NS + "insert", member);
     }
 
-    public Member getById(Long mNo) {
-        return sqlSession.selectOne(NS + "getById", mNo);
+    public Member getById(Long id) {
+        return sqlSession.selectOne(NS + "getById", id);
     }
 
     public Member getByEmail(String email) {

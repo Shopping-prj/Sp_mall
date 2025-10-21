@@ -1,13 +1,16 @@
 package com.example.demo.dao;
 
+import com.example.demo.dto.OrderItemDTO;
 import com.example.demo.model.Order;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Map;
 
+@Log4j2
 @Repository
 @RequiredArgsConstructor
 public class OrderDao {
@@ -15,12 +18,13 @@ public class OrderDao {
     private final SqlSessionTemplate sql;
     private static final String NS = "com.example.demo.dao.OrderMapper.";
 
-    public List<Order> searchOrders(Map<String, Object> param) {
-        return sql.selectList(NS + "searchOrders", param);
+    public List<OrderItemDTO> getOrderByEmail(String email) {
+        log.info("getByEmail");
+        return sql.selectList(NS + "getByEmail", email);
     }
 
-    public List<Order> getAllOrders() {
-        return sql.selectList(NS + "getAllOrders");
+    public List<OrderItemDTO> searchToOrder(Map<String, String> searchParams) {
+        return sql.selectList(NS + "searchToOrder", searchParams);
     }
 
     public Map<String, Object> getOrderSummary() {
@@ -43,5 +47,13 @@ public class OrderDao {
                 "status", status
         );
         return sql.update(NS + "updateStatusByMerchantUid", param);
+    }
+
+    public List<Order> searchOrders(Map<String, Object> param) {
+        return sql.selectList(NS + "searchOrders", param);
+    }
+
+    public List<Order> getAllOrders() {
+        return sql.selectList(NS + "getAllOrders");
     }
 }

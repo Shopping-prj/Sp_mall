@@ -181,7 +181,7 @@ const MemberAdd = () => {
                 가입방식 <span className="text-danger">*</span>
               </label>
               <div className="col-sm-10" style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
-                {["local", "kakao", "naver", "google"].map((v) => (
+                {["local"].map((v) => (
                   <label 
                     key={v}
                     style={{ display: "inline-flex", alignItems: "center", gap: "4px", cursor: "pointer" }}

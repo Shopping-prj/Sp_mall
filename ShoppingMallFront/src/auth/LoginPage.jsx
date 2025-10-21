@@ -59,9 +59,9 @@ const LoginPage = () => {
 
 
   const loginG = () => {
-    const googleUrl = "https://accounts.google.com/o/oauth2/auth";
-    const googleClientId = "858945058074-7droigq2d1o18bh69su5q5frd9qff4m2.apps.googleusercontent.com";
-    const googleRedirectUrl = "http://localhost:3000/oauth/google/redirect";
+    const googleUrl = "https://accounts.google.com/o/oauth2/v2/auth";
+    const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+    const googleRedirectUrl = process.env.REACT_APP_GOOGLE_REDIRECT_URI;
     const googleScope = "openid profile email";
 
     const auth_uri = `${googleUrl}?client_id=${googleClientId}&redirect_uri=${googleRedirectUrl}&response_type=code&scope=${googleScope}`;
@@ -70,8 +70,8 @@ const LoginPage = () => {
 
   const loginK = () => {
     const kakaoUrl = "https://kauth.kakao.com/oauth/authorize";
-    const kakaoClientId = "ac8481e5c39e26462dda5a549b1aaa39";
-    const kakaoRedirectUrl = "http://localhost:3000/oauth/kakao/redirect";
+    const kakaoClientId = process.env.REACT_APP_KAKAO_CLIENT_ID;
+    const kakaoRedirectUrl = process.env.REACT_APP_KAKAO_REDIRECT_URI;
 
     const auth_uri = `${kakaoUrl}?client_id=${kakaoClientId}&redirect_uri=${kakaoRedirectUrl}&response_type=code`;
     window.location.href = auth_uri;
@@ -143,7 +143,7 @@ const LoginPage = () => {
                   </Button>
 
                   <div className="mt-4 text-center" style={{ fontSize: "0.9rem", lineHeight: "1.8" }}>
-                    <p>신규 사용자이신가요? <Link to="/api/members/join">계정 만들기</Link></p>
+                    <p>신규 사용자이신가요? <Link to="/join">계정 만들기</Link></p>
                     <p>이메일을 잊으셨나요? <Link to="/login/findEmail">이메일 찾기</Link></p>
                     <p>비밀번호를 잊으셨나요? <Link to="/login/resetPwd">비밀번호 변경</Link></p>
                   </div>

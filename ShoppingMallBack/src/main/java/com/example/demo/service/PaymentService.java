@@ -1,11 +1,10 @@
 package com.example.demo.service;
 
+
+import com.example.demo.PortOneClient;
 import com.example.demo.dao.CartDao;
-import com.example.demo.dao.OrderDao;
 import com.example.demo.dao.PaymentDao;
-import com.example.demo.model.Order;
 import com.example.demo.model.Payment;
-import com.example.demo.portone.PortOneClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,11 +26,10 @@ public class PaymentService {
 
     private final PaymentDao paymentDao;
     private final CartDao cartDao;
-    private final OrderDao orderDao; // ✅ 주문 DAO 주입
     private final PortOneClient portOneClient;
 
     /**
-     * 결제 금액 검증
+     * 카트 금액과 프론트 결제요청 금액 비교
      */
     @Transactional(readOnly = true)
     public boolean verifyAmount(String email, Long frontAmount) {
@@ -41,57 +39,46 @@ public class PaymentService {
     }
 
     /**
-     * 결제정보 등록 (READY)
+     * 결제정보 저장 (pending 상태)
+     * ⚠️ 이때 imp_uid 는 아직 없을 수 있음 → merchant_uid 기반으로 저장
      */
     public void register(Payment payment) {
         paymentDao.insert(payment);
     }
 
     /**
-     * 결제 성공 처리
-     */
-    public void updateAfterSuccess(Payment payment) {
-        // ✅ 1. 결제 테이블 상태 업데이트
-        paymentDao.updateAfterSuccess(payment);
-
-        // ✅ 2. 주문 테이블에 연동 (없으면 생성)
-        Order order = new Order();
-        order.setO_email(payment.getPay_email());
-        order.setO_merchant_uid(payment.getPay_merchant_uid());
-        order.setO_amount(payment.getPay_amount());
-        order.setO_address(payment.getPay_address());
-        order.setO_status("결제완료"); // ✅ 상태 설정
-        orderDao.insertOrder(order);
-
-        log.info("✅ 주문 생성 완료: {}", order.getO_merchant_uid());
-    }
-
-    /**
-     * 결제 취소 처리
-     */
-    public void updateAfterCancel(Payment payment) {
-        // ✅ 1. 결제 상태 업데이트
-        paymentDao.updateAfterCancel(payment);
-
-        // ✅ 2. 관련 주문이 존재하면 상태를 '취소'로 변경
-        orderDao.updateStatusByMerchantUid(payment.getPay_merchant_uid(), "취소");
-
-        log.info("🚫 결제취소 처리 완료 (merchant_uid={})", payment.getPay_merchant_uid());
-    }
-
-    /**
-     * 전체 조회 등 기존 코드 그대로 유지
+     * imp_uid 기준 단건 조회
      */
     @Transactional(readOnly = true)
     public Payment getById(String payImpUid) {
         return paymentDao.getById(payImpUid);
     }
 
+    /**
+     * 전체 결제내역 조회
+     */
     @Transactional(readOnly = true)
     public List<Payment> getAllPayment() {
         return paymentDao.getAllPayment();
     }
 
+    /**
+     * 결제 성공 업데이트
+     */
+    public void updateAfterSuccess(Payment payment) {
+        paymentDao.updateAfterSuccess(payment);
+    }
+
+    /**
+     * 결제 취소 업데이트
+     */
+    public void updateAfterCancel(Payment payment) {
+        paymentDao.updateAfterCancel(payment);
+    }
+
+    /**
+     * 결제 삭제
+     */
     public void delete(String payImpUid) {
         paymentDao.deleteById(payImpUid);
     }
@@ -110,8 +97,10 @@ public class PaymentService {
 
             // PortOne 결제 상세 조회
             Payment updated = portOneClient.getPaymentDetail(token, impUid);
+
             // DB 업데이트
             paymentDao.updateAfterSuccess(updated);
+
             // 최신값 반환
             return paymentDao.getById(impUid);
         } catch (Exception e) {

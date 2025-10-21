@@ -147,9 +147,34 @@
     <!-- ✅ 최근 주문 -->
     <select id="getRecentOrders" resultMap="OrderMap">
         SELECT
-        o.o_no, o.o_email, o.o_merchant_uid, o.o_created_at, o.o_amount, o.o_status
-        FROM `order` o
-        ORDER BY o.o_created_at DESC
+        o.o_no,
+        pay.pay_email AS o_email,
+        pay.pay_merchant_uid AS o_merchant_uid,
+        COALESCE(o.o_created_at, pay.pay_paid_at) AS o_created_at,
+        COALESCE(o.o_amount, pay.pay_amount) AS o_amount,
+        o.o_address,
+        COALESCE(o.o_status,
+        CASE
+        WHEN LOWER(pay.pay_status) = 'cancelled' THEN '결제취소'
+        WHEN LOWER(pay.pay_status) = 'ready' THEN '결제대기'
+        ELSE '결제완료'
+        END
+        ) AS o_status,
+        pay.pay_status,
+        GROUP_CONCAT(DISTINCT p.p_title ORDER BY p.p_title SEPARATOR ', ') AS productTitle,
+        MIN(p.p_image) AS productImage
+        FROM payment pay
+        LEFT JOIN `order` o
+        ON TRIM(LOWER(o.o_merchant_uid)) = TRIM(LOWER(pay.pay_merchant_uid))
+        LEFT JOIN order_item oi
+        ON o.o_no = oi.o_no
+        LEFT JOIN product p
+        ON oi.oi_productId = p.p_productId
+        WHERE LOWER(pay.pay_status) IN ('ready','paid','cancelled')
+        GROUP BY
+        pay.pay_email, pay.pay_merchant_uid, pay.pay_status,
+        o.o_no, o.o_amount, o.o_status, o.o_created_at, pay.pay_paid_at
+        ORDER BY COALESCE(o.o_created_at, pay.pay_paid_at) DESC
         LIMIT 5;
     </select>
 
