@@ -76,7 +76,7 @@ export default function OrdersPage() {
       params.set("page", "1");
       params.set("size", String(pageSize));
 
-      const res = await apiFetch(`${API_BASE}/api/admin/orders?${params.toString()}`);
+      const res = await apiFetch(`${API_BASE}/api/payments/all?${params.toString()}`);
       if (!res.ok) {
         const text = await res.text();
         console.error("응답 오류:", res.status, text.slice(0, 200));
@@ -284,7 +284,7 @@ export default function OrdersPage() {
 
       {/* 총 결제 금액 */}
       <div className="mt-2">
-        총 결제금액: <strong>{totalPayment.toLocaleString()}원</strong>
+        {/* 총 결제금액: <strong>{totalPayment.toLocaleString()}원</strong> */}
       </div>
     </div>
   );

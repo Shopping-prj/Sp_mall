@@ -107,5 +107,7 @@ public class PaymentService {
             log.error("PortOne 상세조회 실패: {}", e.getMessage(), e);
             return payment; // 실패 시 DB 값만 반환
         }
+
     }
+
 }

@@ -74,4 +74,12 @@ public class UserPaymentController {
             return ResponseEntity.internalServerError().body("결제 상세 조회 실패");
         }
     }
+    /**
+     * 5) 전체 결제내역 조회
+     * - 관리자나 사용자용으로 전체 결제 목록 반환
+     */
+    @GetMapping("/search")
+    public ResponseEntity<?> getAllPayment() {
+        return ResponseEntity.ok(service.getAllPayment());
+    }
 }

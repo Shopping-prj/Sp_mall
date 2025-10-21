@@ -46,3 +46,14 @@ export const searchOrders = async (searchParams) => {
   });
   return res.data;
 };
+
+export const searchPayments = async (searchParams = {}) => {
+  const res = await api({
+    method: "get",
+    url: "/api/payments/search",
+    params: searchParams, // 예: { status: "paid", email: "test@test.com" }
+    headers: { "Content-Type": "application/json" },
+  });
+  return res.data;
+};
+
