@@ -6,7 +6,10 @@ import { Container, Row, Col, Card, Button } from "react-bootstrap";
 const CartPage = () => {
   const { cartItems, handleChangeCount, handleRemoveItem, handleClearCart, handleOrder } = useCart();
 
-  const totalPrice = cartItems.reduce((sum, item) => sum + item.p_lprice * item.c_count, 0);
+    // ✅ 실제 상품만 필터
+  const validItems = cartItems.filter(item => item.c_count > 0 && item.p_lprice > 0);
+
+  const totalPrice = validItems.reduce((sum, item) => sum + item.p_lprice * item.c_count, 0);
 
   return (
     <Container className="mt-4">
@@ -18,8 +21,8 @@ const CartPage = () => {
 
       <Row className="flex-wrap">
         <Col md={8}>
-          {cartItems.length > 0 ? (
-            cartItems.map((item, index) => (
+          {validItems.length > 0 ? (
+            validItems.map((item, index) => (
               <CartItemCard
               key={item.ci_no 
               ? `ci-${item.ci_no}` 

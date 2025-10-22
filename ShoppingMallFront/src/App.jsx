@@ -12,6 +12,8 @@ import { useAuth } from "context/AuthContext";
 import SearchPage from "pages/Searchpage";
 import LoginPage from "auth/LoginPage";
 import PaymentPage from "pages/PaymentPage";
+import PayCompletePage from "pages/PayCompletePage";
+
 
 const App = () => {
   const { ProtectedRoute, PublicRoute } = useAuth();
@@ -26,6 +28,7 @@ const App = () => {
         <Route path="search" element={<SearchPage />} />
         <Route path="cart" element={<CartPage />} />
         <Route path="payment" element={<PaymentPage />} />
+        <Route path="payComplete" element={<PayCompletePage />} />
 
         {/* 로그인 필요 */}
         <Route

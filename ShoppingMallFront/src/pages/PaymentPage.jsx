@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Button, Form, Row, Col, Card } from "react-bootstrap";
 import { useCart } from "context/CartContext";
 import { useAuth } from "context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const PORTONE_IMP = "imp63553763";  // 포트원 가맹점 식별코드
 const PG = "kakaopay";              // PG사
@@ -37,6 +38,7 @@ const PaymentPage = () => {
   const portOneLoaded = usePortOneLoader();
   const { cartItems } = useCart();
   const { isLoggedIn, email } = useAuth();
+  const navigate = useNavigate();
 
   // ✅ 장바구니 번호 (공통 c_no)
   const cartNo = useMemo(
@@ -211,7 +213,20 @@ const fetchPaymentDetail = async (impUid) => {
                 success: rsp.success      
               })
             });
-            alert("결제가 완료되었습니다.");
+            // 2) (선택) 상세 조회해서 서버 검증값을 확인하고 싶다면 주석 해제
+            // const detail = await fetchPaymentDetail(rsp.imp_uid);
+
+            // 3) 완료 페이지로 이동 (필요한 데이터 전달)
+            navigate("/shop/payComplete", {
+              state: {
+                pay_imp_uid: rsp.imp_uid,
+                pay_merchant_uid: rsp.merchant_uid,
+                pay_amount: rsp.paid_amount,
+                pay_receipt_url: rsp.receipt_url || null,
+                // detail, // 상세 데이터 전달 원하면 주석 해제
+              },
+              replace: true, // 뒤로가기 시 결제창으로 되돌아가지 않게
+            });
           } else {
             // ❌ 결제 실패/취소 시 → DB 컬럼명에 맞춰 변환해서 백엔드로 전송
             await fetch(`${BASE_URL}/api/payments/callback/cancel`, {

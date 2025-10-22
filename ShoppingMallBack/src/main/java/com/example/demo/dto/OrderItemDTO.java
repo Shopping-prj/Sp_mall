@@ -19,6 +19,7 @@ import java.time.Instant;
 public class OrderItemDTO {
     private long o_no;
     private String o_email; // 주문회원(FK 회원 m_email참조)
+    private String o_merchant_uid; // 주문번호
     private Instant o_created_at; // 주문상태
     private Long o_amount; //주문금액
     private String o_address; //배송지

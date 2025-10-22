@@ -24,22 +24,32 @@ const STATUSES = [
 
 const API_BASE = (process.env.REACT_APP_SPRING_IP || "http://localhost:8080").replace(/\/$/, "");
 
-// 🔑 토큰 붙여주는 공용 fetch
+// ✅ 공용 fetch
 const apiFetch = async (url, options = {}) => {
-  const accessToken = localStorage.getItem("accessToken");
-
-  const merged = {
-    credentials: "include",
+  const token = localStorage.getItem("accessToken");
+  return fetch(url, {
     ...options,
+    credentials: "include",
     headers: {
       Accept: "application/json",
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(options.headers || {}),
-      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
     },
-  };
-
-  return fetch(url, merged);
+  });
 };
+
+// ✅ 상태표시 통합 함수
+function resolveStatus(order) {
+  const pay = order.pay_status?.toLowerCase();
+  const o = order.o_status?.trim();
+
+  if (pay === "ready") return "입금대기";
+  if (pay === "cancelled") return "결제취소";
+  if (pay === "failed") return "결제실패";
+  if (pay === "paid") return o || "결제완료";
+  return o || "확인필요";
+}
 
 export default function OrdersPage() {
   const [sp] = useSearchParams();
@@ -49,22 +59,19 @@ export default function OrdersPage() {
   const [kw, setKw] = useState("");
   const [status, setStatus] = useState("전체");
 
-  // 표 상태
-  const [pageSize] = useState(30);
-  const [checked, setChecked] = useState(new Set());
-
   // 데이터 상태
   const [rows, setRows] = useState([]);
+  const [checked, setChecked] = useState(new Set());
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
+  // URL 파라미터 동기화
   useEffect(() => {
     const st = sp.get("status");
-    if (!st) return;
-    setStatus(st);
+    if (st) setStatus(st);
   }, [sp]);
 
-  // 목록 조회
+  // ✅ 목록 조회
   const fetchList = async () => {
     setLoading(true);
     setErrorMsg("");
@@ -73,36 +80,28 @@ export default function OrdersPage() {
       if (kw) params.set("kw", kw.trim());
       if (kwType) params.set("kwType", kwType);
       if (status && status !== "전체") params.set("status", status);
-      params.set("page", "1");
-      params.set("size", String(pageSize));
 
-      const res = await apiFetch(`${API_BASE}/api/payments/all?${params.toString()}`);
-      if (!res.ok) {
-        const text = await res.text();
-        console.error("응답 오류:", res.status, text.slice(0, 200));
-        throw new Error(`HTTP ${res.status}`);
-      }
+      const res = await apiFetch(`${API_BASE}/api/admin/orders/all?${params.toString()}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
       const raw = await res.json();
+      console.log("📦 관리자 주문데이터:", raw);
 
-      console.log("주문 raw 데이터:", raw);
-
-      const mapped = (Array.isArray(raw) ? raw : raw.items || [])
-        .filter((d) => d && d.o_no != null)
-        .map((d) => ({
-          oNo: d.o_no,
-          oCreatedAt: d.o_created_at,
-          oEmail: d.o_email,
-          productTitle: d.productTitle,
-          oAmount: d.o_amount,
-          oStatus: d.o_status,
-          payStatus: d.pay_status, // ✅ 결제상태 추가
-        }));
+      const mapped = (Array.isArray(raw) ? raw : raw.items || []).map((d) => ({
+        oNo: d.o_no,
+        oCreatedAt: d.o_created_at,
+        oEmail: d.o_email,
+        productTitle: d.productTitle,
+        oAmount: d.o_amount,
+        oStatus: resolveStatus(d),
+        payStatus: d.pay_status,
+      }));
 
       setRows(mapped);
       setChecked(new Set());
     } catch (e) {
-      setErrorMsg("목록을 가져오지 못했습니다. (백엔드 연동 확인)");
       console.error(e);
+      setErrorMsg("목록을 가져오지 못했습니다. (백엔드 연동 확인)");
       setRows([]);
     } finally {
       setLoading(false);
@@ -111,14 +110,15 @@ export default function OrdersPage() {
 
   useEffect(() => {
     fetchList();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // ✅ 총 결제금액 계산
   const totalPayment = useMemo(
     () => rows.reduce((s, r) => s + Number(r.oAmount || 0), 0),
     [rows]
   );
 
+  // ✅ 체크박스 제어
   const toggleAll = (e) => {
     if (e.target.checked) setChecked(new Set(rows.map((r) => r.oNo)));
     else setChecked(new Set());
@@ -131,9 +131,10 @@ export default function OrdersPage() {
     });
   };
 
+  // ✅ 렌더링
   return (
     <div className="container-fluid py-3">
-      <h4 className="fw-semibold mb-3">주문리스트</h4>
+      <h4 className="fw-semibold mb-3">주문관리 (결제·주문 통합)</h4>
 
       {/* 검색 카드 */}
       <div className="card mb-3">
@@ -151,9 +152,7 @@ export default function OrdersPage() {
                 onChange={(e) => setKwType(e.target.value)}
               >
                 {KW_TYPES.map((k) => (
-                  <option key={k.key} value={k.key}>
-                    {k.label}
-                  </option>
+                  <option key={k.key} value={k.key}>{k.label}</option>
                 ))}
               </select>
             </div>
@@ -217,37 +216,31 @@ export default function OrdersPage() {
           <thead className="table-light">
             <tr className="text-center">
               <th>
-                <label style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
-                  <input
-                    type="checkbox"
-                    onChange={toggleAll}
-                    checked={rows.length > 0 && rows.length === checked.size}
-                  />
-                  전체선택
-                </label>
+                <input
+                  type="checkbox"
+                  onChange={toggleAll}
+                  checked={rows.length > 0 && rows.length === checked.size}
+                />
               </th>
               <th>주문일시</th>
               <th>주문번호</th>
               <th>회원이메일</th>
               <th>상품명</th>
               <th>결제금액</th>
-              <th>주문상태</th>
+              <th>상태</th>
             </tr>
           </thead>
           <tbody>
             {rows.length === 0 ? (
-              <tr>
-                <td colSpan={7} className="text-center text-muted py-4">
-                  검색 결과가 없습니다.
-                </td>
-              </tr>
+              <tr><td colSpan={7} className="text-center text-muted py-4">검색 결과가 없습니다.</td></tr>
             ) : (
-              rows.slice(0, pageSize).map((r) => {
-                const dateStr = r.oCreatedAt
-                  ? new Date(r.oCreatedAt).toLocaleString()
-                  : "";
+              rows.map((r) => {
+                const dateStr = r.oCreatedAt ? new Date(r.oCreatedAt).toLocaleString() : "-";
+                const titles = r.productTitle ? r.productTitle.split(/,\s*/g) : [];
+                const first = titles[0] || "";
+                const extraCount = titles.length - 1;
                 return (
-                  <tr key={r.oNo ?? `tmp-${Math.random()}`}>
+                  <tr key={r.oNo}>
                     <td className="text-center">
                       <input
                         type="checkbox"
@@ -256,35 +249,19 @@ export default function OrdersPage() {
                       />
                     </td>
                     <td className="text-center">{dateStr}</td>
-                    <td className="text-primary fw-semibold">{r.oNo}</td>
+                    <td className="fw-semibold text-primary">{r.oNo}</td>
                     <td className="text-center">{r.oEmail}</td>
                     <td title={r.productTitle}>
-                      {(() => {
-                        if (!r.productTitle) return "";
-                        const titles = String(r.productTitle)
-                          .split(/,\s*/g)
-                          .map((t) => t.trim())
-                          .filter(Boolean);
-                        const first = titles[0] || "";
-                        const extraCount = titles.length - 1;
-                        return extraCount > 0 ? `${first} (외 ${extraCount}건)` : first;
-                      })()}
+                      {extraCount > 0 ? `${first} 외 ${extraCount}건` : first || "-"}
                     </td>
                     <td className="text-end">{Number(r.oAmount || 0).toLocaleString()}</td>
-                    <td className="text-center">
-                      {r.payStatus === "CANCELLED" ? "결제취소" : r.oStatus || "-"}
-                    </td>
+                    <td className="text-center">{r.oStatus}</td>
                   </tr>
                 );
               })
             )}
           </tbody>
         </table>
-      </div>
-
-      {/* 총 결제 금액 */}
-      <div className="mt-2">
-        {/* 총 결제금액: <strong>{totalPayment.toLocaleString()}원</strong> */}
       </div>
     </div>
   );

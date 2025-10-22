@@ -6,6 +6,26 @@
 <!-- PaymentDao와 연결되는 MyBatis 매퍼 -->
 <mapper namespace="com.example.demo.dao.PaymentMapper">
 
+    <!-- OrderItemDTO: order + orderItem + product 조인 -->
+    <resultMap id="OrderItemDTO" type="com.example.demo.dto.OrderItemDTO">
+        <id     property="o_no"       column="o_no"/>
+        <result property="o_email"        column="o_email"/>
+        <result property="o_merchant_uid" column="o_merchant_uid"/>
+        <result property="o_created_at"     column="o_created_at"/>
+        <result property="o_amount"     column="o_amount"/>
+        <result property="o_address"     column="o_address"/>
+        <result property="o_status"     column="o_status"/>
+        <!-- orderItem 정보 -->
+        <result property="oi_no"     column="oi_no"/>
+        <result property="oi_productId"    column="oi_productId"/>
+        <result property="oi_count"     column="oi_count"/>
+        <!-- 상품 정보 -->
+        <result property="o_title"     column="o_title"/>
+        <result property="o_lprice"    column="o_lprice"/>
+        <result property="o_image"     column="o_image"/>
+        <result property="mp_order"     column="mp_order"/>
+    </resultMap>
+
     <!-- 결제정보 저장 (pending 상태) -->
     <!-- ⚠️ imp_uid 는 pending 단계에서는 NULL 일 수 있음 -->
     <insert id="insert" parameterType="com.example.demo.model.Payment">
@@ -34,6 +54,35 @@
     <!-- 전체 결제내역 조회 -->
     <select id="getAllPayment" resultType="com.example.demo.model.Payment">
         SELECT * FROM payment
+    </select>
+
+    <select id="getOrderSummary" resultType="map">
+        SELECT
+        o.o_no AS o_no,
+        pay.pay_email AS o_email,
+        pay.pay_merchant_uid AS o_merchant_uid,
+        COALESCE(o.o_created_at, pay.pay_paid_at) AS o_created_at,
+        COALESCE(o.o_amount, pay.pay_amount) AS o_amount,
+        COALESCE(o.o_address, pay.pay_address) AS o_address,
+        CASE
+        WHEN pay.pay_status = 'ready' THEN '입금대기'
+        WHEN pay.pay_status = 'cancelled' THEN '결제취소'
+        WHEN pay.pay_status = 'failed' THEN '결제실패'
+        ELSE o.o_status
+        END AS o_status,
+        GROUP_CONCAT(DISTINCT p.p_title ORDER BY p.p_title SEPARATOR ', ') AS productTitle,
+        SUBSTRING_INDEX(GROUP_CONCAT(p.p_image ORDER BY oi.oi_no ASC), ',', 1) AS productImage
+        FROM
+        payment pay
+        LEFT JOIN
+        `order` o ON pay.pay_merchant_uid = o.o_merchant_uid
+        LEFT JOIN
+        order_item oi ON oi.o_no = o.o_no
+        LEFT JOIN
+        product p ON oi.oi_productId = p.p_productId
+        GROUP BY
+        o.o_no, pay.pay_email, pay.pay_merchant_uid, o_created_at, o_amount, o_address, o_status;
+        ORDER BY COALESCE(o.o_created_at, pay.pay_paid_at) DESC;
     </select>
 
     <!-- 결제 성공 업데이트 -->

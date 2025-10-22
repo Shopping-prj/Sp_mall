@@ -1,15 +1,14 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.PaymentCancelDTO;
 import com.example.demo.model.Member;
-import com.example.demo.model.MyPage;
+
 import com.example.demo.service.MyPageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Map;
 
 @Log4j2
 @RestController
@@ -39,5 +38,11 @@ public class MyPageController {
     @DeleteMapping("/delete/{email}")
     public ResponseEntity<String> deleteByEmail(@PathVariable String email) {
         return ResponseEntity.ok(service.deleteByEmail(email));
+    }
+
+    // 5. 주문취소 (오류=실패, 1=성공)
+    @PostMapping("/ocancel")
+    public ResponseEntity<Integer> cancelByOrder(@RequestBody PaymentCancelDTO paymentCancelDTO) {
+        return ResponseEntity.ok(service.cancelByOrder(paymentCancelDTO));
     }
 }

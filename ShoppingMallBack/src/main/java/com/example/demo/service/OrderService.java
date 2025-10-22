@@ -115,13 +115,25 @@ public class OrderService {
      */
     public List<Order> getAllOrders() {
         log.info("📦 [관리자] 전체 주문 목록 요청");
-        // 👉 OrderMapper.xml의 getAllOrders 호출
-        List<Order> list = orderDao.getRecentOrders(); // 🔸 임시용, DAO에 메서드 추가 권장
+        List<Order> list = orderDao.getAllOrders();
 
         if (list == null || list.isEmpty()) {
             log.info("📭 전체 주문 없음");
             return List.of();
         }
-        return list;
+
+        // ✅ ready / cancelled는 payment 기준, 나머지는 order 기준
+        return list.stream().peek(o -> {
+            String payStatus = o.getPay_status() != null ? o.getPay_status().toLowerCase() : "";
+            if ("ready".equals(payStatus)) {
+                o.setO_status("입금대기");
+            } else if ("cancelled".equals(payStatus)) {
+                o.setO_status("결제취소");
+            } else if ("failed".equals(payStatus)) {
+                o.setO_status("결제실패");
+            } else if ("paid".equals(payStatus) && (o.getO_status() == null || o.getO_status().isBlank())) {
+                o.setO_status("결제완료");
+            }
+        }).toList();
     }
 }

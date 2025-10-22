@@ -147,8 +147,6 @@ const ShopNavbar = ({ isNarrow }) => {
                       <Dropdown.Divider />
                       <Dropdown.Item onClick={handleLogout}>로그아웃</Dropdown.Item>
                     </Dropdown.Menu>
-
-                    <Nav.Link as={Link} to="/qna">Q&A</Nav.Link>
                   </Dropdown>
                 </>
               )}

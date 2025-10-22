@@ -57,3 +57,17 @@ export const searchPayments = async (searchParams = {}) => {
   return res.data;
 };
 
+export const paymentCancel = async ({ o_no, o_fail_reason, o_email, o_merchant_uid }) => {
+  const res = await api({
+    method: "post",
+    url: "/api/mypage/ocancel",
+    data: {
+      o_no,
+      pc_fail_reason: o_fail_reason,  // ✅ 백엔드 DTO에 맞게 변환
+      pc_email: o_email,
+      pc_merchant_uid: o_merchant_uid,
+    },
+    headers: { "Content-Type": "application/json" },
+  });
+  return res.data;
+};

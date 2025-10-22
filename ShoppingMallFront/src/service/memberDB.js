@@ -54,3 +54,19 @@ export const verifyPassword = async (password) => {
   return res.status; // 200이면 성공
 };
 
+// ✅ 회원 탈퇴 요청 (Access Token 자동 포함됨)
+/* export const memberSignOut = async (m_email) => {
+  const res = await api.delete(`/api/users/delete/${encodeURIComponent(m_email)}`);
+  return res.status; // 204면 성공
+}; */
+
+export const memberSignOut = async (m_email) => {
+  if (!m_email) throw new Error("email이 비어 있습니다.");
+  const res = await api({
+    method: "delete",
+    url: `/api/users/delete/${encodeURIComponent(m_email)}`,
+    headers: { "Content-Type": "application/json" },
+  });
+  return res.status; // 200이면 성공
+};
+

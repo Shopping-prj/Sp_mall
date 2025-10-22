@@ -2,6 +2,7 @@
 import { jwtDecode } from "jwt-decode";
 import { createContext, useContext, useMemo, useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
+import { memberSignOut } from "service/memberDB";
 
 const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
@@ -47,6 +48,16 @@ export const AuthProvider = ({ children }) => {
     navigate("/login");
   };
 
+  // ✅ 탈퇴 오케스트레이션 책임을 컨텍스트로
+  const deleteAccount = async () => {
+    const status = await memberSignOut(email);        // DELETE /api/users/me
+    if (status === 204 || status === 200) {
+      logout();                                  // 토큰 정리 + 이동
+      return true;
+    }
+    return false;
+  };
+
   const ProtectedRoute = ({ children }) => {
     if (!isLoggedIn) return <Navigate to="/login" replace />;
     return children;
@@ -69,6 +80,7 @@ export const AuthProvider = ({ children }) => {
         setToken,  // ✅ axios 인터셉터에서 새 토큰 반영할 때 사용
         login,
         logout,
+        deleteAccount,
         ProtectedRoute,
         PublicRoute,
       }}

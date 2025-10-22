@@ -42,5 +42,12 @@
     <delete id="deleteByEmail" parameterType="string">
         DELETE FROM member WHERE m_email = #{value}
     </delete>
-
+    <!-- 4. 주문취소 -->
+    <update id="cancelByOrder" parameterType="long">
+        UPDATE `order` SET o_status='주문취소' WHERE o_no = #{value}
+    </update>
+    <update id="insertByPCancel" parameterType="map">
+        UPDATE payment_cancel SET pc_fail_reason = #{pc_fail_reason}
+        WHERE pc_merchant_uid = #{pc_merchant_uid} AND pc_email = #{pc_email}
+    </update>
 </mapper>
